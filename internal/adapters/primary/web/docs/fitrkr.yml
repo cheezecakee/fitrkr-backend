@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: Fitrkr API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+paths:
+  /user:
+    post:
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    type: string
+                password:
+                  type: string
+              required:
+                - username
+                - first_name
+                - last_name
+                - email
+                - password
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  UserID:
+                    type: string
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
