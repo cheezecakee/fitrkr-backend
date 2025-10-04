@@ -28,6 +28,9 @@ func NewApp(userService users.UserService, opts ...AppOption) *App {
 		applyOption(app)
 	}
 
+	fs := http.FileServer(http.Dir("internal/adapters/primary/web/docs"))
+	app.chi.Handle("/api/v1/docs/*", http.StripPrefix("/api/v1/docs/", fs))
+
 	app.chi.Mount("/api/v1", v1.InitAppRoutes(userService))
 
 	return app
