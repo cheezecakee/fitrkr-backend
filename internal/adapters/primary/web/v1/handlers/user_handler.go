@@ -9,21 +9,48 @@ import (
 	"github.com/cheezecakee/fitrkr-backend/pkg/web"
 )
 
-func CreateAccount(userService users.UserService) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var req users.CreateAccountReq
+type UserHandler struct {
+	Service users.UserService
+}
 
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			web.ClientError(w, http.StatusBadRequest)
-			return
-		}
+func NewUserHandler(service users.UserService) *UserHandler {
+	return &UserHandler{Service: service}
+}
 
-		resp, err := userService.CreateAccount(r.Context(), req)
-		if err != nil {
-			web.ServerError(w, err)
-			return
-		}
+func (h *UserHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+	var req users.CreateAccountReq
 
-		web.Response(w, http.StatusCreated, resp)
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.ClientError(w, http.StatusBadRequest)
+		return
 	}
+
+	resp, err := h.Service.CreateAccount(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusCreated, resp)
+}
+
+func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+}
+
+func (h *UserHandler) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
+}
+
+func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
+}
+
+func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
+
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
+
+func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	// TODO
 }
