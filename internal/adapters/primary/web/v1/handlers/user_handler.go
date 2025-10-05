@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/cheezecakee/fitrkr-backend/internal/core/services/users"
 	"github.com/cheezecakee/fitrkr-backend/pkg/web"
 )
@@ -35,12 +37,39 @@ func (h *UserHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	resp, err := h.Service.GetByID(r.Context(), id)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, resp)
 }
 
 func (h *UserHandler) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+
+	resp, err := h.Service.GetByUsername(r.Context(), username)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, resp)
 }
 
 func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
+	email := chi.URLParam(r, "email")
+
+	resp, err := h.Service.GetByEmail(r.Context(), email)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, resp)
 }
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
