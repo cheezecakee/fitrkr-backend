@@ -10,14 +10,46 @@ import (
 type Handler interface {
 	// CreateUser implements createUser operation.
 	//
-	// Create a new user.
+	// Create a new user account.
 	//
 	// POST /user
 	CreateUser(ctx context.Context, req *CreateUserReq) (CreateUserRes, error)
-	// NewError creates *ErrRespStatusCode from error returned by handler.
+	// DeleteUser implements deleteUser operation.
 	//
-	// Used for common default response.
-	NewError(ctx context.Context, err error) *ErrRespStatusCode
+	// Delete user.
+	//
+	// DELETE /user/{id}
+	DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error)
+	// GetUserByEmail implements getUserByEmail operation.
+	//
+	// Get user by email.
+	//
+	// GET /user/email/{email}
+	GetUserByEmail(ctx context.Context, params GetUserByEmailParams) (GetUserByEmailRes, error)
+	// GetUserByID implements getUserByID operation.
+	//
+	// Get user by ID.
+	//
+	// GET /user/{id}
+	GetUserByID(ctx context.Context, params GetUserByIDParams) (GetUserByIDRes, error)
+	// GetUserByUsername implements getUserByUsername operation.
+	//
+	// Get user by username.
+	//
+	// GET /user/username/{username}
+	GetUserByUsername(ctx context.Context, params GetUserByUsernameParams) (GetUserByUsernameRes, error)
+	// ListUsers implements listUsers operation.
+	//
+	// List all users.
+	//
+	// GET /user
+	ListUsers(ctx context.Context, params ListUsersParams) (ListUsersRes, error)
+	// UpdateUser implements updateUser operation.
+	//
+	// Update user.
+	//
+	// PUT /user/{id}
+	UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and
