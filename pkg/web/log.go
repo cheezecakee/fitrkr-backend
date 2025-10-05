@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"runtime/debug"
 
 	"github.com/cheezecakee/logr"
 )
 
 func ServerError(w http.ResponseWriter, err error) {
-	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	logr.Get().Error(trace)
+	// trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	// logr.Get().Error(trace)
+	logr.Get().Error(fmt.Sprintf("server error: %v", err))
 
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	ErrorResponse(w, http.StatusInternalServerError, "internal server error")
 }
 
 func ClientError(w http.ResponseWriter, status int) {
