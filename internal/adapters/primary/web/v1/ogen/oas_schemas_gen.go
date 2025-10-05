@@ -3,36 +3,36 @@
 package api
 
 import (
-	"fmt"
+	"time"
+
+	"github.com/google/uuid"
 )
 
-func (s *ErrRespStatusCode) Error() string {
-	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
-}
-
-// CreateUserBadRequest is response for CreateUser operation.
-type CreateUserBadRequest struct{}
+type CreateUserBadRequest Error
 
 func (*CreateUserBadRequest) createUserRes() {}
 
+type CreateUserConflict Error
+
+func (*CreateUserConflict) createUserRes() {}
+
 type CreateUserCreated struct {
-	UserID OptString `json:"UserID"`
+	UserID OptUUID `json:"UserID"`
 }
 
 // GetUserID returns the value of UserID.
-func (s *CreateUserCreated) GetUserID() OptString {
+func (s *CreateUserCreated) GetUserID() OptUUID {
 	return s.UserID
 }
 
 // SetUserID sets the value of UserID.
-func (s *CreateUserCreated) SetUserID(val OptString) {
+func (s *CreateUserCreated) SetUserID(val OptUUID) {
 	s.UserID = val
 }
 
 func (*CreateUserCreated) createUserRes() {}
 
-// CreateUserInternalServerError is response for CreateUser operation.
-type CreateUserInternalServerError struct{}
+type CreateUserInternalServerError Error
 
 func (*CreateUserInternalServerError) createUserRes() {}
 
@@ -41,8 +41,8 @@ type CreateUserReq struct {
 	FirstName string   `json:"first_name"`
 	LastName  string   `json:"last_name"`
 	Email     string   `json:"email"`
-	Roles     []string `json:"roles"`
 	Password  string   `json:"password"`
+	Roles     []string `json:"roles"`
 }
 
 // GetUsername returns the value of Username.
@@ -65,14 +65,14 @@ func (s *CreateUserReq) GetEmail() string {
 	return s.Email
 }
 
-// GetRoles returns the value of Roles.
-func (s *CreateUserReq) GetRoles() []string {
-	return s.Roles
-}
-
 // GetPassword returns the value of Password.
 func (s *CreateUserReq) GetPassword() string {
 	return s.Password
+}
+
+// GetRoles returns the value of Roles.
+func (s *CreateUserReq) GetRoles() []string {
+	return s.Roles
 }
 
 // SetUsername sets the value of Username.
@@ -95,54 +95,220 @@ func (s *CreateUserReq) SetEmail(val string) {
 	s.Email = val
 }
 
-// SetRoles sets the value of Roles.
-func (s *CreateUserReq) SetRoles(val []string) {
-	s.Roles = val
-}
-
 // SetPassword sets the value of Password.
 func (s *CreateUserReq) SetPassword(val string) {
 	s.Password = val
 }
 
-type ErrResp struct {
-	Error OptString `json:"error"`
+// SetRoles sets the value of Roles.
+func (s *CreateUserReq) SetRoles(val []string) {
+	s.Roles = val
+}
+
+type DeleteUserInternalServerError Error
+
+func (*DeleteUserInternalServerError) deleteUserRes() {}
+
+// DeleteUserNoContent is response for DeleteUser operation.
+type DeleteUserNoContent struct{}
+
+func (*DeleteUserNoContent) deleteUserRes() {}
+
+type DeleteUserNotFound Error
+
+func (*DeleteUserNotFound) deleteUserRes() {}
+
+// Ref: #/components/schemas/Error
+type Error struct {
+	Error string    `json:"error"`
+	Code  OptString `json:"code"`
 }
 
 // GetError returns the value of Error.
-func (s *ErrResp) GetError() OptString {
+func (s *Error) GetError() string {
 	return s.Error
 }
 
+// GetCode returns the value of Code.
+func (s *Error) GetCode() OptString {
+	return s.Code
+}
+
 // SetError sets the value of Error.
-func (s *ErrResp) SetError(val OptString) {
+func (s *Error) SetError(val string) {
 	s.Error = val
 }
 
-// ErrRespStatusCode wraps ErrResp with StatusCode.
-type ErrRespStatusCode struct {
-	StatusCode int
-	Response   ErrResp
+// SetCode sets the value of Code.
+func (s *Error) SetCode(val OptString) {
+	s.Code = val
 }
 
-// GetStatusCode returns the value of StatusCode.
-func (s *ErrRespStatusCode) GetStatusCode() int {
-	return s.StatusCode
+func (*Error) listUsersRes() {}
+
+type GetUserByEmailInternalServerError Error
+
+func (*GetUserByEmailInternalServerError) getUserByEmailRes() {}
+
+type GetUserByEmailNotFound Error
+
+func (*GetUserByEmailNotFound) getUserByEmailRes() {}
+
+type GetUserByIDInternalServerError Error
+
+func (*GetUserByIDInternalServerError) getUserByIDRes() {}
+
+type GetUserByIDNotFound Error
+
+func (*GetUserByIDNotFound) getUserByIDRes() {}
+
+type GetUserByUsernameInternalServerError Error
+
+func (*GetUserByUsernameInternalServerError) getUserByUsernameRes() {}
+
+type GetUserByUsernameNotFound Error
+
+func (*GetUserByUsernameNotFound) getUserByUsernameRes() {}
+
+type ListUsersOK struct {
+	Users []User `json:"users"`
+	Total OptInt `json:"total"`
+	Page  OptInt `json:"page"`
+	Limit OptInt `json:"limit"`
 }
 
-// GetResponse returns the value of Response.
-func (s *ErrRespStatusCode) GetResponse() ErrResp {
-	return s.Response
+// GetUsers returns the value of Users.
+func (s *ListUsersOK) GetUsers() []User {
+	return s.Users
 }
 
-// SetStatusCode sets the value of StatusCode.
-func (s *ErrRespStatusCode) SetStatusCode(val int) {
-	s.StatusCode = val
+// GetTotal returns the value of Total.
+func (s *ListUsersOK) GetTotal() OptInt {
+	return s.Total
 }
 
-// SetResponse sets the value of Response.
-func (s *ErrRespStatusCode) SetResponse(val ErrResp) {
-	s.Response = val
+// GetPage returns the value of Page.
+func (s *ListUsersOK) GetPage() OptInt {
+	return s.Page
+}
+
+// GetLimit returns the value of Limit.
+func (s *ListUsersOK) GetLimit() OptInt {
+	return s.Limit
+}
+
+// SetUsers sets the value of Users.
+func (s *ListUsersOK) SetUsers(val []User) {
+	s.Users = val
+}
+
+// SetTotal sets the value of Total.
+func (s *ListUsersOK) SetTotal(val OptInt) {
+	s.Total = val
+}
+
+// SetPage sets the value of Page.
+func (s *ListUsersOK) SetPage(val OptInt) {
+	s.Page = val
+}
+
+// SetLimit sets the value of Limit.
+func (s *ListUsersOK) SetLimit(val OptInt) {
+	s.Limit = val
+}
+
+func (*ListUsersOK) listUsersRes() {}
+
+// NewOptDateTime returns new OptDateTime with value set to v.
+func NewOptDateTime(v time.Time) OptDateTime {
+	return OptDateTime{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDateTime is optional time.Time.
+type OptDateTime struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDateTime was set.
+func (o OptDateTime) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDateTime) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDateTime) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDateTime) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptInt returns new OptInt with value set to v.
+func NewOptInt(v int) OptInt {
+	return OptInt{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt is optional int.
+type OptInt struct {
+	Value int
+	Set   bool
+}
+
+// IsSet returns true if OptInt was set.
+func (o OptInt) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt) Reset() {
+	var v int
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt) SetTo(v int) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt) Get() (v int, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 // NewOptString returns new OptString with value set to v.
@@ -190,3 +356,205 @@ func (o OptString) Or(d string) string {
 	}
 	return d
 }
+
+// NewOptUUID returns new OptUUID with value set to v.
+func NewOptUUID(v uuid.UUID) OptUUID {
+	return OptUUID{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUUID is optional uuid.UUID.
+type OptUUID struct {
+	Value uuid.UUID
+	Set   bool
+}
+
+// IsSet returns true if OptUUID was set.
+func (o OptUUID) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUUID) Reset() {
+	var v uuid.UUID
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUUID) SetTo(v uuid.UUID) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUUID) Get() (v uuid.UUID, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+type UpdateUserBadRequest Error
+
+func (*UpdateUserBadRequest) updateUserRes() {}
+
+type UpdateUserInternalServerError Error
+
+func (*UpdateUserInternalServerError) updateUserRes() {}
+
+type UpdateUserNotFound Error
+
+func (*UpdateUserNotFound) updateUserRes() {}
+
+type UpdateUserReq struct {
+	Username  OptString `json:"username"`
+	FirstName OptString `json:"first_name"`
+	LastName  OptString `json:"last_name"`
+	Email     OptString `json:"email"`
+}
+
+// GetUsername returns the value of Username.
+func (s *UpdateUserReq) GetUsername() OptString {
+	return s.Username
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *UpdateUserReq) GetFirstName() OptString {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *UpdateUserReq) GetLastName() OptString {
+	return s.LastName
+}
+
+// GetEmail returns the value of Email.
+func (s *UpdateUserReq) GetEmail() OptString {
+	return s.Email
+}
+
+// SetUsername sets the value of Username.
+func (s *UpdateUserReq) SetUsername(val OptString) {
+	s.Username = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *UpdateUserReq) SetFirstName(val OptString) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *UpdateUserReq) SetLastName(val OptString) {
+	s.LastName = val
+}
+
+// SetEmail sets the value of Email.
+func (s *UpdateUserReq) SetEmail(val OptString) {
+	s.Email = val
+}
+
+// Ref: #/components/schemas/User
+type User struct {
+	ID        OptUUID     `json:"id"`
+	Username  OptString   `json:"username"`
+	FirstName OptString   `json:"first_name"`
+	LastName  OptString   `json:"last_name"`
+	Email     OptString   `json:"email"`
+	Roles     []string    `json:"roles"`
+	CreatedAt OptDateTime `json:"created_at"`
+	UpdatedAt OptDateTime `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *User) GetID() OptUUID {
+	return s.ID
+}
+
+// GetUsername returns the value of Username.
+func (s *User) GetUsername() OptString {
+	return s.Username
+}
+
+// GetFirstName returns the value of FirstName.
+func (s *User) GetFirstName() OptString {
+	return s.FirstName
+}
+
+// GetLastName returns the value of LastName.
+func (s *User) GetLastName() OptString {
+	return s.LastName
+}
+
+// GetEmail returns the value of Email.
+func (s *User) GetEmail() OptString {
+	return s.Email
+}
+
+// GetRoles returns the value of Roles.
+func (s *User) GetRoles() []string {
+	return s.Roles
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *User) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *User) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *User) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetUsername sets the value of Username.
+func (s *User) SetUsername(val OptString) {
+	s.Username = val
+}
+
+// SetFirstName sets the value of FirstName.
+func (s *User) SetFirstName(val OptString) {
+	s.FirstName = val
+}
+
+// SetLastName sets the value of LastName.
+func (s *User) SetLastName(val OptString) {
+	s.LastName = val
+}
+
+// SetEmail sets the value of Email.
+func (s *User) SetEmail(val OptString) {
+	s.Email = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *User) SetRoles(val []string) {
+	s.Roles = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *User) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *User) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+func (*User) getUserByEmailRes()    {}
+func (*User) getUserByIDRes()       {}
+func (*User) getUserByUsernameRes() {}
+func (*User) updateUserRes()        {}
