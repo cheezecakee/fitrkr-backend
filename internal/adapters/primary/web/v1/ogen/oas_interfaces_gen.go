@@ -4,3 +4,27 @@ package api
 type CreateUserRes interface {
 	createUserRes()
 }
+
+type DeleteUserRes interface {
+	deleteUserRes()
+}
+
+type GetUserByEmailRes interface {
+	getUserByEmailRes()
+}
+
+type GetUserByIDRes interface {
+	getUserByIDRes()
+}
+
+type GetUserByUsernameRes interface {
+	getUserByUsernameRes()
+}
+
+type ListUsersRes interface {
+	listUsersRes()
+}
+
+type UpdateUserRes interface {
+	updateUserRes()
+}
