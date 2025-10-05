@@ -16,9 +16,9 @@ var (
 
 type UserService interface {
 	CreateAccount(context.Context, CreateAccountReq) (*CreateAccountResp, error)
-	GetByID(ctx context.Context, req GetUserByIDReq) (*GetUserResp, error)
-	GetByUsername(ctx context.Context, req GetUserByUsernameReq) (*GetUserResp, error)
-	GetByEmail(ctx context.Context, req GetUserByEmailReq) (*GetUserResp, error)
+	GetByID(ctx context.Context, req string) (*GetUserResp, error)
+	GetByUsername(ctx context.Context, req string) (*GetUserResp, error)
+	GetByEmail(ctx context.Context, req string) (*GetUserResp, error)
 }
 
 type Service struct {
