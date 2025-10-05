@@ -7,6 +7,7 @@ import (
 	"github.com/cheezecakee/logr"
 
 	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-backend/internal/ports"
 )
 
 type CreateAccountReq struct {
@@ -51,6 +52,26 @@ func (s *Service) CreateAccount(ctx context.Context, req CreateAccountReq) (*Cre
 	if err != nil {
 		logr.Get().Errorf("invalid password %v", err)
 		return nil, fmt.Errorf("invalid password %w", err)
+	}
+
+	existingUser, err := s.userRepo.GetByUsername(ctx, string(username))
+	if err != nil && err != ports.ErrUserNotFound {
+		logr.Get().Errorf("failed to check username: %v", err)
+		return nil, fmt.Errorf("failed to check username: %w", err)
+	}
+	if existingUser != nil {
+		logr.Get().Errorf("username already exists: %v", err)
+		return nil, ErrDuplicateUsername
+	}
+
+	existingUser, err = s.userRepo.GetByEmail(ctx, string(email))
+	if err != nil && err != ports.ErrUserNotFound {
+		logr.Get().Errorf("failed to check email: %v", err)
+		return nil, fmt.Errorf("failed to check email: %w", err)
+	}
+	if existingUser != nil {
+		logr.Get().Errorf("email already exists: %v", err)
+		return nil, ErrDuplicateEmail
 	}
 
 	user := user.New(username, fullName, email, roles, password)
