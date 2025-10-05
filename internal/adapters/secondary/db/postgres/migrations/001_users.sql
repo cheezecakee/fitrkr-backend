@@ -9,7 +9,7 @@ CREATE TABLE users (
     -- profile_picture TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    roles TEXT[] NOT NULL DEFAULT ARRAY['user']
+    roles TEXT[] NOT NULL
 );
 
 CREATE TABLE user_stats (
