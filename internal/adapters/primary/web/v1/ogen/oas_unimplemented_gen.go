@@ -15,17 +15,63 @@ var _ Handler = UnimplementedHandler{}
 
 // CreateUser implements createUser operation.
 //
-// Create a new user.
+// Create a new user account.
 //
 // POST /user
 func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserReq) (r CreateUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// NewError creates *ErrRespStatusCode from error returned by handler.
+// DeleteUser implements deleteUser operation.
 //
-// Used for common default response.
-func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *ErrRespStatusCode) {
-	r = new(ErrRespStatusCode)
-	return r
+// Delete user.
+//
+// DELETE /user/{id}
+func (UnimplementedHandler) DeleteUser(ctx context.Context, params DeleteUserParams) (r DeleteUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetUserByEmail implements getUserByEmail operation.
+//
+// Get user by email.
+//
+// GET /user/email/{email}
+func (UnimplementedHandler) GetUserByEmail(ctx context.Context, params GetUserByEmailParams) (r GetUserByEmailRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetUserByID implements getUserByID operation.
+//
+// Get user by ID.
+//
+// GET /user/{id}
+func (UnimplementedHandler) GetUserByID(ctx context.Context, params GetUserByIDParams) (r GetUserByIDRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetUserByUsername implements getUserByUsername operation.
+//
+// Get user by username.
+//
+// GET /user/username/{username}
+func (UnimplementedHandler) GetUserByUsername(ctx context.Context, params GetUserByUsernameParams) (r GetUserByUsernameRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListUsers implements listUsers operation.
+//
+// List all users.
+//
+// GET /user
+func (UnimplementedHandler) ListUsers(ctx context.Context, params ListUsersParams) (r ListUsersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateUser implements updateUser operation.
+//
+// Update user.
+//
+// PUT /user/{id}
+func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (r UpdateUserRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
