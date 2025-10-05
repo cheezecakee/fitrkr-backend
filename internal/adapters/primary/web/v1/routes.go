@@ -7,18 +7,27 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/cheezecakee/fitrkr-backend/internal/adapters/primary/web/v1/handlers"
-	"github.com/cheezecakee/fitrkr-backend/internal/core/services/users"
 )
 
-func InitAppRoutes(userService users.UserService) http.Handler {
+func RegisterRoutes(resgitry *handlers.HandlerResgistry) http.Handler {
 	r := chi.NewRouter()
 
-	// Public routes
-	r.Route("/user", func(r chi.Router) {
-		r.Post("/", handlers.CreateAccount(userService))
-	})
+	routes := map[string]http.Handler{
+		"/user": SetupUserRoutes(resgitry),
+	}
 
-	// later you could add more groups like workouts, auth, etc.
+	// Mount the versioned routes
+	for path, handler := range routes {
+		r.Mount(path, handler)
+	}
+
+	return r
+}
+
+func SetupUserRoutes(registry *handlers.HandlerResgistry) http.Handler {
+	r := chi.NewRouter()
+
+	r.Post("/", registry.UserHandler.CreateAccount)
 
 	return r
 }
