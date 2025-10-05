@@ -18,7 +18,7 @@ type UpdateUserReq struct {
 	LastName  string `json:"last_name"`
 }
 
-func (s *Service) UpdateUser(ctx context.Context, req UpdateUserReq, id string) error {
+func (s *Service) Update(ctx context.Context, req UpdateUserReq, id string) error {
 	existingUser, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		logr.Get().Errorf("failed to get user: %v", err)
