@@ -168,3 +168,26 @@ func (ur *UserRepo) Update(ctx context.Context, u user.User) error {
 		return nil
 	})
 }
+
+const DeleteUser = `Delete from users WHERE id = $1`
+
+func (ur *UserRepo) Delete(ctx context.Context, id string) error {
+	return WithTransaction(ctx, ur.db, func(tx *sql.Tx) error {
+		result, err := tx.ExecContext(ctx, DeleteUser, id)
+		if err != nil {
+			return err
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if rowsAffected == 0 {
+			return ports.ErrUserNotFound
+		}
+
+		logr.Get().Info("User deleted!")
+		return nil
+	})
+}
