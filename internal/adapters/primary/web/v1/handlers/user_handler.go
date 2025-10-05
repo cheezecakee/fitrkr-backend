@@ -82,7 +82,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Service.UpdateUser(r.Context(), req, id)
+	err := h.Service.Update(r.Context(), req, id)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -92,7 +92,15 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	id := chi.URLParam(r, "id")
+
+	err := h.Service.Delete(r.Context(), id)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, "User deleted!")
 }
 
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
