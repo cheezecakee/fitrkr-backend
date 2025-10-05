@@ -28,6 +28,9 @@ func SetupUserRoutes(registry *handlers.HandlerResgistry) http.Handler {
 	r := chi.NewRouter()
 
 	r.Post("/", registry.UserHandler.CreateAccount)
+	r.Get("/username/{username}", registry.UserHandler.GetUserByUsername)
+	r.Get("/{id}", registry.UserHandler.GetUserByID)
+	r.Get("/email/{email}", registry.UserHandler.GetUserByEmail)
 
 	return r
 }
