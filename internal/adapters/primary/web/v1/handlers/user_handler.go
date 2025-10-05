@@ -73,7 +73,22 @@ func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	id := chi.URLParam(r, "id")
+
+	var req users.UpdateUserReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.ClientError(w, http.StatusBadRequest)
+		return
+	}
+
+	err := h.Service.UpdateUser(r.Context(), req, id)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, "User updated")
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
