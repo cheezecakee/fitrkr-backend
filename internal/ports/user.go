@@ -20,4 +20,5 @@ type UserRepo interface {
 	GetByEmail(ctx context.Context, email string) (*user.User, error)
 	GetByID(ctx context.Context, id string) (*user.User, error)
 	Update(ctx context.Context, u user.User) error
+	Delete(ctx context.Context, id string) error
 }
