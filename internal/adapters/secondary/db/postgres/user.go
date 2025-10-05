@@ -37,7 +37,6 @@ type UserRow struct {
 }
 
 func (r UserRow) ToDomain() *user.User {
-	// roles := strings.Split(r.Roles, " ")
 	return user.Reconstitute(r.ID, user.Username(r.Username), r.FullName, user.Email(r.Email), user.StringsToRoles(r.Roles), r.CreatedAt, r.UpdatedAt)
 }
 
@@ -137,4 +136,35 @@ func (ur *UserRepo) GetByEmail(ctx context.Context, email string) (*user.User, e
 	row.Roles = rolesArray.Elements
 
 	return row.ToDomain(), nil
+}
+
+// Password and roles will be updated separately at a later date
+
+const UpdateUser = `UPDATE users 
+	SET username = $2, 
+		full_name = $3, 
+		email = $4,
+		updated_at = $5
+	WHERE id = $1
+`
+
+func (ur *UserRepo) Update(ctx context.Context, u user.User) error {
+	return WithTransaction(ctx, ur.db, func(tx *sql.Tx) error {
+		result, err := tx.ExecContext(ctx, UpdateUser, u.ID, u.Username, u.FullName, u.Email, u.UpdatedAt)
+		if err != nil {
+			return err
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if rowsAffected == 0 {
+			return ports.ErrUserNotFound
+		}
+
+		logr.Get().Info("User updated!")
+		return nil
+	})
 }
