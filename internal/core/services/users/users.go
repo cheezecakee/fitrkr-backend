@@ -19,6 +19,7 @@ type UserService interface {
 	GetByID(ctx context.Context, req string) (*GetUserResp, error)
 	GetByUsername(ctx context.Context, req string) (*GetUserResp, error)
 	GetByEmail(ctx context.Context, req string) (*GetUserResp, error)
+	UpdateUser(ctx context.Context, req UpdateUserReq, id string) error
 }
 
 type Service struct {
