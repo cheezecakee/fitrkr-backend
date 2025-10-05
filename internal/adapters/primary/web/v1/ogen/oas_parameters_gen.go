@@ -298,9 +298,9 @@ func decodeGetUserByUsernameParams(args [1]string, argsEscaped bool, r *http.Req
 // ListUsersParams is parameters of listUsers operation.
 type ListUsersParams struct {
 	// Page number.
-	Page OptInt
+	Page OptInt `json:",omitempty,omitzero"`
 	// Number of items per page.
-	Limit OptInt
+	Limit OptInt `json:",omitempty,omitzero"`
 }
 
 func unpackListUsersParams(packed middleware.Parameters) (params ListUsersParams) {
