@@ -8,18 +8,21 @@ import (
 
 	"github.com/cheezecakee/logr"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
 	"github.com/cheezecakee/fitrkr-backend/internal/ports"
 )
 
 type UserRepo struct {
-	db *sql.DB
+	db      *sql.DB
+	typeMap *pgtype.Map
 }
 
 func NewUserRepo(db *sql.DB) (*UserRepo, error) {
 	return &UserRepo{
-		db: db,
+		db:      db,
+		typeMap: pgtype.NewMap(),
 	}, nil
 }
 
@@ -43,7 +46,6 @@ const CreateUser = `INSERT INTO users (id, username, full_name, email, roles, pa
 func (ur *UserRepo) Add(ctx context.Context, u user.User) error {
 	return WithTransaction(ctx, ur.db, func(tx *sql.Tx) error {
 		_, err := tx.ExecContext(ctx, CreateUser, u.ID, u.Username, u.FullName, u.Email, u.Roles(), u.Password, u.CreatedAt, u.UpdatedAt)
-		logr.Get().Debugf("Roles: %v Type: %T", u.Roles(), u.Roles())
 		if err != nil {
 			return err
 		}
@@ -59,12 +61,14 @@ const GetByUserID = `SELECT id, username, email, full_name, roles,created_at, up
 func (ur *UserRepo) GetByID(ctx context.Context, id string) (*user.User, error) {
 	var row UserRow
 
+	var rolesArray pgtype.Array[string]
+
 	err := ur.db.QueryRowContext(ctx, GetByUserID, id).Scan(
 		&row.ID,
 		&row.Username,
 		&row.Email,
 		&row.FullName,
-		&row.Roles,
+		ur.typeMap.SQLScanner(&rolesArray),
 		&row.CreatedAt,
 		&row.UpdatedAt,
 	)
@@ -74,6 +78,8 @@ func (ur *UserRepo) GetByID(ctx context.Context, id string) (*user.User, error) 
 		}
 		return nil, err
 	}
+
+	row.Roles = rolesArray.Elements
 
 	return row.ToDomain(), nil
 }
@@ -83,12 +89,14 @@ const GetByUsername = `SELECT id, username, email, full_name, roles,created_at, 
 func (ur *UserRepo) GetByUsername(ctx context.Context, username string) (*user.User, error) {
 	var row UserRow
 
+	var rolesArray pgtype.Array[string]
+
 	err := ur.db.QueryRowContext(ctx, GetByUsername, username).Scan(
 		&row.ID,
 		&row.Username,
 		&row.Email,
 		&row.FullName,
-		&row.Roles,
+		ur.typeMap.SQLScanner(&rolesArray),
 		&row.CreatedAt,
 		&row.UpdatedAt,
 	)
@@ -98,6 +106,8 @@ func (ur *UserRepo) GetByUsername(ctx context.Context, username string) (*user.U
 		}
 		return nil, err
 	}
+
+	row.Roles = rolesArray.Elements
 
 	return row.ToDomain(), nil
 }
@@ -106,13 +116,14 @@ const GetByUserEmail = `SELECT id, username, email, full_name, roles,created_at,
 
 func (ur *UserRepo) GetByEmail(ctx context.Context, email string) (*user.User, error) {
 	var row UserRow
+	var rolesArray pgtype.Array[string]
 
 	err := ur.db.QueryRowContext(ctx, GetByUserEmail, email).Scan(
 		&row.ID,
 		&row.Username,
 		&row.Email,
 		&row.FullName,
-		&row.Roles,
+		ur.typeMap.SQLScanner(&rolesArray),
 		&row.CreatedAt,
 		&row.UpdatedAt,
 	)
@@ -122,6 +133,8 @@ func (ur *UserRepo) GetByEmail(ctx context.Context, email string) (*user.User, e
 		}
 		return nil, err
 	}
+
+	row.Roles = rolesArray.Elements
 
 	return row.ToDomain(), nil
 }
