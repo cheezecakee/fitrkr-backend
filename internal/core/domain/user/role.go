@@ -4,7 +4,10 @@ import (
 	"errors"
 )
 
-type Role string
+type (
+	Role  string
+	Roles []Role
+)
 
 const (
 	RoleUser      Role = "user"
@@ -14,45 +17,45 @@ const (
 
 var ErrInvalidRole = errors.New("invalid role")
 
-func NewRole(roles []string) ([]Role, error) {
-	var Roles []Role
-
-	// If no role is specified on account creation defaults to user
-	if roles == nil {
-		Roles = append(Roles, RoleUser)
-		return Roles, nil
+func NewRoles(strs []string) (Roles, error) {
+	if strs == nil {
+		return Roles{RoleUser}, nil
+	}
+	if len(strs) == 0 {
+		return Roles{RoleUser}, nil
 	}
 
-	for _, role := range roles {
-		switch role {
-		case "user":
-			Roles = append(Roles, RoleUser)
-		case "admin":
-			Roles = append(Roles, RoleAdmin)
-		case "moderator":
-			Roles = append(Roles, RoleModerator)
+	roles := make(Roles, 0, len(strs))
+	for _, s := range strs {
+		switch s {
+		case string(RoleUser):
+			roles = append(roles, RoleUser)
+		case string(RoleAdmin):
+			roles = append(roles, RoleAdmin)
+		case string(RoleModerator):
+			roles = append(roles, RoleModerator)
 		default:
 			return nil, ErrInvalidRole
 		}
 	}
 
-	return Roles, nil
+	return roles, nil
 }
 
 // Helper functions
 
-func RolesToStrings(roles []Role) []string {
-	strings := make([]string, len(roles))
-	for i, role := range roles {
-		strings[i] = string(role)
+func (r Roles) ToStrings() []string {
+	out := make([]string, len(r))
+	for i, role := range r {
+		out[i] = string(role)
 	}
-	return strings
+	return out
 }
 
-func StringsToRoles(strings []string) []Role {
-	roles := make([]Role, len(strings))
-	for i, s := range strings {
-		roles[i] = Role(s)
+func StringsToRoles(strs []string) Roles {
+	out := make(Roles, len(strs))
+	for i, s := range strs {
+		out[i] = Role(s)
 	}
-	return roles
+	return out
 }
