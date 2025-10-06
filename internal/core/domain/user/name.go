@@ -6,8 +6,10 @@ import (
 )
 
 var (
-	ErrEmptyName    = errors.New("empty name supplied")
-	ErrNameTooShort = errors.New("name too short")
+	ErrEmptyName      = errors.New("empty name supplied")
+	ErrNameTooShort   = errors.New("name too short")
+	ErrNameHasDigit   = errors.New("name contains digit")
+	ErrNameHasSpecial = errors.New("name contains special characters")
 )
 
 func NewName(firstName, lastName string) (string, error) {
@@ -20,6 +22,14 @@ func NewName(firstName, lastName string) (string, error) {
 
 	if len(firstName) < 2 || len(lastName) < 2 {
 		return "", ErrNameTooShort
+	}
+
+	if hasDigitRegex.MatchString(firstName) || hasDigitRegex.MatchString(lastName) {
+		return "", ErrNameHasDigit
+	}
+
+	if hasSpecialRegex.MatchString(firstName) || hasSpecialRegex.MatchString(lastName) {
+		return "", ErrNameHasSpecial
 	}
 
 	name = append(name, firstName, lastName)
