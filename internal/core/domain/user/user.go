@@ -34,21 +34,21 @@ func New(username Username, fullName string, email Email, roles []Role, password
 }
 
 // Reconstitute rebuilds an existing user from persistence (for DB loading)
-func Reconstitute(id uuid.UUID, username Username, fullName string, email Email, roles []Role, createdAt, updatedAt time.Time) *User {
+func Reconstitute(id uuid.UUID, username Username, fullName string, email Email, roles Roles, createdAt, updatedAt time.Time) *User {
 	return &User{
 		ID:        id,
 		Username:  username,
 		FullName:  fullName,
 		Email:     email,
-		roles:     roles,
+		roles:     []Role(roles),
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}
 }
 
 // Roles getter
-func (u *User) Roles() []Role {
-	copyRoles := make([]Role, len(u.roles))
+func (u *User) Roles() Roles {
+	copyRoles := make(Roles, len(u.roles))
 	copy(copyRoles, u.roles)
 	return copyRoles
 }
