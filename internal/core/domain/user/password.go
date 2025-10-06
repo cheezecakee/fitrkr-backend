@@ -4,7 +4,8 @@ import (
 	"errors"
 	"regexp"
 
-	"github.com/cheezecakee/fitrkr-backend/pkg/helper"
+	"github.com/cheezecakee/logr"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Password string
@@ -16,12 +17,14 @@ var (
 	ErrPasswordNoChar    = errors.New("password must contain a character")
 	ErrPasswordNoDigit   = errors.New("password must contain a digit")
 	ErrPasswordNoSpecial = errors.New("password must contain a special character")
+	ErrPasswordNoUpper   = errors.New("password must contain at least one uppercase letter")
 )
 
 var (
-	hasLetterRegex = regexp.MustCompile(`[a-zA-Z]`)
-	hasDigitRegex  = regexp.MustCompile(`[0-9]`)
-	specialRegex   = regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]`)
+	hasUpperLetterRegex = regexp.MustCompile(`[A-Z]`)
+	hasLetterRegex      = regexp.MustCompile(`[a-z]`)
+	hasDigitRegex       = regexp.MustCompile(`[0-9]`)
+	hasSpecialRegex     = regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]`)
 )
 
 func NewPassword(password string) (Password, error) {
@@ -33,8 +36,12 @@ func NewPassword(password string) (Password, error) {
 		return "", ErrPasswordTooShort
 	}
 
-	if len(password) > 16 {
+	if len(password) > 64 {
 		return "", ErrPasswordTooLong
+	}
+
+	if !hasUpperLetterRegex.MatchString(password) {
+		return "", ErrPasswordNoUpper
 	}
 
 	if !hasLetterRegex.MatchString(password) {
@@ -45,14 +52,28 @@ func NewPassword(password string) (Password, error) {
 		return "", ErrPasswordNoDigit
 	}
 
-	if !specialRegex.MatchString(password) {
+	if !hasSpecialRegex.MatchString(password) {
 		return "", ErrPasswordNoSpecial
 	}
 
-	hashPass, err := helper.HashPassword(password)
+	hashPass, err := HashPassword(password)
 	if err != nil {
 		return "", err
 	}
 
 	return Password(hashPass), nil
+}
+
+func (p Password) Compare(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(p), []byte(password))
+	return err == nil
+}
+
+func HashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		logr.Get().Errorf("failed to hash password: %v", err)
+		return "", err
+	}
+	return string(hashedPassword), nil
 }
