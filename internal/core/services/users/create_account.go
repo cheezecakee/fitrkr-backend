@@ -42,7 +42,7 @@ func (s *Service) CreateAccount(ctx context.Context, req CreateAccountReq) (*Cre
 		return nil, fmt.Errorf("invalid email: %w", err)
 	}
 
-	roles, err := user.NewRole(req.Roles)
+	roles, err := user.NewRoles(req.Roles)
 	if err != nil {
 		logr.Get().Errorf("invalid role/s %v", err)
 		return nil, fmt.Errorf("invalid role/s %w", err)
