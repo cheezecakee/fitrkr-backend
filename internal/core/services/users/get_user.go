@@ -55,7 +55,7 @@ func mapUserToResponse(u *user.User) *GetUserResp {
 		Username:  string(u.Username),
 		Email:     string(u.Email),
 		FullName:  u.FullName,
-		Roles:     user.RolesToStrings(u.Roles()),
+		Roles:     u.Roles().ToStrings(),
 		CreatedAt: u.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
 	}
