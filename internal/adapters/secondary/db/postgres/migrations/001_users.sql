@@ -36,7 +36,7 @@ CREATE TABLE user_stats (
 );
 
 CREATE TABLE user_settings (
-user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
 
     -- Display preferences 
     preferred_weight_unit VARCHAR(2) NOT NULL,
