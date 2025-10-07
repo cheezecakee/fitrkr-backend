@@ -2,12 +2,9 @@ package user
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Stats struct {
-	ID        uuid.UUID
 	Weight    *Weight
 	Height    *Height
 	BFP       *BFP
@@ -17,9 +14,8 @@ type Stats struct {
 	UpdatedAt time.Time
 }
 
-func NewStats(id uuid.UUID, streak Streak) Stats {
+func NewStats(streak Streak) Stats {
 	return Stats{
-		ID:        id,
 		Totals:    NewTotals(),
 		Streak:    streak,
 		CreatedAt: time.Now(),
