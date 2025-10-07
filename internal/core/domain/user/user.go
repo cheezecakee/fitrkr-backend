@@ -21,16 +21,18 @@ type User struct {
 	Settings     Settings     `json:"settings"`
 }
 
-func New(username Username, fullName string, email Email, roles []Role, password Password) User {
+func New(username Username, fullName string, email Email, roles []Role, password Password, subscription Subscription, settings Settings) User {
 	return User{
-		ID:        uuid.New(),
-		Username:  username,
-		FullName:  fullName,
-		Email:     email,
-		roles:     roles,
-		Password:  password,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:           uuid.New(),
+		Username:     username,
+		FullName:     fullName,
+		Email:        email,
+		roles:        roles,
+		Password:     password,
+		Subscription: subscription,
+		Settings:     settings,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 }
 
