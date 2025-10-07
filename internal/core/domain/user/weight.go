@@ -23,6 +23,9 @@ func NewWeight(value float64, unit WeightUnit) (Weight, error) {
 	if value < 0 {
 		return Weight{}, ErrNegativeWeight
 	}
+	if unit == "" {
+		unit = Kg
+	}
 	if unit != Kg && unit != Lb {
 		return Weight{}, ErrInvalidWeightUnit
 	}
