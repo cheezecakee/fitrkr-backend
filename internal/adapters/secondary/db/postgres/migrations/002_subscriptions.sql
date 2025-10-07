@@ -1,22 +1,25 @@
 -- +goose Up
 CREATE TABLE subscription (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     
     -- Subscription details
-    plan VARCHAR(50) NOT NULL DEFAULT 'basic',        -- e.g., basic, pro, premium
-    started_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    plan VARCHAR(50) NOT NULL,        -- e.g., basic, premium
+    billing_period VARCHAR(20) NOT NULL, -- e.g, monthly, yearly
+    started_at TIMESTAMP NOT NULL,
     expires_at TIMESTAMP,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    auto_renew BOOLEAN NOT NULL DEFAULT FALSE,
+    auto_renew BOOLEAN NOT NULL,
+    cancelled_at TIMESTAMP,
     
-    -- Payment/trial info
+    -- Payment info
     last_payment_at TIMESTAMP,
     last_payment_amount NUMERIC(10,2),
+    last_payment_currency VARCHAR(3), -- USD, EUR, GBP, etc.
+
+    -- Trial 
     trial_ends_at TIMESTAMP,
     
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     
     -- Constraints
     CONSTRAINT chk_expires_after_start CHECK (expires_at IS NULL OR expires_at >= started_at)
