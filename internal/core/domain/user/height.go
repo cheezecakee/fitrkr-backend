@@ -23,6 +23,9 @@ func NewHeight(value float64, unit HeightUnit) (Height, error) {
 	if value < 0 {
 		return Height{}, ErrNegativeHeight
 	}
+	if unit == "" {
+		unit = Cm
+	}
 	if unit != Cm && unit != FtIn {
 		return Height{}, ErrInvalidHeightUnit
 	}
