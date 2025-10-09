@@ -14,11 +14,11 @@ type User struct {
 	Email        Email     `json:"email"`
 	Password     Password  `json:"-"`
 	roles        []Role
-	CreatedAt    time.Time    `json:"created_at"`
-	UpdatedAt    time.Time    `json:"updated_at"`
-	Stats        Stats        `json:"stats"`
-	Subscription Subscription `json:"subscription"`
-	Settings     Settings     `json:"settings"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
+	Stats        *Stats        `json:"stats"`
+	Subscription *Subscription `json:"subscription"`
+	Settings     *Settings     `json:"settings"`
 }
 
 func New(username Username, fullName string, email Email, roles []Role, password Password, subscription Subscription, settings Settings) User {
@@ -29,8 +29,8 @@ func New(username Username, fullName string, email Email, roles []Role, password
 		Email:        email,
 		roles:        roles,
 		Password:     password,
-		Subscription: subscription,
-		Settings:     settings,
+		Subscription: &subscription,
+		Settings:     &settings,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
