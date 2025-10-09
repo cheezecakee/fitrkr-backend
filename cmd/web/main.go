@@ -5,9 +5,9 @@ import (
 	"github.com/cheezecakee/logr"
 	"github.com/joho/godotenv"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/adapters/primary/web"
-	"github.com/cheezecakee/fitrkr-backend/internal/adapters/secondary/db/postgres"
-	"github.com/cheezecakee/fitrkr-backend/internal/core/services/users"
+	"github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web"
+	"github.com/cheezecakee/fitrkr-athena/internal/adapters/secondary/db/postgres"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
 func main() {

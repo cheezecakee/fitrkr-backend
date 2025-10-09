@@ -7,8 +7,8 @@ import (
 
 	"github.com/cheezecakee/logr"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-backend/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/ports"
 )
 
 type UpdateUserReq struct {

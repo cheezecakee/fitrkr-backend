@@ -1,4 +1,4 @@
-module github.com/cheezecakee/fitrkr-backend
+module github.com/cheezecakee/fitrkr-athena
 
 go 1.24.6
 

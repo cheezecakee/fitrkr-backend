@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
 func TestNewRoles_ValidCases(t *testing.T) {

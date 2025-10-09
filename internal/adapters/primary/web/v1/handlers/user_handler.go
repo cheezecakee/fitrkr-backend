@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/services/users"
-	"github.com/cheezecakee/fitrkr-backend/pkg/web"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
+	"github.com/cheezecakee/fitrkr-athena/pkg/web"
 )
 
 type UserHandler struct {

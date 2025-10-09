@@ -6,7 +6,7 @@ import (
 
 	"github.com/cheezecakee/logr"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/ports"
 )
 
 func (s *Service) Delete(ctx context.Context, req string) error {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
 func TestNewUser(t *testing.T) {
@@ -15,8 +15,10 @@ func TestNewUser(t *testing.T) {
 	email := user.Email("test@example.com")
 	password := user.Password("secret123!")
 	roles := user.Roles{user.RoleAdmin}
+	sub := user.NewSubscription()
+	settings := user.NewSettings(user.Kg, user.Cm, user.Dark, user.Public)
 
-	u := user.New(username, fullName, email, roles, password)
+	u := user.New(username, fullName, email, roles, password, sub, settings)
 
 	if u.ID == uuid.Nil {
 		t.Error("expected generated UUID, got nil")
@@ -78,7 +80,7 @@ func TestReconstituteUser(t *testing.T) {
 
 func TestRoleGetter_IsImmutable(t *testing.T) {
 	roles := user.Roles{user.RoleAdmin}
-	u := user.New("testuser", "Full Name", "test@example.com", roles, "secret123!")
+	u := user.New("testuser", "Full Name", "test@example.com", roles, "secret123!", user.Subscription{}, user.Settings{})
 
 	copyRoles := u.Roles()
 	copyRoles[0] = user.RoleModerator

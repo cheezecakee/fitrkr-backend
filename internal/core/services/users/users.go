@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/ports"
 )
 
 var (

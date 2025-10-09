@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
 func TestNewStats(t *testing.T) {

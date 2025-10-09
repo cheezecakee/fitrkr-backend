@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/cheezecakee/fitrkr-backend/internal/core/services/users"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
 type HandlerResgistry struct {

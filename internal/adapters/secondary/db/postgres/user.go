@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-backend/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/ports"
 )
 
 type UserRepo struct {

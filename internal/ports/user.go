@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cheezecakee/fitrkr-backend/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
 var (

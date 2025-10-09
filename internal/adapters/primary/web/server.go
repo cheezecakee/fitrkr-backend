@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	v1 "github.com/cheezecakee/fitrkr-backend/internal/adapters/primary/web/v1"
-	"github.com/cheezecakee/fitrkr-backend/internal/adapters/primary/web/v1/handlers"
-	"github.com/cheezecakee/fitrkr-backend/internal/core/services/users"
+	v1 "github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web/v1"
+	"github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web/v1/handlers"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
 type App struct {
