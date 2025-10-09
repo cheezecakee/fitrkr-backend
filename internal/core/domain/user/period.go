@@ -15,6 +15,7 @@ const (
 )
 
 func NewBillingPeriod(period string) (Period, error) {
+	period = strings.TrimSpace(period)
 	period = strings.ToLower(period)
 
 	switch period {
