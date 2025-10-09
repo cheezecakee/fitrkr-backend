@@ -18,7 +18,10 @@ func TestNewUser(t *testing.T) {
 	sub := user.NewSubscription()
 	settings := user.NewSettings(user.Kg, user.Cm, user.Dark, user.Public)
 
-	u := user.New(username, fullName, email, roles, password, sub, settings)
+	streak, _ := user.NewStreak(0)
+	stats := user.NewStats(streak)
+
+	u := user.New(username, fullName, email, roles, password, stats, sub, settings)
 
 	if u.ID == uuid.Nil {
 		t.Error("expected generated UUID, got nil")
@@ -59,7 +62,21 @@ func TestReconstituteUser(t *testing.T) {
 	createdAt := time.Now().Add(-10 * time.Hour)
 	updatedAt := time.Now().Add(-5 * time.Hour)
 
-	u := user.Reconstitute(id, username, fullName, email, roles, createdAt, updatedAt)
+	// Build snapshot including zero-values for aggregates
+	snapshot := user.UserSnapshot{
+		ID:           id,
+		Username:     username,
+		FullName:     fullName,
+		Email:        email,
+		Roles:        roles,
+		Stats:        user.Stats{},
+		Subscription: user.Subscription{},
+		Settings:     user.Settings{},
+		CreatedAt:    createdAt,
+		UpdatedAt:    updatedAt,
+	}
+
+	u := snapshot.Reconstitute()
 
 	if u.ID != id {
 		t.Errorf("expected ID %v, got %v", id, u.ID)
@@ -80,7 +97,7 @@ func TestReconstituteUser(t *testing.T) {
 
 func TestRoleGetter_IsImmutable(t *testing.T) {
 	roles := user.Roles{user.RoleAdmin}
-	u := user.New("testuser", "Full Name", "test@example.com", roles, "secret123!", user.Subscription{}, user.Settings{})
+	u := user.New("testuser", "Full Name", "test@example.com", roles, "secret123!", user.Stats{}, user.Subscription{}, user.Settings{})
 
 	copyRoles := u.Roles()
 	copyRoles[0] = user.RoleModerator
