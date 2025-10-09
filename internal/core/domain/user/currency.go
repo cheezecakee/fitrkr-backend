@@ -20,9 +20,16 @@ const (
 )
 
 func NewCurrency(code string) (Currency, error) {
-	if len(code) != 3 {
-		return "", nil
+	code = strings.TrimSpace(code)
+
+	if code == "" {
+		return USD, nil
 	}
+
+	if len(code) != 3 {
+		return "", ErrInvalidCurrency
+	}
+
 	code = strings.ToUpper(code)
 
 	switch code {
