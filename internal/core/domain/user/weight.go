@@ -1,9 +1,13 @@
 package user
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 var (
 	ErrNegativeWeight    = errors.New("weight cannot be negative")
+	ErrWeightZero        = errors.New("weight cannot be zero")
 	ErrInvalidWeightUnit = errors.New("invalid weight unit")
 )
 
@@ -23,16 +27,29 @@ func NewWeight(value float64, unit WeightUnit) (Weight, error) {
 	if value < 0 {
 		return Weight{}, ErrNegativeWeight
 	}
-	if unit == "" {
-		unit = Kg
+	if value == 0 {
+		return Weight{}, ErrWeightZero
 	}
-	if unit != Kg && unit != Lb {
-		return Weight{}, ErrInvalidWeightUnit
-	}
+
 	return Weight{
 		value: value,
 		unit:  unit,
 	}, nil
+}
+
+func NewWeightUnit(unit string) (WeightUnit, error) {
+	if unit == "" {
+		return Kg, nil // default to kg is empty
+	}
+	unit = strings.ToLower(unit)
+	switch unit {
+	case "kg":
+		return Kg, nil
+	case "lb":
+		return Lb, nil
+	default:
+		return "", ErrInvalidWeightUnit
+	}
 }
 
 func (w Weight) ToKg() float64 {
@@ -56,3 +73,6 @@ func (w Weight) Unit() WeightUnit {
 func (w Weight) Value() float64 {
 	return w.value
 }
+
+// Todo
+// Set a limit to the weight depending on the unit.
