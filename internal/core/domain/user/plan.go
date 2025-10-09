@@ -1,6 +1,9 @@
 package user
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type Plan string
 
@@ -12,8 +15,10 @@ const (
 )
 
 func NewPlan(plan string) (Plan, error) {
+	plan = strings.TrimSpace(plan)
+	plan = strings.ToLower(plan)
 	if plan == "" {
-		return Plan(Basic), nil
+		return Basic, nil
 	}
 
 	switch plan {
