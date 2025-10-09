@@ -97,3 +97,25 @@ func (s Streak) DaysUntilExpiry() int {
 	}
 	return remaining
 }
+
+// Break manually reset the streak
+func (s Streak) Break() Streak {
+	return Streak{
+		restDays:    s.restDays,
+		current:     0,
+		longest:     s.longest,
+		lastWorkout: time.Time{},
+	}
+}
+
+func (s Streak) Progress() float64 {
+	if s.lastWorkout.IsZero() {
+		return 0
+	}
+
+	daysSince := time.Since(s.lastWorkout).Hours() / 24
+	if daysSince > float64(s.restDays) {
+		return 1
+	}
+	return daysSince / float64(s.restDays)
+}
