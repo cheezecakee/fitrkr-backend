@@ -37,7 +37,19 @@ type UserRow struct {
 }
 
 func (r UserRow) ToDomain() *user.User {
-	return user.Reconstitute(r.ID, user.Username(r.Username), r.FullName, user.Email(r.Email), user.StringsToRoles(r.Roles), r.CreatedAt, r.UpdatedAt)
+	snapshot := user.UserSnapshot{
+		ID:           r.ID,
+		Username:     user.Username(r.Username),
+		FullName:     r.FullName,
+		Email:        user.Email(r.Email),
+		Roles:        user.StringsToRoles(r.Roles),
+		Stats:        user.Stats{},        // zero-value
+		Subscription: user.Subscription{}, // zero-value
+		Settings:     user.Settings{},     // zero-value
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
+	}
+	return snapshot.Reconstitute()
 }
 
 const CreateUser = `INSERT INTO users (id, username, full_name, email, roles, password_hash, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`
