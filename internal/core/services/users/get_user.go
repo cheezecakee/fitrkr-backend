@@ -19,8 +19,8 @@ type GetUserResp struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-func (s *Service) GetByID(ctx context.Context, req string) (*GetUserResp, error) {
-	u, err := s.userRepo.GetByID(ctx, req)
+func (s *Service) GetByID(ctx context.Context, id string) (*GetUserResp, error) {
+	u, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		logr.Get().Errorf("failed to get user by id: %v", err)
 		return nil, ErrUserNotFound
@@ -29,8 +29,8 @@ func (s *Service) GetByID(ctx context.Context, req string) (*GetUserResp, error)
 	return mapUserToResponse(u), nil
 }
 
-func (s *Service) GetByUsername(ctx context.Context, req string) (*GetUserResp, error) {
-	u, err := s.userRepo.GetByUsername(ctx, req)
+func (s *Service) GetByUsername(ctx context.Context, username string) (*GetUserResp, error) {
+	u, err := s.userRepo.GetByUsername(ctx, username)
 	if err != nil {
 		logr.Get().Errorf("failed to get user by username: %v", err)
 		return nil, ErrUserNotFound
@@ -39,8 +39,8 @@ func (s *Service) GetByUsername(ctx context.Context, req string) (*GetUserResp, 
 	return mapUserToResponse(u), nil
 }
 
-func (s *Service) GetByEmail(ctx context.Context, req string) (*GetUserResp, error) {
-	u, err := s.userRepo.GetByEmail(ctx, req)
+func (s *Service) GetByEmail(ctx context.Context, email string) (*GetUserResp, error) {
+	u, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		logr.Get().Errorf("failed to get user by email: %v", err)
 		return nil, ErrUserNotFound
