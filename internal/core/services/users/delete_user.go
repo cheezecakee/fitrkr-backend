@@ -9,8 +9,8 @@ import (
 	"github.com/cheezecakee/fitrkr-athena/internal/ports"
 )
 
-func (s *Service) Delete(ctx context.Context, req string) error {
-	err := s.userRepo.Delete(ctx, req)
+func (s *Service) Delete(ctx context.Context, id string) error {
+	err := s.userRepo.Delete(ctx, id)
 	if err != nil {
 		if err == ports.ErrUserNotFound {
 			logr.Get().Error("user not found")
