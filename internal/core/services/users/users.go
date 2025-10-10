@@ -16,11 +16,11 @@ var (
 
 type UserService interface {
 	CreateAccount(context.Context, CreateAccountReq) (*CreateAccountResp, error)
-	GetByID(ctx context.Context, req string) (*GetUserResp, error)
-	GetByUsername(ctx context.Context, req string) (*GetUserResp, error)
-	GetByEmail(ctx context.Context, req string) (*GetUserResp, error)
+	GetByID(ctx context.Context, id string) (*GetUserResp, error)
+	GetByUsername(ctx context.Context, username string) (*GetUserResp, error)
+	GetByEmail(ctx context.Context, email string) (*GetUserResp, error)
 	Update(ctx context.Context, req UpdateUserReq, id string) error
-	Delete(ctx context.Context, req string) error
+	Delete(ctx context.Context, id string) error
 }
 
 type Service struct {
