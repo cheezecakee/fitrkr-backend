@@ -6,11 +6,15 @@ import (
 
 	"github.com/cheezecakee/logr"
 
-	"github.com/cheezecakee/fitrkr-athena/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 )
 
-func (s *Service) Delete(ctx context.Context, id string) error {
-	err := s.userRepo.Delete(ctx, id)
+type DeleteAccountReq struct {
+	ID string
+}
+
+func (s *Service) Delete(ctx context.Context, req DeleteAccountReq) error {
+	err := s.userRepo.Delete(ctx, req.ID)
 	if err != nil {
 		if err == ports.ErrUserNotFound {
 			logr.Get().Error("user not found")
