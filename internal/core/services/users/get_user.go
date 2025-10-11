@@ -5,22 +5,28 @@ import (
 	"time"
 
 	"github.com/cheezecakee/logr"
+	"github.com/google/uuid"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 )
 
 type GetUserResp struct {
-	ID        string `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	FullName  string `json:"full_name"`
-	Roles     []string
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID        uuid.UUID     `json:"id"`
+	Username  user.Username `json:"username"`
+	Email     user.Email    `json:"email"`
+	FullName  string        `json:"full_name"`
+	Roles     user.Roles    `json:"roles"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
-func (s *Service) GetByID(ctx context.Context, id string) (*GetUserResp, error) {
-	u, err := s.userRepo.GetByID(ctx, id)
+type GetUserByIDReq struct {
+	ID string
+}
+
+func (s *Service) GetByID(ctx context.Context, req GetUserByIDReq) (*GetUserResp, error) {
+	u, err := s.userRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		logr.Get().Errorf("failed to get user by id: %v", err)
 		return nil, ErrUserNotFound
@@ -29,8 +35,12 @@ func (s *Service) GetByID(ctx context.Context, id string) (*GetUserResp, error) 
 	return mapUserToResponse(u), nil
 }
 
-func (s *Service) GetByUsername(ctx context.Context, username string) (*GetUserResp, error) {
-	u, err := s.userRepo.GetByUsername(ctx, username)
+type GetUserByUsernameReq struct {
+	Username string
+}
+
+func (s *Service) GetByUsername(ctx context.Context, req GetUserByUsernameReq) (*GetUserResp, error) {
+	u, err := s.userRepo.GetByUsername(ctx, req.Username)
 	if err != nil {
 		logr.Get().Errorf("failed to get user by username: %v", err)
 		return nil, ErrUserNotFound
@@ -39,8 +49,12 @@ func (s *Service) GetByUsername(ctx context.Context, username string) (*GetUserR
 	return mapUserToResponse(u), nil
 }
 
-func (s *Service) GetByEmail(ctx context.Context, email string) (*GetUserResp, error) {
-	u, err := s.userRepo.GetByEmail(ctx, email)
+type GetUserByEmailReq struct {
+	Email string
+}
+
+func (s *Service) GetByEmail(ctx context.Context, req GetUserByEmailReq) (*GetUserResp, error) {
+	u, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		logr.Get().Errorf("failed to get user by email: %v", err)
 		return nil, ErrUserNotFound
@@ -49,14 +63,14 @@ func (s *Service) GetByEmail(ctx context.Context, email string) (*GetUserResp, e
 	return mapUserToResponse(u), nil
 }
 
-func mapUserToResponse(u *user.User) *GetUserResp {
+func mapUserToResponse(u *ports.User) *GetUserResp {
 	return &GetUserResp{
-		ID:        u.ID.String(),
-		Username:  string(u.Username),
-		Email:     string(u.Email),
+		ID:        u.ID,
+		Username:  user.Username(u.Username),
+		Email:     user.Email(u.Email),
 		FullName:  u.FullName,
-		Roles:     u.Roles().ToStrings(),
-		CreatedAt: u.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
+		Roles:     user.StringsToRoles(u.Roles),
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
 	}
 }
