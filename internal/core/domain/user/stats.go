@@ -14,10 +14,10 @@ type Stats struct {
 	UpdatedAt time.Time
 }
 
-func NewStats(streak Streak) Stats {
+func NewStats() Stats {
 	return Stats{
 		Totals:    NewTotals(),
-		Streak:    streak,
+		Streak:    NewStreak(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
