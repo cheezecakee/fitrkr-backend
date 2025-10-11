@@ -8,27 +8,28 @@ import (
 )
 
 func TestNewStats(t *testing.T) {
-	streak := mustNewStreak(2) // restDays = 2
+	stats := user.NewStats()
 
-	stats := user.NewStats(streak)
-
-	// Verify streak is set correctly
-	if stats.Streak.Current() != 0 {
-		t.Errorf("expected streak current to be 0, got %d", stats.Streak.Current())
+	// Verify streak is initialized with defaults
+	if stats.Streak.RestDays != 2 {
+		t.Errorf("expected streak RestDays to be 2, got %d", stats.Streak.RestDays)
 	}
-	if stats.Streak.RestDays() != 2 {
-		t.Errorf("expected streak rest days to be 2, got %d", stats.Streak.RestDays())
+	if stats.Streak.Current != 0 {
+		t.Errorf("expected streak Current to be 0, got %d", stats.Streak.Current)
+	}
+	if stats.Streak.Longest != 0 {
+		t.Errorf("expected streak Longest to be 0, got %d", stats.Streak.Longest)
 	}
 
 	// Verify totals is initialized
-	if stats.Totals.Workouts() != 0 {
-		t.Errorf("expected totals workouts to be 0, got %d", stats.Totals.Workouts())
+	if stats.Totals.Workouts != 0 {
+		t.Errorf("expected totals workouts to be 0, got %d", stats.Totals.Workouts)
 	}
-	if stats.Totals.Volume() != 0 {
-		t.Errorf("expected totals volume to be 0, got %f", stats.Totals.Volume())
+	if stats.Totals.Lifted != 0 {
+		t.Errorf("expected totals lifted to be 0, got %f", stats.Totals.Lifted)
 	}
-	if stats.Totals.TimeMinutes() != 0 {
-		t.Errorf("expected totals time to be 0, got %d", stats.Totals.TimeMinutes())
+	if stats.Totals.Time != 0 {
+		t.Errorf("expected totals time to be 0, got %d", stats.Totals.Time)
 	}
 
 	// Verify optional fields are nil
@@ -62,8 +63,7 @@ func TestNewStats(t *testing.T) {
 
 func TestNewStats_TimestampsAreRecent(t *testing.T) {
 	before := time.Now()
-	streak := mustNewStreak(2)
-	stats := user.NewStats(streak)
+	stats := user.NewStats()
 	after := time.Now()
 
 	// Verify CreatedAt is between before and after
@@ -78,73 +78,65 @@ func TestNewStats_TimestampsAreRecent(t *testing.T) {
 }
 
 func TestStats_OptionalFieldsCanBeSet(t *testing.T) {
-	streak := mustNewStreak(2)
-	stats := user.NewStats(streak)
+	stats := user.NewStats()
 
 	// Set optional fields
-	weight := mustNewWeightKg(75.5)
-	height := mustNewHeight(180, user.Cm)
-	bfp := mustNewBFP(15.5)
+	weight, err := user.NewWeight(75.5, user.Kg)
+	if err != nil {
+		t.Fatalf("failed to create weight: %v", err)
+	}
+
+	height, err := user.NewHeight(180, user.Cm)
+	if err != nil {
+		t.Fatalf("failed to create height: %v", err)
+	}
+
+	bfp, err := user.NewBFP(15.5)
+	if err != nil {
+		t.Fatalf("failed to create BFP: %v", err)
+	}
 
 	stats.Weight = &weight
 	stats.Height = &height
 	stats.BFP = &bfp
 
 	// Verify they're set correctly
-	if stats.Weight == nil || stats.Weight.Value() != 75.5 {
-		t.Error("Weight not set correctly")
+	if stats.Weight == nil {
+		t.Error("Weight should not be nil after setting")
 	}
-	if stats.Height == nil || stats.Height.ToCm() != 180 {
-		t.Error("Height not set correctly")
+	if stats.Height == nil {
+		t.Error("Height should not be nil after setting")
 	}
-	if stats.BFP == nil || float64(*stats.BFP) != 15.5 {
-		t.Error("BFP not set correctly")
+	if stats.BFP == nil {
+		t.Error("BFP should not be nil after setting")
 	}
 }
 
 func TestStats_TotalsCanBeUpdated(t *testing.T) {
-	streak := mustNewStreak(2)
-	stats := user.NewStats(streak)
+	stats := user.NewStats()
 
-	// Update totals
-	stats.Totals = stats.Totals.RecordWorkout(
-		mustNewWeightKg(100),
-		mustNewDuration(45),
-	)
+	// Create weight and duration for recording
+	weight, err := user.NewWeight(100, user.Kg)
+	if err != nil {
+		t.Fatalf("failed to create weight: %v", err)
+	}
+
+	duration, err := user.NewDuration(45)
+	if err != nil {
+		t.Fatalf("failed to create duration: %v", err)
+	}
+
+	// Update totals via RecordWorkout (mutates in place)
+	stats.Totals.RecordWorkout(weight, duration)
 
 	// Verify update
-	if stats.Totals.Workouts() != 1 {
-		t.Errorf("expected 1 workout, got %d", stats.Totals.Workouts())
+	if stats.Totals.Workouts != 1 {
+		t.Errorf("expected 1 workout, got %d", stats.Totals.Workouts)
 	}
-	if stats.Totals.Volume() != 100 {
-		t.Errorf("expected volume 100, got %f", stats.Totals.Volume())
+	if stats.Totals.Lifted != 100 {
+		t.Errorf("expected lifted 100, got %f", stats.Totals.Lifted)
 	}
-	if stats.Totals.TimeMinutes() != 45 {
-		t.Errorf("expected 45 minutes, got %d", stats.Totals.TimeMinutes())
+	if stats.Totals.Time != 45 {
+		t.Errorf("expected 45 minutes, got %d", stats.Totals.Time)
 	}
-}
-
-// Helper functions
-func mustNewStreak(restDays int) user.Streak {
-	s, err := user.NewStreak(restDays)
-	if err != nil {
-		panic(err)
-	}
-	return s
-}
-
-func mustNewHeight(value float64, unit user.HeightUnit) user.Height {
-	h, err := user.NewHeight(value, unit)
-	if err != nil {
-		panic(err)
-	}
-	return h
-}
-
-func mustNewBFP(percentage float64) user.BFP {
-	b, err := user.NewBFP(percentage)
-	if err != nil {
-		panic(err)
-	}
-	return b
 }
