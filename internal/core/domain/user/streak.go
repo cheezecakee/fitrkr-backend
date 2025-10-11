@@ -8,90 +8,72 @@ import (
 var ErrInvalidRestDays = errors.New("rest days must be between 1-6")
 
 type Streak struct {
-	restDays    int
-	current     int
-	longest     int
-	lastWorkout time.Time
+	RestDays    int
+	Current     int
+	Longest     int
+	LastWorkout time.Time
 }
 
-func NewStreak(restDays int) (Streak, error) {
+func NewStreak() Streak {
+	return Streak{
+		RestDays: 2,
+		Current:  0,
+		Longest:  0,
+	}
+}
+
+func (s *Streak) UpdateRestDays(restDays int) error {
 	if restDays == 0 {
 		restDays = 2
 	}
 
 	if restDays < 1 || restDays > 6 {
-		return Streak{}, ErrInvalidRestDays
+		return ErrInvalidRestDays
 	}
 
-	return Streak{
-		restDays: restDays,
-		current:  0,
-		longest:  0,
-	}, nil
+	s.RestDays = restDays
+
+	return nil
 }
 
-func (s Streak) RecordWorkout(workoutDate time.Time) Streak {
-	if s.lastWorkout.IsZero() {
-		return Streak{
-			restDays:    s.restDays,
-			current:     1,
-			longest:     1,
-			lastWorkout: workoutDate,
-		}
+func (s *Streak) RecordWorkout(workoutDate time.Time) {
+	if s.LastWorkout.IsZero() {
+		s.Current = 1
+		s.Longest = 1
+		s.LastWorkout = workoutDate
+		return
 	}
 
 	// Calculate days since last workout
-	hoursSince := workoutDate.Sub(s.lastWorkout).Hours()
-	daysSince := hoursSince / 24
-
-	newCurrent := s.current
-	if daysSince > float64(s.restDays) {
-		newCurrent = 1 // Streak broken
+	daysSince := workoutDate.Sub(s.LastWorkout).Hours() / 24
+	if daysSince > float64(s.RestDays) {
+		s.Current = 1
 	} else {
-		newCurrent++ // Streak continues
+		s.Current++
 	}
 
-	newLongest := s.longest
-	newLongest = max(newLongest, newCurrent)
-
-	return Streak{
-		restDays:    s.restDays,
-		current:     newCurrent,
-		longest:     newLongest,
-		lastWorkout: workoutDate,
+	if s.Current > s.Longest {
+		s.Longest = s.Current
 	}
-}
 
-func (s Streak) RestDays() int {
-	return s.restDays
-}
-
-func (s Streak) Current() int {
-	return s.current
-}
-
-func (s Streak) Longest() int {
-	return s.longest
-}
-
-func (s Streak) LastWorkout() time.Time {
-	return s.lastWorkout
+	s.LastWorkout = workoutDate
 }
 
 func (s Streak) IsActive() bool {
-	if s.lastWorkout.IsZero() {
+	if s.LastWorkout.IsZero() {
 		return false
 	}
-	daysSince := time.Since(s.lastWorkout).Hours() / 24
-	return daysSince <= float64(s.restDays)
+
+	daysSince := time.Since(s.LastWorkout).Hours() / 24
+	return daysSince <= float64(s.RestDays)
 }
 
 func (s Streak) DaysUntilExpiry() int {
-	if s.lastWorkout.IsZero() {
+	if s.LastWorkout.IsZero() {
 		return 0
 	}
-	daysSince := time.Since(s.lastWorkout).Hours() / 24
-	remaining := s.restDays - int(daysSince)
+	daysSince := time.Since(s.LastWorkout).Hours() / 24
+	remaining := s.RestDays - int(daysSince)
 	if remaining < 0 {
 		return 0
 	}
@@ -99,23 +81,19 @@ func (s Streak) DaysUntilExpiry() int {
 }
 
 // Break manually reset the streak
-func (s Streak) Break() Streak {
-	return Streak{
-		restDays:    s.restDays,
-		current:     0,
-		longest:     s.longest,
-		lastWorkout: time.Time{},
-	}
+func (s *Streak) Break() {
+	s.Current = 0
+	s.LastWorkout = time.Time{}
 }
 
 func (s Streak) Progress() float64 {
-	if s.lastWorkout.IsZero() {
+	if s.LastWorkout.IsZero() {
 		return 0
 	}
 
-	daysSince := time.Since(s.lastWorkout).Hours() / 24
-	if daysSince > float64(s.restDays) {
+	daysSince := time.Since(s.LastWorkout).Hours() / 24
+	if daysSince > float64(s.RestDays) {
 		return 1
 	}
-	return daysSince / float64(s.restDays)
+	return daysSince / float64(s.RestDays)
 }
