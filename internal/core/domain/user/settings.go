@@ -20,12 +20,12 @@ type Settings struct {
 	UpdatedAt time.Time
 }
 
-func NewSettings(weightUnit WeightUnit, heightUnit HeightUnit, theme Theme, visibility Visibility) Settings {
+func NewSettings() Settings {
 	return Settings{
-		WeightUnit:      weightUnit,
-		HeightUnit:      heightUnit,
-		Theme:           theme,
-		Visibility:      visibility,
+		WeightUnit:      Kg,
+		HeightUnit:      Cm,
+		Theme:           System,
+		Visibility:      Public,
 		EmailNotif:      true,
 		PushNotif:       true,
 		WorkoutReminder: true,
@@ -33,4 +33,8 @@ func NewSettings(weightUnit WeightUnit, heightUnit HeightUnit, theme Theme, visi
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 	}
+}
+
+func (s *Settings) Touch() {
+	s.UpdatedAt = time.Now()
 }
