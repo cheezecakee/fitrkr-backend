@@ -12,15 +12,14 @@ var (
 )
 
 type Height struct {
-	value float64
-	unit  HeightUnit
+	Value float64
 }
 
 type HeightUnit string
 
 const (
-	Cm   HeightUnit = "cm"
-	FtIn HeightUnit = "ft_in"
+	Cm HeightUnit = "cm"
+	Ft HeightUnit = "ft"
 )
 
 func NewHeight(value float64, unit HeightUnit) (Height, error) {
@@ -31,15 +30,13 @@ func NewHeight(value float64, unit HeightUnit) (Height, error) {
 		return Height{}, ErrHeightZero
 	}
 
-	return Height{
-		value: value,
-		unit:  unit,
-	}, nil
-}
+	if unit == Ft {
+		value *= 30.48
+	}
 
-func NewHeightFtIn(feet int, inches float64) (Height, error) {
-	totalInches := float64(feet)*12 + inches
-	return NewHeight(totalInches, FtIn)
+	return Height{
+		Value: value,
+	}, nil
 }
 
 func NewHeightUnit(unit string) (HeightUnit, error) {
@@ -50,36 +47,17 @@ func NewHeightUnit(unit string) (HeightUnit, error) {
 	switch unit {
 	case "cm":
 		return Cm, nil
-	case "ft_in":
-		return FtIn, nil
+	case "ft":
+		return Ft, nil
 	default:
 		return "", ErrInvalidHeightUnit
 	}
 }
 
-func (h Height) ToCm() float64 {
-	if h.unit == Cm {
-		return h.value // already cm
+func (h Height) Display(unit HeightUnit) float64 {
+	if unit == Ft {
+		return h.Value / 30.48
 	}
 
-	return h.value * 2.54
-}
-
-func (h Height) ToFtIn() (feet int, inches float64) {
-	totalInches := h.value
-	if h.unit == Cm {
-		totalInches = h.value / 2.54
-	}
-
-	feet = int(totalInches / 12)
-	inches = totalInches - float64(feet*12)
-	return feet, inches // ft_in
-}
-
-func (h Height) Unit() HeightUnit {
-	return h.unit
-}
-
-func (h Height) Value() float64 {
-	return h.value
+	return h.Value
 }
