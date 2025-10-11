@@ -7,64 +7,78 @@ import (
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
-func TestStreak(t *testing.T) {
+func TestNewStreak(t *testing.T) {
+	s := user.NewStreak()
+
+	if s.RestDays != 2 {
+		t.Errorf("expected RestDays to default to 2, got %v", s.RestDays)
+	}
+	if s.Current != 0 {
+		t.Errorf("expected Current to be 0, got %v", s.Current)
+	}
+	if s.Longest != 0 {
+		t.Errorf("expected Longest to be 0, got %v", s.Longest)
+	}
+	if !s.LastWorkout.IsZero() {
+		t.Error("expected LastWorkout to be zero")
+	}
+}
+
+func TestStreak_UpdateRestDays(t *testing.T) {
 	tests := []struct {
 		name     string
 		restDays int
 		wantErr  bool
 	}{
 		{
-			name:     "valid streak",
-			restDays: 2,
+			name:     "valid rest days",
+			restDays: 3,
 			wantErr:  false,
 		},
 		{
-			name:     "invalid streak - negative value",
+			name:     "valid rest days - minimum",
+			restDays: 1,
+			wantErr:  false,
+		},
+		{
+			name:     "valid rest days - maximum",
+			restDays: 6,
+			wantErr:  false,
+		},
+		{
+			name:     "default when zero",
+			restDays: 0,
+			wantErr:  false,
+		},
+		{
+			name:     "invalid - negative",
 			restDays: -5,
 			wantErr:  true,
 		},
 		{
-			name:     "ivalid streak - over 6",
+			name:     "invalid - over maximum",
 			restDays: 8,
 			wantErr:  true,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := user.NewStreak(tt.restDays)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("NewStreak() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
 
-func TestStreak_ValidCases(t *testing.T) {
-	tests := []struct {
-		name     string
-		restDays int
-		want     int
-	}{
-		{
-			name:     "valid streak",
-			restDays: 3,
-			want:     3,
-		},
-		{
-			name:     "valid streak - default 2",
-			restDays: 0,
-			want:     2,
-		},
-	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := user.NewStreak(tt.restDays)
-			restDays := got.RestDays()
-			if err != nil {
-				t.Errorf("NewStreak() unexpected error = %v", err)
+			s := user.NewStreak()
+			err := s.UpdateRestDays(tt.restDays)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdateRestDays() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if restDays != tt.want {
-				t.Errorf("NewStreak() = %v, want %v", restDays, tt.want)
+
+			if !tt.wantErr {
+				expected := tt.restDays
+				if expected == 0 {
+					expected = 2 // defaults to 2
+				}
+				if s.RestDays != expected {
+					t.Errorf("expected RestDays to be %d, got %d", expected, s.RestDays)
+				}
 			}
 		})
 	}
@@ -75,16 +89,15 @@ func TestStreak_RecordWorkout(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		setup       func() user.Streak
+		setup       func() *user.Streak
 		workoutTime time.Time
 		wantCurrent int
 		wantLongest int
 	}{
 		{
 			name: "first workout initializes streak",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				return s
+			setup: func() *user.Streak {
+				return &user.Streak{RestDays: 2, Current: 0, Longest: 0}
 			},
 			workoutTime: now,
 			wantCurrent: 1,
@@ -92,10 +105,10 @@ func TestStreak_RecordWorkout(t *testing.T) {
 		},
 		{
 			name: "second workout within restDays continues streak",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				// record a workout 1 day ago
-				return s.RecordWorkout(now.Add(-24 * time.Hour))
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+				s.RecordWorkout(now.Add(-24 * time.Hour))
+				return s
 			},
 			workoutTime: now,
 			wantCurrent: 2,
@@ -103,23 +116,22 @@ func TestStreak_RecordWorkout(t *testing.T) {
 		},
 		{
 			name: "missed beyond restDays resets streak",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				// simulate older workouts
-				s = s.RecordWorkout(now.Add(-72 * time.Hour)) // 3 days ago
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+				s.RecordWorkout(now.Add(-72 * time.Hour))
 				return s
 			},
 			workoutTime: now,
 			wantCurrent: 1,
-			wantLongest: 1, // since streak resets
+			wantLongest: 1,
 		},
 		{
 			name: "streak resets but keeps longest record",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				s = s.RecordWorkout(time.Now().Add(-48 * time.Hour)) // 2 days ago
-				s = s.RecordWorkout(time.Now())                      // continue
-				s = s.RecordWorkout(time.Now().Add(-72 * time.Hour)) // break (3 days ago)
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+				s.RecordWorkout(time.Now().Add(-48 * time.Hour))
+				s.RecordWorkout(time.Now())
+				s.RecordWorkout(time.Now().Add(-72 * time.Hour))
 				return s
 			},
 			workoutTime: time.Now(),
@@ -128,9 +140,9 @@ func TestStreak_RecordWorkout(t *testing.T) {
 		},
 		{
 			name: "workout exactly on restDays boundary continues streak",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(3)
-				s = s.RecordWorkout(time.Now().Add(-72 * time.Hour)) // exactly 3 days ago
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 3, Current: 0, Longest: 0}
+				s.RecordWorkout(time.Now().Add(-72 * time.Hour))
 				return s
 			},
 			workoutTime: time.Now(),
@@ -139,9 +151,9 @@ func TestStreak_RecordWorkout(t *testing.T) {
 		},
 		{
 			name: "workout just over restDays resets streak",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(3)
-				s = s.RecordWorkout(time.Now().Add(-73 * time.Hour)) // slightly over 3 days
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 3, Current: 0, Longest: 0}
+				s.RecordWorkout(time.Now().Add(-73 * time.Hour))
 				return s
 			},
 			workoutTime: time.Now(),
@@ -150,11 +162,11 @@ func TestStreak_RecordWorkout(t *testing.T) {
 		},
 		{
 			name: "10 consecutive workouts within restDays",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
 				now := time.Now()
 				for i := 9; i >= 0; i-- {
-					s = s.RecordWorkout(now.Add(time.Duration(-i*24) * time.Hour))
+					s.RecordWorkout(now.Add(time.Duration(-i*24) * time.Hour))
 				}
 				return s
 			},
@@ -166,14 +178,14 @@ func TestStreak_RecordWorkout(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			initial := tt.setup()
-			got := initial.RecordWorkout(tt.workoutTime)
+			s := tt.setup()
+			s.RecordWorkout(tt.workoutTime)
 
-			if got.Current() != tt.wantCurrent {
-				t.Errorf("Current() = %v, want %v", got.Current(), tt.wantCurrent)
+			if s.Current != tt.wantCurrent {
+				t.Errorf("Current = %v, want %v", s.Current, tt.wantCurrent)
 			}
-			if got.Longest() != tt.wantLongest {
-				t.Errorf("Longest() = %v, want %v", got.Longest(), tt.wantLongest)
+			if s.Longest != tt.wantLongest {
+				t.Errorf("Longest = %v, want %v", s.Longest, tt.wantLongest)
 			}
 		})
 	}
@@ -184,38 +196,38 @@ func TestStreak_IsActive(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		setup      func() user.Streak
+		setup      func() *user.Streak
 		wantActive bool
 	}{
 		{
 			name: "no workouts yet",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				return s
+			setup: func() *user.Streak {
+				return &user.Streak{RestDays: 2, Current: 0, Longest: 0}
 			},
 			wantActive: false,
 		},
 		{
 			name: "recent workout within restDays",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(3)
-				return s.RecordWorkout(now.Add(-48 * time.Hour)) // 2 days ago
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 3, Current: 0, Longest: 0}
+				s.RecordWorkout(now.Add(-48 * time.Hour))
+				return s
 			},
 			wantActive: true,
 		},
 		{
 			name: "workout too long ago",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				return s.RecordWorkout(now.Add(-96 * time.Hour)) // 4 days ago
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+				s.RecordWorkout(now.Add(-96 * time.Hour))
+				return s
 			},
 			wantActive: false,
 		},
 		{
 			name: "new streak with no workouts is inactive",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(3)
-				return s
+			setup: func() *user.Streak {
+				return &user.Streak{RestDays: 3, Current: 0, Longest: 0}
 			},
 			wantActive: false,
 		},
@@ -236,40 +248,42 @@ func TestStreak_DaysUntilExpiry(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		setup   func() user.Streak
+		setup   func() *user.Streak
 		wantRem int
 	}{
 		{
 			name: "no workouts yet",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				return s
+			setup: func() *user.Streak {
+				return &user.Streak{RestDays: 2, Current: 0, Longest: 0}
 			},
 			wantRem: 0,
 		},
 		{
 			name: "recent workout - within restDays",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(3)
-				return s.RecordWorkout(now.Add(-24 * time.Hour)) // 1 day ago
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 3, Current: 0, Longest: 0}
+				s.RecordWorkout(now.Add(-24 * time.Hour))
+				return s
 			},
 			wantRem: 2,
 		},
 		{
 			name: "expired streak",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				return s.RecordWorkout(now.Add(-96 * time.Hour)) // 4 days ago
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+				s.RecordWorkout(now.Add(-96 * time.Hour))
+				return s
 			},
 			wantRem: 0,
 		},
 		{
 			name: "half day since last workout",
-			setup: func() user.Streak {
-				s, _ := user.NewStreak(2)
-				return s.RecordWorkout(time.Now().Add(-12 * time.Hour))
+			setup: func() *user.Streak {
+				s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+				s.RecordWorkout(time.Now().Add(-12 * time.Hour))
+				return s
 			},
-			wantRem: 2, // should round down correctly
+			wantRem: 2,
 		},
 	}
 
@@ -284,22 +298,27 @@ func TestStreak_DaysUntilExpiry(t *testing.T) {
 }
 
 func TestStreak_Break(t *testing.T) {
-	s, _ := user.NewStreak(2)
-	s = s.RecordWorkout(time.Now())
-	s = s.Break()
+	s := &user.Streak{RestDays: 2, Current: 0, Longest: 0}
+	s.RecordWorkout(time.Now())
 
-	if s.Current() != 0 {
-		t.Errorf("expected Current() = 0 after Break(), got %v", s.Current())
+	if s.Current == 0 {
+		t.Error("expected Current to be set before Break()")
 	}
-	if !s.LastWorkout().IsZero() {
-		t.Errorf("expected LastWorkout() to be zero after Break()")
+
+	s.Break()
+
+	if s.Current != 0 {
+		t.Errorf("expected Current = 0 after Break(), got %v", s.Current)
+	}
+	if !s.LastWorkout.IsZero() {
+		t.Error("expected LastWorkout to be zero after Break()")
 	}
 }
 
 func TestStreak_Progress(t *testing.T) {
-	s, _ := user.NewStreak(3)
+	s := &user.Streak{RestDays: 3, Current: 0, Longest: 0}
 	now := time.Now()
-	s = s.RecordWorkout(now.Add(-36 * time.Hour)) // 1.5 days ago
+	s.RecordWorkout(now.Add(-36 * time.Hour))
 
 	progress := s.Progress()
 	if progress <= 0 || progress >= 1 {
