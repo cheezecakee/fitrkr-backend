@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cheezecakee/fitrkr-athena/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 )
 
 var (
@@ -15,12 +15,16 @@ var (
 )
 
 type UserService interface {
-	CreateAccount(context.Context, CreateAccountReq) (*CreateAccountResp, error)
-	GetByID(ctx context.Context, id string) (*GetUserResp, error)
-	GetByUsername(ctx context.Context, username string) (*GetUserResp, error)
-	GetByEmail(ctx context.Context, email string) (*GetUserResp, error)
-	Update(ctx context.Context, req UpdateUserReq, id string) error
-	Delete(ctx context.Context, id string) error
+	CreateAccount(ctx context.Context, req CreateAccountReq) (*CreateAccountResp, error)
+	GetByID(ctx context.Context, req GetUserByIDReq) (*GetUserResp, error)
+	GetByUsername(ctx context.Context, req GetUserByUsernameReq) (*GetUserResp, error)
+	GetByEmail(ctx context.Context, req GetUserByEmailReq) (*GetUserResp, error)
+	Update(ctx context.Context, req UpdateUserReq) error
+	Delete(ctx context.Context, req DeleteAccountReq) error
+
+	GetStats(ctx context.Context, req GetStatsReq) (*GetStatsResp, error)
+	GetSubscription(ctx context.Context, req GetSubscriptionReq) (*GetSubscriptionResp, error)
+	GetSettings(ctx context.Context, req GetSettingsReq) (*GetSettingsResp, error)
 }
 
 type Service struct {
