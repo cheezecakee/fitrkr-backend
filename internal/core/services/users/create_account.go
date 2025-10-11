@@ -7,7 +7,7 @@ import (
 	"github.com/cheezecakee/logr"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-athena/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 )
 
 type CreateAccountReq struct {
@@ -74,11 +74,26 @@ func (s *Service) CreateAccount(ctx context.Context, req CreateAccountReq) (*Cre
 		return nil, ErrDuplicateEmail
 	}
 
-	user := user.New(username, fullName, email, roles, password)
+	// create everything with default values
+	user := user.New(username, fullName, email, roles, password, user.NewStats(), user.NewSubscription(), user.NewSettings())
 
 	if err := s.userRepo.Add(ctx, user); err != nil {
 		logr.Get().Errorf("failed to add a user: %v", err)
 		return nil, fmt.Errorf("failed to add a user: %w", err)
+	}
+
+	if err = s.userRepo.AddStats(ctx, user.Stats, user.ID.String()); err != nil {
+		logr.Get().Errorf("failed to add user stats: %v", err)
+		return nil, fmt.Errorf("failed to add user stats: %w", err)
+	}
+
+	if err = s.userRepo.AddSubscription(ctx, user.Subscription, user.ID.String()); err != nil {
+		logr.Get().Errorf("failed to add user subscription: %v", err)
+		return nil, fmt.Errorf("failed to add user subscription: %w", err)
+	}
+	if err = s.userRepo.AddSettings(ctx, user.Settings, user.ID.String()); err != nil {
+		logr.Get().Errorf("failed to add user settings: %v", err)
+		return nil, fmt.Errorf("failed to add user settings: %w", err)
 	}
 
 	logr.Get().Info("New user account created")
