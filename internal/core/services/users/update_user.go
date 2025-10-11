@@ -8,18 +8,19 @@ import (
 	"github.com/cheezecakee/logr"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-athena/internal/ports"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 )
 
 type UpdateUserReq struct {
+	ID        string `json:"id"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
 
-func (s *Service) Update(ctx context.Context, req UpdateUserReq, id string) error {
-	existingUser, err := s.userRepo.GetByID(ctx, id)
+func (s *Service) Update(ctx context.Context, req UpdateUserReq) error {
+	existingUser, err := s.userRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		logr.Get().Errorf("failed to get user: %v", err)
 		return fmt.Errorf("failed to get user: %w", err)
@@ -92,7 +93,15 @@ func (s *Service) Update(ctx context.Context, req UpdateUserReq, id string) erro
 	}
 
 	existingUser.UpdatedAt = time.Now()
-	err = s.userRepo.Update(ctx, *existingUser)
+	user := &user.User{
+		ID:        existingUser.ID,
+		Username:  existingUser.Username,
+		FullName:  existingUser.FullName,
+		Email:     existingUser.Email,
+		CreatedAt: existingUser.CreatedAt,
+		UpdatedAt: existingUser.UpdatedAt,
+	}
+	err = s.userRepo.Update(ctx, *user)
 	if err != nil {
 		logr.Get().Errorf("error update user: %v", err)
 		return fmt.Errorf("error update user: %w", err)
