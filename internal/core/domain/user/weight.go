@@ -12,8 +12,7 @@ var (
 )
 
 type Weight struct {
-	value float64
-	unit  WeightUnit
+	Value float64
 }
 
 type WeightUnit string
@@ -31,9 +30,12 @@ func NewWeight(value float64, unit WeightUnit) (Weight, error) {
 		return Weight{}, ErrWeightZero
 	}
 
+	if unit == Lb {
+		value *= 0.453592 // Lb to kg for storage
+	}
+
 	return Weight{
-		value: value,
-		unit:  unit,
+		Value: value,
 	}, nil
 }
 
@@ -52,26 +54,23 @@ func NewWeightUnit(unit string) (WeightUnit, error) {
 	}
 }
 
-func (w Weight) ToKg() float64 {
-	if w.unit == Kg {
-		return w.value
+func (w Weight) Display(unit WeightUnit) float64 {
+	if unit == Lb {
+		return w.Value * 2.20462
 	}
-	return w.value * 0.453592 // lb to kg
+	return w.Value
 }
 
-func (w Weight) ToLbs() float64 {
-	if w.unit == Lb {
-		return w.value
+// As helper function for something in the future... maybe?
+func (w Weight) As(unit WeightUnit) Weight {
+	switch unit {
+	case Lb:
+		return Weight{Value: w.Value * 2.20462}
+	case Kg:
+		return Weight{Value: w.Value * 0.453592}
+	default:
+		return w
 	}
-	return w.value * 2.20462 // kg to lb
-}
-
-func (w Weight) Unit() WeightUnit {
-	return w.unit
-}
-
-func (w Weight) Value() float64 {
-	return w.value
 }
 
 // Todo
