@@ -8,22 +8,17 @@ import (
 )
 
 func TestNewSettings(t *testing.T) {
-	weightUnit := user.Kg
-	heightUnit := user.Cm
-	theme := user.Dark
-	visibility := user.Public
+	settings := user.NewSettings()
 
-	settings := user.NewSettings(weightUnit, heightUnit, theme, visibility)
-
-	// Verify provided values are set correctly
+	// Verify defaults are set
 	if settings.WeightUnit != user.Kg {
 		t.Errorf("expected WeightUnit to be Kg, got %v", settings.WeightUnit)
 	}
 	if settings.HeightUnit != user.Cm {
 		t.Errorf("expected HeightUnit to be Cm, got %v", settings.HeightUnit)
 	}
-	if settings.Theme != user.Dark {
-		t.Errorf("expected Theme to be Dark, got %v", settings.Theme)
+	if settings.Theme != user.System {
+		t.Errorf("expected Theme to be System, got %v", settings.Theme)
 	}
 	if settings.Visibility != user.Public {
 		t.Errorf("expected Visibility to be Public, got %v", settings.Visibility)
@@ -61,67 +56,9 @@ func TestNewSettings(t *testing.T) {
 	}
 }
 
-func TestNewSettings_DifferentCombinations(t *testing.T) {
-	tests := []struct {
-		name       string
-		weightUnit user.WeightUnit
-		heightUnit user.HeightUnit
-		theme      user.Theme
-		visibility user.Visibility
-	}{
-		{
-			name:       "metric units with dark theme and public",
-			weightUnit: user.Kg,
-			heightUnit: user.Cm,
-			theme:      user.Dark,
-			visibility: user.Public,
-		},
-		{
-			name:       "imperial units with light theme and private",
-			weightUnit: user.Lb,
-			heightUnit: user.FtIn,
-			theme:      user.Light,
-			visibility: user.Private,
-		},
-		{
-			name:       "mixed units with system theme and public",
-			weightUnit: user.Kg,
-			heightUnit: user.FtIn,
-			theme:      user.System,
-			visibility: user.Public,
-		},
-		{
-			name:       "imperial weight metric height",
-			weightUnit: user.Lb,
-			heightUnit: user.Cm,
-			theme:      user.Dark,
-			visibility: user.Private,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			settings := user.NewSettings(tt.weightUnit, tt.heightUnit, tt.theme, tt.visibility)
-
-			if settings.WeightUnit != tt.weightUnit {
-				t.Errorf("expected WeightUnit %v, got %v", tt.weightUnit, settings.WeightUnit)
-			}
-			if settings.HeightUnit != tt.heightUnit {
-				t.Errorf("expected HeightUnit %v, got %v", tt.heightUnit, settings.HeightUnit)
-			}
-			if settings.Theme != tt.theme {
-				t.Errorf("expected Theme %v, got %v", tt.theme, settings.Theme)
-			}
-			if settings.Visibility != tt.visibility {
-				t.Errorf("expected Visibility %v, got %v", tt.visibility, settings.Visibility)
-			}
-		})
-	}
-}
-
 func TestNewSettings_TimestampsAreRecent(t *testing.T) {
 	before := time.Now()
-	settings := user.NewSettings(user.Kg, user.Cm, user.System, user.Public)
+	settings := user.NewSettings()
 	after := time.Now()
 
 	// Verify CreatedAt is between before and after
@@ -136,7 +73,7 @@ func TestNewSettings_TimestampsAreRecent(t *testing.T) {
 }
 
 func TestSettings_NotificationDefaultsCanBeChanged(t *testing.T) {
-	settings := user.NewSettings(user.Kg, user.Cm, user.Dark, user.Public)
+	settings := user.NewSettings()
 
 	// All notifications should start as true
 	if !settings.EmailNotif || !settings.PushNotif || !settings.WorkoutReminder || !settings.StreakReminder {
@@ -153,6 +90,7 @@ func TestSettings_NotificationDefaultsCanBeChanged(t *testing.T) {
 	if settings.WorkoutReminder {
 		t.Error("expected WorkoutReminder to be false after change")
 	}
+
 	// Others should still be true
 	if !settings.PushNotif {
 		t.Error("expected PushNotif to remain true")
@@ -163,33 +101,47 @@ func TestSettings_NotificationDefaultsCanBeChanged(t *testing.T) {
 }
 
 func TestSettings_CanUpdateUnitsAndPreferences(t *testing.T) {
-	settings := user.NewSettings(user.Kg, user.Cm, user.Light, user.Private)
+	settings := user.NewSettings()
 
 	// Verify initial state
 	if settings.WeightUnit != user.Kg {
 		t.Error("expected initial WeightUnit to be Kg")
 	}
-	if settings.Theme != user.Light {
-		t.Error("expected initial Theme to be Light")
+	if settings.Theme != user.System {
+		t.Error("expected initial Theme to be System")
 	}
 
 	// Update preferences
 	settings.WeightUnit = user.Lb
-	settings.HeightUnit = user.FtIn
+	settings.HeightUnit = user.Ft
 	settings.Theme = user.Dark
-	settings.Visibility = user.Public
+	settings.Visibility = user.Private
 
 	// Verify updates
 	if settings.WeightUnit != user.Lb {
 		t.Errorf("expected WeightUnit to be Lb, got %v", settings.WeightUnit)
 	}
-	if settings.HeightUnit != user.FtIn {
-		t.Errorf("expected HeightUnit to be FtIn, got %v", settings.HeightUnit)
+	if settings.HeightUnit != user.Ft {
+		t.Errorf("expected HeightUnit to be Ft, got %v", settings.HeightUnit)
 	}
 	if settings.Theme != user.Dark {
 		t.Errorf("expected Theme to be Dark, got %v", settings.Theme)
 	}
-	if settings.Visibility != user.Public {
-		t.Errorf("expected Visibility to be Public, got %v", settings.Visibility)
+	if settings.Visibility != user.Private {
+		t.Errorf("expected Visibility to be Private, got %v", settings.Visibility)
+	}
+}
+
+func TestSettings_TouchUpdatesTimestamp(t *testing.T) {
+	settings := user.NewSettings()
+	originalUpdatedAt := settings.UpdatedAt
+
+	// Small delay to ensure time difference is noticeable
+	time.Sleep(10 * time.Millisecond)
+
+	settings.Touch()
+
+	if !settings.UpdatedAt.After(originalUpdatedAt) {
+		t.Error("expected UpdatedAt to be updated after Touch()")
 	}
 }
