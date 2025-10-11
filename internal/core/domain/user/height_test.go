@@ -20,9 +20,9 @@ func TestNewHeightUnit(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "valid unit - ft_in",
-			unit:    "ft_in",
-			want:    user.FtIn,
+			name:    "valid unit - ft",
+			unit:    "ft",
+			want:    user.Ft,
 			wantErr: false,
 		},
 		{
@@ -33,12 +33,12 @@ func TestNewHeightUnit(t *testing.T) {
 		},
 		{
 			name:    "valid unit - mixedcase",
-			unit:    "Ft_iN",
-			want:    user.FtIn,
+			unit:    "Ft",
+			want:    user.Ft,
 			wantErr: false,
 		},
 		{
-			name:    "valid unit - empty (defaults to cm)",
+			name:    "valid unit - empty defaults to cm",
 			unit:    "",
 			want:    user.Cm,
 			wantErr: false,
@@ -95,49 +95,53 @@ func TestHeight_Conversion(t *testing.T) {
 		value  float64
 		unit   user.HeightUnit
 		wantCm float64
+		wantFt float64
 	}{
-		// --- Basic conversions ---
 		{
-			name:   "100 cm to ft/in",
+			name:   "100 cm to conversions",
 			value:  100,
 			unit:   user.Cm,
 			wantCm: 100,
+			wantFt: 3.28084,
 		},
 		{
-			name:   "180 cm to ft/in",
+			name:   "180 cm to conversions",
 			value:  180,
 			unit:   user.Cm,
 			wantCm: 180,
+			wantFt: 5.90551,
 		},
 		{
-			name:   "60 inches (5 ft) to cm",
-			value:  60,
-			unit:   user.FtIn,
+			name:   "5 ft to cm",
+			value:  5,
+			unit:   user.Ft,
 			wantCm: 152.4,
+			wantFt: 5,
 		},
 		{
-			name:   "72 inches (6 ft) to cm",
-			value:  72,
-			unit:   user.FtIn,
+			name:   "6 ft to cm",
+			value:  6,
+			unit:   user.Ft,
 			wantCm: 182.88,
+			wantFt: 6,
 		},
-
-		// --- Edge cases ---
 		{
 			name:   "very small height",
 			value:  1,
 			unit:   user.Cm,
 			wantCm: 1,
+			wantFt: 0.0328084,
 		},
 		{
 			name:   "large height",
 			value:  250,
 			unit:   user.Cm,
 			wantCm: 250,
+			wantFt: 8.2021,
 		},
 	}
 
-	const tolerance = 0.01 // floating-point tolerance (cm)
+	const tolerance = 0.01
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -146,15 +150,14 @@ func TestHeight_Conversion(t *testing.T) {
 				t.Fatalf("unexpected error: %v", err)
 			}
 
-			gotCm := h.ToCm()
-			gotFt, gotIn := h.ToFtIn()
-			backToCm := float64(gotFt*12)*2.54 + gotIn*2.54
+			gotCm := h.Display(user.Cm)
+			gotFt := h.Display(user.Ft)
 
 			if diff := gotCm - tt.wantCm; diff < -tolerance || diff > tolerance {
-				t.Errorf("ToCm() = %v, want %v", gotCm, tt.wantCm)
+				t.Errorf("Display(Cm) = %v, want %v", gotCm, tt.wantCm)
 			}
-			if diff := backToCm - tt.wantCm; diff < -tolerance || diff > tolerance {
-				t.Errorf("round-trip cm mismatch: got %v cm, want %v cm", backToCm, tt.wantCm)
+			if diff := gotFt - tt.wantFt; diff < -tolerance || diff > tolerance {
+				t.Errorf("Display(Ft) = %v, want %v", gotFt, tt.wantFt)
 			}
 		})
 	}
@@ -174,13 +177,13 @@ func TestNewHeight(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "valid height - ft/in",
+			name:    "valid height - ft",
 			value:   70,
-			unit:    user.FtIn,
+			unit:    user.Ft,
 			wantErr: false,
 		},
 		{
-			name:    "invalid height - negative number",
+			name:    "invalid height - negative",
 			value:   -39.9,
 			unit:    user.Cm,
 			wantErr: true,
