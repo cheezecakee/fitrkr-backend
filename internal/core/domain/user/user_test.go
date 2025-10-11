@@ -13,13 +13,11 @@ func TestNewUser(t *testing.T) {
 	username := user.Username("testuser")
 	fullName := "Test User"
 	email := user.Email("test@example.com")
-	password := user.Password("secret123!")
+	password := user.Password("Secure123!")
 	roles := user.Roles{user.RoleAdmin}
 	sub := user.NewSubscription()
-	settings := user.NewSettings(user.Kg, user.Cm, user.Dark, user.Public)
-
-	streak, _ := user.NewStreak(0)
-	stats := user.NewStats(streak)
+	settings := user.NewSettings()
+	stats := user.NewStats()
 
 	u := user.New(username, fullName, email, roles, password, stats, sub, settings)
 
@@ -39,6 +37,11 @@ func TestNewUser(t *testing.T) {
 		t.Errorf("expected email %v, got %v", email, u.Email)
 	}
 
+	// Roles are directly accessible now
+	if !equalRoles(u.Roles, roles) {
+		t.Errorf("expected roles %v, got %v", roles, u.Roles)
+	}
+
 	if time.Since(u.CreatedAt) > 2*time.Second {
 		t.Errorf("expected CreatedAt to be recent, got %v", u.CreatedAt)
 	}
@@ -46,64 +49,29 @@ func TestNewUser(t *testing.T) {
 	if time.Since(u.UpdatedAt) > 2*time.Second {
 		t.Errorf("expected UpdatedAt to be recent, got %v", u.UpdatedAt)
 	}
-
-	// Roles should be stored and retrievable
-	if got := u.Roles(); !equalRoles(got, roles) {
-		t.Errorf("expected roles %v, got %v", roles, got)
-	}
 }
 
-func TestReconstituteUser(t *testing.T) {
-	id := uuid.New()
-	username := user.Username("restored")
-	fullName := "Restored User"
-	email := user.Email("restore@example.com")
-	roles := user.Roles{user.RoleUser}
-	createdAt := time.Now().Add(-10 * time.Hour)
-	updatedAt := time.Now().Add(-5 * time.Hour)
-
-	// Build snapshot including zero-values for aggregates
-	snapshot := user.UserSnapshot{
-		ID:           id,
-		Username:     username,
-		FullName:     fullName,
-		Email:        email,
-		Roles:        roles,
-		Stats:        user.Stats{},
-		Subscription: user.Subscription{},
-		Settings:     user.Settings{},
-		CreatedAt:    createdAt,
-		UpdatedAt:    updatedAt,
+func TestNewRolesValidation(t *testing.T) {
+	// Valid roles
+	roles, err := user.NewRoles([]string{"user", "admin"})
+	if err != nil {
+		t.Errorf("expected no error for valid roles, got %v", err)
 	}
 
-	u := snapshot.Reconstitute()
-
-	if u.ID != id {
-		t.Errorf("expected ID %v, got %v", id, u.ID)
+	if !equalRoles(roles, user.Roles{user.RoleUser, user.RoleAdmin}) {
+		t.Errorf("expected roles to be user and admin")
 	}
 
-	if u.CreatedAt != createdAt {
-		t.Errorf("expected CreatedAt %v, got %v", createdAt, u.CreatedAt)
+	// Invalid role
+	_, err = user.NewRoles([]string{"invalid"})
+	if err == nil {
+		t.Error("expected error for invalid role")
 	}
 
-	if u.UpdatedAt != updatedAt {
-		t.Errorf("expected UpdatedAt %v, got %v", updatedAt, u.UpdatedAt)
-	}
-
-	if got := u.Roles(); !equalRoles(got, roles) {
-		t.Errorf("expected roles %v, got %v", roles, got)
-	}
-}
-
-func TestRoleGetter_IsImmutable(t *testing.T) {
-	roles := user.Roles{user.RoleAdmin}
-	u := user.New("testuser", "Full Name", "test@example.com", roles, "secret123!", user.Stats{}, user.Subscription{}, user.Settings{})
-
-	copyRoles := u.Roles()
-	copyRoles[0] = user.RoleModerator
-
-	if equalRoles(copyRoles, u.Roles()) {
-		t.Error("expected roles to be immutable, but they were modified")
+	// Empty defaults to RoleUser
+	roles, _ = user.NewRoles(nil)
+	if !equalRoles(roles, user.Roles{user.RoleUser}) {
+		t.Errorf("expected default role to be user")
 	}
 }
 
@@ -111,7 +79,6 @@ func equalRoles(a, b user.Roles) bool {
 	if len(a) != len(b) {
 		return false
 	}
-
 	for i := range a {
 		if a[i] != b[i] {
 			return false
