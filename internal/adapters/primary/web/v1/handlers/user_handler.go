@@ -39,7 +39,7 @@ func (h *UserHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	resp, err := h.Service.GetByID(r.Context(), id)
+	resp, err := h.Service.GetByID(r.Context(), users.GetUserByIDReq{ID: id})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -51,7 +51,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
-	resp, err := h.Service.GetByUsername(r.Context(), username)
+	resp, err := h.Service.GetByUsername(r.Context(), users.GetUserByUsernameReq{Username: username})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -63,7 +63,7 @@ func (h *UserHandler) GetUserByUsername(w http.ResponseWriter, r *http.Request) 
 func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 	email := chi.URLParam(r, "email")
 
-	resp, err := h.Service.GetByEmail(r.Context(), email)
+	resp, err := h.Service.GetByEmail(r.Context(), users.GetUserByEmailReq{Email: email})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -82,7 +82,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Service.Update(r.Context(), req, id)
+	err := h.Service.Update(r.Context(), users.UpdateUserReq{ID: id, Username: req.Username, FirstName: req.FirstName, LastName: req.LastName, Email: req.Email})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -94,7 +94,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	err := h.Service.Delete(r.Context(), id)
+	err := h.Service.Delete(r.Context(), users.DeleteAccountReq{ID: id})
 	if err != nil {
 		web.ServerError(w, err)
 		return
