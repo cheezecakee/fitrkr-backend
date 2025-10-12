@@ -70,7 +70,7 @@ func (s *Service) Update(ctx context.Context, req UpdateUserReq) error {
 	}
 
 	if req.FirstName != "" || req.LastName != "" {
-		firstName := req.LastName
+		firstName := req.FirstName
 		lastName := req.LastName
 
 		if firstName == "" || lastName == "" {
