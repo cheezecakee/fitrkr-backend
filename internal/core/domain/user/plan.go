@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-type Plan string
-
 var ErrInvalidPlan = errors.New("invalid plan")
+
+type Plan string
 
 const (
 	Basic   Plan = "basic"
