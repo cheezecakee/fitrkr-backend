@@ -106,3 +106,27 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	// TODO
 }
+
+func (h *UserHandler) GetSubscription(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	resp, err := h.Service.GetSubscription(r.Context(), users.GetSubscriptionReq{ID: id})
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, resp.Subscription)
+}
+
+func (h *UserHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	resp, err := h.Service.GetSettings(r.Context(), users.GetSettingsReq{ID: id})
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, resp.Settings)
+}
