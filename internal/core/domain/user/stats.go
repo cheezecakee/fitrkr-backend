@@ -5,8 +5,8 @@ import (
 )
 
 type Stats struct {
-	Weight    *Weight
-	Height    *Height
+	Weight    *WeightValue
+	Height    *HeightValue
 	BFP       *BFP
 	Streak    Streak
 	Totals    Totals
@@ -21,4 +21,8 @@ func NewStats() Stats {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+}
+
+func (s *Stats) Touch() {
+	s.UpdatedAt = time.Now()
 }
