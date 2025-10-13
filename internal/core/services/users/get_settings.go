@@ -14,16 +14,7 @@ type GetSettingsReq struct {
 }
 
 type GetSettingsResp struct {
-	WeightUnit user.WeightUnit
-	HeightUnit user.HeightUnit
-	Theme      user.Theme
-
-	Visibility user.Visibility
-
-	EmailNotif      bool
-	PushNotif       bool
-	WorkoutReminder bool
-	StreakReminder  bool
+	Settings user.Settings
 }
 
 func (s *Service) GetSettings(ctx context.Context, req GetSettingsReq) (*GetSettingsResp, error) {
@@ -32,14 +23,6 @@ func (s *Service) GetSettings(ctx context.Context, req GetSettingsReq) (*GetSett
 		logr.Get().Errorf("failed to get settings: %v", err)
 		return nil, fmt.Errorf("failed to get settings: %w", err)
 	}
-	return &GetSettingsResp{
-		WeightUnit:      settings.WeightUnit,
-		HeightUnit:      settings.HeightUnit,
-		Theme:           settings.Theme,
-		Visibility:      settings.Visibility,
-		EmailNotif:      settings.EmailNotifs,
-		PushNotif:       settings.PushNotifs,
-		WorkoutReminder: settings.WorkoutReminders,
-		StreakReminder:  settings.StreakReminders,
-	}, nil
+
+	return &GetSettingsResp{Settings: *settings}, nil
 }
