@@ -5,19 +5,19 @@ import (
 )
 
 type Settings struct {
-	WeightUnit WeightUnit
-	HeightUnit HeightUnit
-	Theme      Theme
+	WeightUnit WeightUnit `json:"weight_unit"`
+	HeightUnit HeightUnit `json:"height_unit"`
+	Theme      Theme      `json:"theme"`
 
-	Visibility Visibility
+	Visibility Visibility `json:"visibility"`
 
-	EmailNotif      bool
-	PushNotif       bool
-	WorkoutReminder bool
-	StreakReminder  bool
+	EmailNotif      bool `json:"email_notif"`
+	PushNotif       bool `json:"push_notif"`
+	WorkoutReminder bool `json:"workout_reminder"`
+	StreakReminder  bool `json:"streak_reminder"`
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func NewSettings() Settings {
