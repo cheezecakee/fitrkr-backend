@@ -3,7 +3,6 @@ package users
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/cheezecakee/logr"
 
@@ -15,18 +14,7 @@ type GetSubscriptionReq struct {
 }
 
 type GetSubscriptionResp struct {
-	Plan        user.Plan
-	Period      *user.Period
-	StartAt     time.Time
-	ExpiresAt   *time.Time
-	AutoRenew   bool
-	CancelledAt *time.Time
-
-	LastPaymentAt       *time.Time
-	LastPaymentAmount   *float64
-	LastPaymentCurrency *user.Currency
-
-	TrialEndsAt *time.Time
+	Subscription user.Subscription
 }
 
 func (s *Service) GetSubscription(ctx context.Context, req GetSubscriptionReq) (*GetSubscriptionResp, error) {
@@ -36,16 +24,5 @@ func (s *Service) GetSubscription(ctx context.Context, req GetSubscriptionReq) (
 		return nil, fmt.Errorf("failed to get subscription: %w", err)
 	}
 
-	return &GetSubscriptionResp{
-		Plan:                sub.Plan,
-		Period:              sub.BillingPeriod,
-		StartAt:             sub.StartedAt,
-		ExpiresAt:           sub.ExpiresAT,
-		AutoRenew:           sub.AutoRenew,
-		CancelledAt:         sub.CancelledAt,
-		LastPaymentAt:       sub.LastPaymentAt,
-		LastPaymentAmount:   sub.LastPaymentAmount,
-		LastPaymentCurrency: &sub.LastPaymentCurrency,
-		TrialEndsAt:         sub.TrialEndsAt,
-	}, nil
+	return &GetSubscriptionResp{Subscription: *sub}, nil
 }
