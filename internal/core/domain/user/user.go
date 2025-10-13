@@ -36,3 +36,7 @@ func New(username Username, fullName string, email Email, roles Roles, password 
 		UpdatedAt:    time.Now(),
 	}
 }
+
+func (s *User) Touch() {
+	s.UpdatedAt = time.Now()
+}
