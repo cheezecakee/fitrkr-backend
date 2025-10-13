@@ -60,12 +60,12 @@ func (m *MockUserRepo) AddStats(ctx context.Context, stats user.Stats, userID st
 	return args.Error(0)
 }
 
-func (m *MockUserRepo) GetStatsByID(ctx context.Context, userID string) (*ports.Stats, error) {
+func (m *MockUserRepo) GetStatsByID(ctx context.Context, userID string) (*user.Stats, error) {
 	args := m.Called(ctx, userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*ports.Stats), args.Error(1)
+	return args.Get(0).(*user.Stats), args.Error(1)
 }
 
 func (m *MockUserRepo) UpdateStats(ctx context.Context, stats user.Stats) error {
@@ -78,16 +78,16 @@ func (m *MockUserRepo) AddSubscription(ctx context.Context, sub user.Subscriptio
 	return args.Error(0)
 }
 
-func (m *MockUserRepo) GetSubscriptionByID(ctx context.Context, userID string) (*ports.Subscription, error) {
+func (m *MockUserRepo) GetSubscriptionByID(ctx context.Context, userID string) (*user.Subscription, error) {
 	args := m.Called(ctx, userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*ports.Subscription), args.Error(1)
+	return args.Get(0).(*user.Subscription), args.Error(1)
 }
 
-func (m *MockUserRepo) UpdateSubscription(ctx context.Context, sub user.Subscription) error {
-	args := m.Called(ctx, sub)
+func (m *MockUserRepo) UpdateSubscription(ctx context.Context, sub user.Subscription, userID string) error {
+	args := m.Called(ctx, sub, userID)
 	return args.Error(0)
 }
 
@@ -96,16 +96,16 @@ func (m *MockUserRepo) AddSettings(ctx context.Context, settings user.Settings, 
 	return args.Error(0)
 }
 
-func (m *MockUserRepo) GetSettingsByID(ctx context.Context, userID string) (*ports.Settings, error) {
+func (m *MockUserRepo) GetSettingsByID(ctx context.Context, userID string) (*user.Settings, error) {
 	args := m.Called(ctx, userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*ports.Settings), args.Error(1)
+	return args.Get(0).(*user.Settings), args.Error(1)
 }
 
-func (m *MockUserRepo) UpdateSettings(ctx context.Context, settings user.Settings) error {
-	args := m.Called(ctx, settings)
+func (m *MockUserRepo) UpdateSettings(ctx context.Context, settings user.Settings, userID string) error {
+	args := m.Called(ctx, settings, userID)
 	return args.Error(0)
 }
 
