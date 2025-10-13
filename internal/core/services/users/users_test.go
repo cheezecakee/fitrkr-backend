@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/cheezecakee/logr"
 	"github.com/stretchr/testify/mock"
@@ -68,8 +69,8 @@ func (m *MockUserRepo) GetStatsByID(ctx context.Context, userID string) (*user.S
 	return args.Get(0).(*user.Stats), args.Error(1)
 }
 
-func (m *MockUserRepo) UpdateStats(ctx context.Context, stats user.Stats) error {
-	args := m.Called(ctx, stats)
+func (m *MockUserRepo) UpdateBodyMetrics(ctx context.Context, stats ports.UpdateBodyMetrics, userID string) error {
+	args := m.Called(ctx, stats, userID)
 	return args.Error(0)
 }
 
@@ -115,4 +116,21 @@ func TestMain(m *testing.M) {
 	exitCode := m.Run()
 
 	os.Exit(exitCode)
+}
+
+// Helper functions
+func ptrTime(t time.Time) *time.Time {
+	return &t
+}
+
+func stringPtr(s string) *string {
+	return &s
+}
+
+func boolPtr(b bool) *bool {
+	return &b
+}
+
+func ptrFloat64(v float64) *float64 {
+	return &v
 }
