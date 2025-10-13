@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/cheezecakee/logr"
 
@@ -14,15 +15,13 @@ type GetStatsReq struct {
 }
 
 type GetStatsResp struct {
-	Weight           *user.Weight `json:"weight,omitempty"`
-	Height           *user.Height `json:"height,omitempty"`
-	BFP              *float64     `json:"body_fat_percent,omitempty"`
-	RestDays         int          `json:"rest_days"`
-	CurrentStreak    int          `json:"current_streak"`
-	LongestStreak    int          `json:"longest_streak"`
-	TotalWorkouts    int          `json:"total_workouts"`
-	TotalLifted      float64      `json:"total_lifted"`
-	TotalTimeMinutes int          `json:"total_time_minutes"`
+	Weight    *user.WeightValue `json:"weight,omitempty"`
+	Height    *user.HeightValue `json:"height,omitempty"`
+	BFP       *user.BFP         `json:"body_fat_percent,omitempty"`
+	Streak    user.Streak       `json:"streak"`
+	Total     user.Totals       `json:"total"`
+	CreateAt  time.Time         `json:"create_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 func (s *Service) GetStats(ctx context.Context, req GetStatsReq) (*GetStatsResp, error) {
@@ -39,25 +38,23 @@ func (s *Service) GetStats(ctx context.Context, req GetStatsReq) (*GetStatsResp,
 	}
 
 	resp := &GetStatsResp{
-		BFP:              stats.BFP,
-		RestDays:         stats.RestDays,
-		CurrentStreak:    stats.Current,
-		LongestStreak:    stats.Longest,
-		TotalWorkouts:    stats.TotalWorkouts,
-		TotalLifted:      stats.TotalLifted,
-		TotalTimeMinutes: stats.TotalTime,
+		BFP:       stats.BFP,
+		Streak:    stats.Streak,
+		Total:     stats.Totals,
+		CreateAt:  stats.CreatedAt,
+		UpdatedAt: stats.UpdatedAt,
 	}
 
 	// Matches user settings metrics
 
-	if stats.WeightValue != nil {
-		w := user.Weight{Value: *stats.WeightValue}
-		resp.Weight = &user.Weight{Value: w.Display(settings.WeightUnit)}
+	if stats.Weight != nil {
+		displayValue := stats.Weight.Display(settings.WeightUnit)
+		resp.Weight = &displayValue
 	}
 
-	if stats.HeightValue != nil {
-		h := &user.Height{Value: *stats.HeightValue}
-		resp.Height = &user.Height{Value: h.Display(settings.HeightUnit)}
+	if stats.Height != nil {
+		displayValue := stats.Height.Display(settings.HeightUnit)
+		resp.Height = &displayValue
 	}
 
 	return resp, nil
