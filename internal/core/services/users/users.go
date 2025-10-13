@@ -32,6 +32,8 @@ type UserService interface {
 	StartTrial(ctx context.Context, req StartTrialReq) error
 
 	UpdateSettings(ctx context.Context, req UpdateSettingsReq) error
+
+	UpdateBodyMetrics(ctx context.Context, req UpdateBodyMetricsReq) error
 }
 
 type Service struct {
