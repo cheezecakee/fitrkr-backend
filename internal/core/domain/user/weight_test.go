@@ -94,8 +94,8 @@ func TestWeight_Conversion(t *testing.T) {
 		name   string
 		value  float64
 		unit   user.WeightUnit
-		wantKg float64
-		wantLb float64
+		wantKg user.WeightValue
+		wantLb user.WeightValue
 	}{
 		{
 			name:   "100 kg to conversions",
