@@ -366,8 +366,3 @@ func TestStartTrial(t *testing.T) {
 		})
 	}
 }
-
-// Helper function for pointer to time.Time
-func ptrTime(t time.Time) *time.Time {
-	return &t
-}
