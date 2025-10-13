@@ -295,127 +295,65 @@ func decodeGetUserByUsernameParams(args [1]string, argsEscaped bool, r *http.Req
 	return params, nil
 }
 
-// ListUsersParams is parameters of listUsers operation.
-type ListUsersParams struct {
-	// Page number.
-	Page OptInt `json:",omitempty,omitzero"`
-	// Number of items per page.
-	Limit OptInt `json:",omitempty,omitzero"`
+// GetUserSubscriptionParams is parameters of getUserSubscription operation.
+type GetUserSubscriptionParams struct {
+	ID uuid.UUID
 }
 
-func unpackListUsersParams(packed middleware.Parameters) (params ListUsersParams) {
+func unpackGetUserSubscriptionParams(packed middleware.Parameters) (params GetUserSubscriptionParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
+			Name: "id",
+			In:   "path",
 		}
-		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "limit",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.Limit = v.(OptInt)
-		}
+		params.ID = packed[key].(uuid.UUID)
 	}
 	return params
 }
 
-func decodeListUsersParams(args [0]string, argsEscaped bool, r *http.Request) (params ListUsersParams, _ error) {
-	q := uri.NewQueryDecoder(r.URL.Query())
-	// Set default value for query: page.
-	{
-		val := int(1)
-		params.Page.SetTo(val)
-	}
-	// Decode query: page.
+func decodeGetUserSubscriptionParams(args [1]string, argsEscaped bool, r *http.Request) (params GetUserSubscriptionParams, _ error) {
+	// Decode path: id.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
 		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
 
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPageVal = c
-					return nil
-				}(); err != nil {
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
 				return nil
-			}); err != nil {
+			}(); err != nil {
 				return err
 			}
+		} else {
+			return validate.ErrFieldRequired
 		}
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	// Set default value for query: limit.
-	{
-		val := int(20)
-		params.Limit.SetTo(val)
-	}
-	// Decode query: limit.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "limit",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotLimitVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotLimitVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.Limit.SetTo(paramsDotLimitVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "limit",
-			In:   "query",
+			Name: "id",
+			In:   "path",
 			Err:  err,
 		}
 	}

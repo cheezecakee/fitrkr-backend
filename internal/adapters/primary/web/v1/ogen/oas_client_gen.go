@@ -57,12 +57,12 @@ type Invoker interface {
 	//
 	// GET /user/username/{username}
 	GetUserByUsername(ctx context.Context, params GetUserByUsernameParams) (GetUserByUsernameRes, error)
-	// ListUsers invokes listUsers operation.
+	// GetUserSubscription invokes getUserSubscription operation.
 	//
-	// List all users.
+	// Get user subscription.
 	//
-	// GET /user
-	ListUsers(ctx context.Context, params ListUsersParams) (ListUsersRes, error)
+	// GET /user/{id}/subscription
+	GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error)
 	// UpdateUser invokes updateUser operation.
 	//
 	// Update user.
@@ -554,21 +554,21 @@ func (c *Client) sendGetUserByUsername(ctx context.Context, params GetUserByUser
 	return result, nil
 }
 
-// ListUsers invokes listUsers operation.
+// GetUserSubscription invokes getUserSubscription operation.
 //
-// List all users.
+// Get user subscription.
 //
-// GET /user
-func (c *Client) ListUsers(ctx context.Context, params ListUsersParams) (ListUsersRes, error) {
-	res, err := c.sendListUsers(ctx, params)
+// GET /user/{id}/subscription
+func (c *Client) GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error) {
+	res, err := c.sendGetUserSubscription(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendListUsers(ctx context.Context, params ListUsersParams) (res ListUsersRes, err error) {
+func (c *Client) sendGetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (res GetUserSubscriptionRes, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listUsers"),
+		otelogen.OperationID("getUserSubscription"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.URLTemplateKey.String("/user"),
+		semconv.URLTemplateKey.String("/user/{id}/subscription"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -584,7 +584,7 @@ func (c *Client) sendListUsers(ctx context.Context, params ListUsersParams) (res
 	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, ListUsersOperation,
+	ctx, span := c.cfg.Tracer.Start(ctx, GetUserSubscriptionOperation,
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -601,47 +601,28 @@ func (c *Client) sendListUsers(ctx context.Context, params ListUsersParams) (res
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/user"
+	var pathParts [3]string
+	pathParts[0] = "/user/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/subscription"
 	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeQueryParams"
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "page" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Page.Get(); ok {
-				return e.EncodeValue(conv.IntToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
-		// Encode "limit" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "limit",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Limit.Get(); ok {
-				return e.EncodeValue(conv.IntToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -657,7 +638,7 @@ func (c *Client) sendListUsers(ctx context.Context, params ListUsersParams) (res
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeListUsersResponse(resp)
+	result, err := decodeGetUserSubscriptionResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

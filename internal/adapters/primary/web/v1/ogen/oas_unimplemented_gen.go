@@ -58,12 +58,12 @@ func (UnimplementedHandler) GetUserByUsername(ctx context.Context, params GetUse
 	return r, ht.ErrNotImplemented
 }
 
-// ListUsers implements listUsers operation.
+// GetUserSubscription implements getUserSubscription operation.
 //
-// List all users.
+// Get user subscription.
 //
-// GET /user
-func (UnimplementedHandler) ListUsers(ctx context.Context, params ListUsersParams) (r ListUsersRes, _ error) {
+// GET /user/{id}/subscription
+func (UnimplementedHandler) GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (r GetUserSubscriptionRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

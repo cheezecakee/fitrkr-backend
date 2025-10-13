@@ -38,12 +38,12 @@ type Handler interface {
 	//
 	// GET /user/username/{username}
 	GetUserByUsername(ctx context.Context, params GetUserByUsernameParams) (GetUserByUsernameRes, error)
-	// ListUsers implements listUsers operation.
+	// GetUserSubscription implements getUserSubscription operation.
 	//
-	// List all users.
+	// Get user subscription.
 	//
-	// GET /user
-	ListUsers(ctx context.Context, params ListUsersParams) (ListUsersRes, error)
+	// GET /user/{id}/subscription
+	GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error)
 	// UpdateUser implements updateUser operation.
 	//
 	// Update user.

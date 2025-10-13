@@ -6,11 +6,11 @@ package api
 type OperationName = string
 
 const (
-	CreateUserOperation        OperationName = "CreateUser"
-	DeleteUserOperation        OperationName = "DeleteUser"
-	GetUserByEmailOperation    OperationName = "GetUserByEmail"
-	GetUserByIDOperation       OperationName = "GetUserByID"
-	GetUserByUsernameOperation OperationName = "GetUserByUsername"
-	ListUsersOperation         OperationName = "ListUsers"
-	UpdateUserOperation        OperationName = "UpdateUser"
+	CreateUserOperation          OperationName = "CreateUser"
+	DeleteUserOperation          OperationName = "DeleteUser"
+	GetUserByEmailOperation      OperationName = "GetUserByEmail"
+	GetUserByIDOperation         OperationName = "GetUserByID"
+	GetUserByUsernameOperation   OperationName = "GetUserByUsername"
+	GetUserSubscriptionOperation OperationName = "GetUserSubscription"
+	UpdateUserOperation          OperationName = "UpdateUser"
 )

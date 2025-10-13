@@ -144,8 +144,6 @@ func (s *Error) SetCode(val OptString) {
 	s.Code = val
 }
 
-func (*Error) listUsersRes() {}
-
 type GetUserByEmailInternalServerError Error
 
 func (*GetUserByEmailInternalServerError) getUserByEmailRes() {}
@@ -170,54 +168,59 @@ type GetUserByUsernameNotFound Error
 
 func (*GetUserByUsernameNotFound) getUserByUsernameRes() {}
 
-type ListUsersOK struct {
-	Users []User `json:"users"`
-	Total OptInt `json:"total"`
-	Page  OptInt `json:"page"`
-	Limit OptInt `json:"limit"`
+type GetUserSubscriptionBadRequest Error
+
+func (*GetUserSubscriptionBadRequest) getUserSubscriptionRes() {}
+
+type GetUserSubscriptionInternalServerError Error
+
+func (*GetUserSubscriptionInternalServerError) getUserSubscriptionRes() {}
+
+// NewOptBool returns new OptBool with value set to v.
+func NewOptBool(v bool) OptBool {
+	return OptBool{
+		Value: v,
+		Set:   true,
+	}
 }
 
-// GetUsers returns the value of Users.
-func (s *ListUsersOK) GetUsers() []User {
-	return s.Users
+// OptBool is optional bool.
+type OptBool struct {
+	Value bool
+	Set   bool
 }
 
-// GetTotal returns the value of Total.
-func (s *ListUsersOK) GetTotal() OptInt {
-	return s.Total
+// IsSet returns true if OptBool was set.
+func (o OptBool) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptBool) Reset() {
+	var v bool
+	o.Value = v
+	o.Set = false
 }
 
-// GetPage returns the value of Page.
-func (s *ListUsersOK) GetPage() OptInt {
-	return s.Page
+// SetTo sets value to v.
+func (o *OptBool) SetTo(v bool) {
+	o.Set = true
+	o.Value = v
 }
 
-// GetLimit returns the value of Limit.
-func (s *ListUsersOK) GetLimit() OptInt {
-	return s.Limit
+// Get returns value and boolean that denotes whether value was set.
+func (o OptBool) Get() (v bool, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
 }
 
-// SetUsers sets the value of Users.
-func (s *ListUsersOK) SetUsers(val []User) {
-	s.Users = val
+// Or returns value if set, or given parameter if does not.
+func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
-
-// SetTotal sets the value of Total.
-func (s *ListUsersOK) SetTotal(val OptInt) {
-	s.Total = val
-}
-
-// SetPage sets the value of Page.
-func (s *ListUsersOK) SetPage(val OptInt) {
-	s.Page = val
-}
-
-// SetLimit sets the value of Limit.
-func (s *ListUsersOK) SetLimit(val OptInt) {
-	s.Limit = val
-}
-
-func (*ListUsersOK) listUsersRes() {}
 
 // NewOptDateTime returns new OptDateTime with value set to v.
 func NewOptDateTime(v time.Time) OptDateTime {
@@ -265,38 +268,55 @@ func (o OptDateTime) Or(d time.Time) time.Time {
 	return d
 }
 
-// NewOptInt returns new OptInt with value set to v.
-func NewOptInt(v int) OptInt {
-	return OptInt{
+// NewOptNilDateTime returns new OptNilDateTime with value set to v.
+func NewOptNilDateTime(v time.Time) OptNilDateTime {
+	return OptNilDateTime{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptInt is optional int.
-type OptInt struct {
-	Value int
+// OptNilDateTime is optional nullable time.Time.
+type OptNilDateTime struct {
+	Value time.Time
 	Set   bool
+	Null  bool
 }
 
-// IsSet returns true if OptInt was set.
-func (o OptInt) IsSet() bool { return o.Set }
+// IsSet returns true if OptNilDateTime was set.
+func (o OptNilDateTime) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptInt) Reset() {
-	var v int
+func (o *OptNilDateTime) Reset() {
+	var v time.Time
 	o.Value = v
 	o.Set = false
+	o.Null = false
 }
 
 // SetTo sets value to v.
-func (o *OptInt) SetTo(v int) {
+func (o *OptNilDateTime) SetTo(v time.Time) {
 	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilDateTime) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilDateTime) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v time.Time
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptInt) Get() (v int, ok bool) {
+func (o OptNilDateTime) Get() (v time.Time, ok bool) {
+	if o.Null {
+		return v, false
+	}
 	if !o.Set {
 		return v, false
 	}
@@ -304,7 +324,133 @@ func (o OptInt) Get() (v int, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptInt) Or(d int) int {
+func (o OptNilDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilFloat64 returns new OptNilFloat64 with value set to v.
+func NewOptNilFloat64(v float64) OptNilFloat64 {
+	return OptNilFloat64{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilFloat64 is optional nullable float64.
+type OptNilFloat64 struct {
+	Value float64
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilFloat64 was set.
+func (o OptNilFloat64) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilFloat64) Reset() {
+	var v float64
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilFloat64) SetTo(v float64) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilFloat64) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilFloat64) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v float64
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilFloat64) Get() (v float64, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilFloat64) Or(d float64) float64 {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilString returns new OptNilString with value set to v.
+func NewOptNilString(v string) OptNilString {
+	return OptNilString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilString is optional nullable string.
+type OptNilString struct {
+	Value string
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilString was set.
+func (o OptNilString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilString) SetTo(v string) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilString) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilString) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v string
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilString) Get() (v string, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilString) Or(d string) string {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -558,3 +704,141 @@ func (*User) getUserByEmailRes()    {}
 func (*User) getUserByIDRes()       {}
 func (*User) getUserByUsernameRes() {}
 func (*User) updateUserRes()        {}
+
+// Ref: #/components/schemas/UserSubscription
+type UserSubscription struct {
+	Plan                OptString      `json:"plan"`
+	BillingPeriod       OptNilString   `json:"billing_period"`
+	StartedAt           OptDateTime    `json:"started_at"`
+	ExpiresAt           OptNilDateTime `json:"expires_at"`
+	AutoRenew           OptBool        `json:"auto_renew"`
+	CancelledAt         OptNilDateTime `json:"cancelled_at"`
+	LastPaymentAt       OptNilDateTime `json:"last_payment_at"`
+	LastPaymentAmount   OptNilFloat64  `json:"last_payment_amount"`
+	LastPaymentCurrency OptNilString   `json:"last_payment_currency"`
+	TrialEndsAt         OptNilDateTime `json:"trial_ends_at"`
+	CreatedAt           OptDateTime    `json:"created_at"`
+	UpdatedAt           OptDateTime    `json:"updated_at"`
+}
+
+// GetPlan returns the value of Plan.
+func (s *UserSubscription) GetPlan() OptString {
+	return s.Plan
+}
+
+// GetBillingPeriod returns the value of BillingPeriod.
+func (s *UserSubscription) GetBillingPeriod() OptNilString {
+	return s.BillingPeriod
+}
+
+// GetStartedAt returns the value of StartedAt.
+func (s *UserSubscription) GetStartedAt() OptDateTime {
+	return s.StartedAt
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *UserSubscription) GetExpiresAt() OptNilDateTime {
+	return s.ExpiresAt
+}
+
+// GetAutoRenew returns the value of AutoRenew.
+func (s *UserSubscription) GetAutoRenew() OptBool {
+	return s.AutoRenew
+}
+
+// GetCancelledAt returns the value of CancelledAt.
+func (s *UserSubscription) GetCancelledAt() OptNilDateTime {
+	return s.CancelledAt
+}
+
+// GetLastPaymentAt returns the value of LastPaymentAt.
+func (s *UserSubscription) GetLastPaymentAt() OptNilDateTime {
+	return s.LastPaymentAt
+}
+
+// GetLastPaymentAmount returns the value of LastPaymentAmount.
+func (s *UserSubscription) GetLastPaymentAmount() OptNilFloat64 {
+	return s.LastPaymentAmount
+}
+
+// GetLastPaymentCurrency returns the value of LastPaymentCurrency.
+func (s *UserSubscription) GetLastPaymentCurrency() OptNilString {
+	return s.LastPaymentCurrency
+}
+
+// GetTrialEndsAt returns the value of TrialEndsAt.
+func (s *UserSubscription) GetTrialEndsAt() OptNilDateTime {
+	return s.TrialEndsAt
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *UserSubscription) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *UserSubscription) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// SetPlan sets the value of Plan.
+func (s *UserSubscription) SetPlan(val OptString) {
+	s.Plan = val
+}
+
+// SetBillingPeriod sets the value of BillingPeriod.
+func (s *UserSubscription) SetBillingPeriod(val OptNilString) {
+	s.BillingPeriod = val
+}
+
+// SetStartedAt sets the value of StartedAt.
+func (s *UserSubscription) SetStartedAt(val OptDateTime) {
+	s.StartedAt = val
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *UserSubscription) SetExpiresAt(val OptNilDateTime) {
+	s.ExpiresAt = val
+}
+
+// SetAutoRenew sets the value of AutoRenew.
+func (s *UserSubscription) SetAutoRenew(val OptBool) {
+	s.AutoRenew = val
+}
+
+// SetCancelledAt sets the value of CancelledAt.
+func (s *UserSubscription) SetCancelledAt(val OptNilDateTime) {
+	s.CancelledAt = val
+}
+
+// SetLastPaymentAt sets the value of LastPaymentAt.
+func (s *UserSubscription) SetLastPaymentAt(val OptNilDateTime) {
+	s.LastPaymentAt = val
+}
+
+// SetLastPaymentAmount sets the value of LastPaymentAmount.
+func (s *UserSubscription) SetLastPaymentAmount(val OptNilFloat64) {
+	s.LastPaymentAmount = val
+}
+
+// SetLastPaymentCurrency sets the value of LastPaymentCurrency.
+func (s *UserSubscription) SetLastPaymentCurrency(val OptNilString) {
+	s.LastPaymentCurrency = val
+}
+
+// SetTrialEndsAt sets the value of TrialEndsAt.
+func (s *UserSubscription) SetTrialEndsAt(val OptNilDateTime) {
+	s.TrialEndsAt = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *UserSubscription) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *UserSubscription) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+func (*UserSubscription) getUserSubscriptionRes() {}

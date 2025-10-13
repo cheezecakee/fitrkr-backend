@@ -21,8 +21,8 @@ type GetUserByUsernameRes interface {
 	getUserByUsernameRes()
 }
 
-type ListUsersRes interface {
-	listUsersRes()
+type GetUserSubscriptionRes interface {
+	getUserSubscriptionRes()
 }
 
 type UpdateUserRes interface {

@@ -734,22 +734,22 @@ func (s *Server) handleGetUserByUsernameRequest(args [1]string, argsEscaped bool
 	}
 }
 
-// handleListUsersRequest handles listUsers operation.
+// handleGetUserSubscriptionRequest handles getUserSubscription operation.
 //
-// List all users.
+// Get user subscription.
 //
-// GET /user
-func (s *Server) handleListUsersRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /user/{id}/subscription
+func (s *Server) handleGetUserSubscriptionRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listUsers"),
+		otelogen.OperationID("getUserSubscription"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/user"),
+		semconv.HTTPRouteKey.String("/user/{id}/subscription"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), ListUsersOperation,
+	ctx, span := s.cfg.Tracer.Start(r.Context(), GetUserSubscriptionOperation,
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -804,11 +804,11 @@ func (s *Server) handleListUsersRequest(args [0]string, argsEscaped bool, w http
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: ListUsersOperation,
-			ID:   "listUsers",
+			Name: GetUserSubscriptionOperation,
+			ID:   "getUserSubscription",
 		}
 	)
-	params, err := decodeListUsersParams(args, argsEscaped, r)
+	params, err := decodeGetUserSubscriptionParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -821,32 +821,28 @@ func (s *Server) handleListUsersRequest(args [0]string, argsEscaped bool, w http
 
 	var rawBody []byte
 
-	var response ListUsersRes
+	var response GetUserSubscriptionRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
-			OperationName:    ListUsersOperation,
-			OperationSummary: "List all users",
-			OperationID:      "listUsers",
+			OperationName:    GetUserSubscriptionOperation,
+			OperationSummary: "Get user subscription",
+			OperationID:      "getUserSubscription",
 			Body:             nil,
 			RawBody:          rawBody,
 			Params: middleware.Parameters{
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "limit",
-					In:   "query",
-				}: params.Limit,
+					Name: "id",
+					In:   "path",
+				}: params.ID,
 			},
 			Raw: r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = ListUsersParams
-			Response = ListUsersRes
+			Params   = GetUserSubscriptionParams
+			Response = GetUserSubscriptionRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -855,14 +851,14 @@ func (s *Server) handleListUsersRequest(args [0]string, argsEscaped bool, w http
 		](
 			m,
 			mreq,
-			unpackListUsersParams,
+			unpackGetUserSubscriptionParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListUsers(ctx, params)
+				response, err = s.h.GetUserSubscription(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ListUsers(ctx, params)
+		response, err = s.h.GetUserSubscription(ctx, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -870,7 +866,7 @@ func (s *Server) handleListUsersRequest(args [0]string, argsEscaped bool, w http
 		return
 	}
 
-	if err := encodeListUsersResponse(response, w, span); err != nil {
+	if err := encodeGetUserSubscriptionResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)

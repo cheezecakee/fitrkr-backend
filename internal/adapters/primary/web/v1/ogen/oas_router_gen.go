@@ -59,12 +59,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			if len(elem) == 0 {
 				switch r.Method {
-				case "GET":
-					s.handleListUsersRequest([0]string{}, elemIsEscaped, w, r)
 				case "POST":
 					s.handleCreateUserRequest([0]string{}, elemIsEscaped, w, r)
 				default:
-					s.notAllowed(w, r, "GET,POST")
+					s.notAllowed(w, r, "POST")
 				}
 
 				return
@@ -148,16 +146,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					elem = origElem
 				}
 				// Param: "id"
-				// Leaf parameter, slashes are prohibited
+				// Match until "/"
 				idx := strings.IndexByte(elem, '/')
-				if idx >= 0 {
-					break
+				if idx < 0 {
+					idx = len(elem)
 				}
-				args[0] = elem
-				elem = ""
+				args[0] = elem[:idx]
+				elem = elem[idx:]
 
 				if len(elem) == 0 {
-					// Leaf node.
 					switch r.Method {
 					case "DELETE":
 						s.handleDeleteUserRequest([1]string{
@@ -176,6 +173,30 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 
 					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/subscription"
+
+					if l := len("/subscription"); len(elem) >= l && elem[0:l] == "/subscription" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleGetUserSubscriptionRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
 				}
 
 			}
@@ -270,14 +291,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 			if len(elem) == 0 {
 				switch method {
-				case "GET":
-					r.name = ListUsersOperation
-					r.summary = "List all users"
-					r.operationID = "listUsers"
-					r.pathPattern = "/user"
-					r.args = args
-					r.count = 0
-					return r, true
 				case "POST":
 					r.name = CreateUserOperation
 					r.summary = "Create a new user account"
@@ -373,16 +386,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					elem = origElem
 				}
 				// Param: "id"
-				// Leaf parameter, slashes are prohibited
+				// Match until "/"
 				idx := strings.IndexByte(elem, '/')
-				if idx >= 0 {
-					break
+				if idx < 0 {
+					idx = len(elem)
 				}
-				args[0] = elem
-				elem = ""
+				args[0] = elem[:idx]
+				elem = elem[idx:]
 
 				if len(elem) == 0 {
-					// Leaf node.
 					switch method {
 					case "DELETE":
 						r.name = DeleteUserOperation
@@ -411,6 +423,32 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					default:
 						return
 					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/subscription"
+
+					if l := len("/subscription"); len(elem) >= l && elem[0:l] == "/subscription" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = GetUserSubscriptionOperation
+							r.summary = "Get user subscription"
+							r.operationID = "getUserSubscription"
+							r.pathPattern = "/user/{id}/subscription"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+
 				}
 
 			}
