@@ -25,6 +25,13 @@ type UserService interface {
 	GetStats(ctx context.Context, req GetStatsReq) (*GetStatsResp, error)
 	GetSubscription(ctx context.Context, req GetSubscriptionReq) (*GetSubscriptionResp, error)
 	GetSettings(ctx context.Context, req GetSettingsReq) (*GetSettingsResp, error)
+
+	UpdatePlan(ctx context.Context, req UpdatePlanReq) error
+	RecordPayment(ctx context.Context, req RecordPaymentReq) error
+	CancelSubscription(ctx context.Context, req CancelSubscriptionReq) error
+	StartTrial(ctx context.Context, req StartTrialReq) error
+
+	UpdateSettings(ctx context.Context, req UpdateSettingsReq) error
 }
 
 type Service struct {
