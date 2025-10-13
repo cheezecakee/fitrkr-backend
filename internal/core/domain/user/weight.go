@@ -11,9 +11,7 @@ var (
 	ErrInvalidWeightUnit = errors.New("invalid weight unit")
 )
 
-type Weight struct {
-	Value float64
-}
+type WeightValue float64
 
 type WeightUnit string
 
@@ -22,21 +20,19 @@ const (
 	Lb WeightUnit = "lb"
 )
 
-func NewWeight(value float64, unit WeightUnit) (Weight, error) {
+func NewWeight(value float64, unit WeightUnit) (WeightValue, error) {
 	if value < 0 {
-		return Weight{}, ErrNegativeWeight
+		return 0, ErrNegativeWeight
 	}
 	if value == 0 {
-		return Weight{}, ErrWeightZero
+		return 0, ErrWeightZero
 	}
 
 	if unit == Lb {
 		value *= 0.453592 // Lb to kg for storage
 	}
 
-	return Weight{
-		Value: value,
-	}, nil
+	return WeightValue(value), nil
 }
 
 func NewWeightUnit(unit string) (WeightUnit, error) {
@@ -54,20 +50,20 @@ func NewWeightUnit(unit string) (WeightUnit, error) {
 	}
 }
 
-func (w Weight) Display(unit WeightUnit) float64 {
+func (w WeightValue) Display(unit WeightUnit) WeightValue {
 	if unit == Lb {
-		return w.Value * 2.20462
+		return w * 2.20462
 	}
-	return w.Value
+	return w
 }
 
 // As helper function for something in the future... maybe?
-func (w Weight) As(unit WeightUnit) Weight {
+func (w WeightValue) As(unit WeightUnit) WeightValue {
 	switch unit {
 	case Lb:
-		return Weight{Value: w.Value * 2.20462}
+		return w * 2.20462
 	case Kg:
-		return Weight{Value: w.Value * 0.453592}
+		return w * 0.453592
 	default:
 		return w
 	}
