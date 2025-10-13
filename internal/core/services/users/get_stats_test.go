@@ -4,19 +4,17 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
 func TestGetStats(t *testing.T) {
 	ctx := context.Background()
 	testID := "test-user-id"
-	weight := 75.5
-	height := 180.0
 
 	tests := []struct {
 		name          string
@@ -31,20 +29,36 @@ func TestGetStats(t *testing.T) {
 				ID: testID,
 			},
 			setupMock: func(m *MockUserRepo) {
-				stats := &ports.Stats{
-					WeightValue:   &weight,
-					HeightValue:   &height,
-					BFP:           ptrFloat64(15.5),
-					RestDays:      2,
-					Current:       5,
-					Longest:       10,
-					TotalWorkouts: 20,
-					TotalLifted:   1000.0,
-					TotalTime:     300,
+				weight := user.WeightValue(75.5)
+				height := user.HeightValue(180.0)
+				bfp := user.BFP(15.5)
+				stats := &user.Stats{
+					Weight: &weight,
+					Height: &height,
+					BFP:    &bfp,
+					Streak: user.Streak{
+						RestDays:    2,
+						Current:     5,
+						Longest:     10,
+						LastWorkout: time.Now(),
+					},
+					Totals: user.Totals{
+						Workouts: 20,
+						Lifted:   1000.0,
+						Time:     300,
+					},
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
 				}
-				settings := &ports.Settings{
-					WeightUnit: user.Kg,
-					HeightUnit: user.Cm,
+				settings := &user.Settings{
+					WeightUnit:      user.Kg,
+					HeightUnit:      user.Cm,
+					Theme:           user.Dark,
+					Visibility:      user.Private,
+					EmailNotif:      true,
+					PushNotif:       false,
+					WorkoutReminder: true,
+					StreakReminder:  true,
 				}
 				m.On("GetStatsByID", ctx, testID).Return(stats, nil)
 				m.On("GetSettingsByID", ctx, testID).Return(settings, nil)
@@ -57,20 +71,33 @@ func TestGetStats(t *testing.T) {
 				ID: testID,
 			},
 			setupMock: func(m *MockUserRepo) {
-				stats := &ports.Stats{
-					WeightValue:   nil,
-					HeightValue:   nil,
-					BFP:           nil,
-					RestDays:      0,
-					Current:       0,
-					Longest:       0,
-					TotalWorkouts: 0,
-					TotalLifted:   0.0,
-					TotalTime:     0,
+				stats := &user.Stats{
+					Weight: nil,
+					Height: nil,
+					BFP:    nil,
+					Streak: user.Streak{
+						RestDays:    0,
+						Current:     0,
+						Longest:     0,
+						LastWorkout: time.Time{},
+					},
+					Totals: user.Totals{
+						Workouts: 0,
+						Lifted:   0.0,
+						Time:     0,
+					},
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
 				}
-				settings := &ports.Settings{
-					WeightUnit: user.Lb,
-					HeightUnit: user.Ft,
+				settings := &user.Settings{
+					WeightUnit:      user.Lb,
+					HeightUnit:      user.Ft,
+					Theme:           user.Light,
+					Visibility:      user.Public,
+					EmailNotif:      false,
+					PushNotif:       false,
+					WorkoutReminder: false,
+					StreakReminder:  false,
 				}
 				m.On("GetStatsByID", ctx, testID).Return(stats, nil)
 				m.On("GetSettingsByID", ctx, testID).Return(settings, nil)
@@ -93,10 +120,16 @@ func TestGetStats(t *testing.T) {
 				ID: testID,
 			},
 			setupMock: func(m *MockUserRepo) {
-				stats := &ports.Stats{
-					WeightValue:   &weight,
-					HeightValue:   &height,
-					TotalWorkouts: 20,
+				weight := user.WeightValue(75.5)
+				height := user.HeightValue(180.0)
+				stats := &user.Stats{
+					Weight: &weight,
+					Height: &height,
+					Totals: user.Totals{
+						Workouts: 20,
+					},
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
 				}
 				m.On("GetStatsByID", ctx, testID).Return(stats, nil)
 				m.On("GetSettingsByID", ctx, testID).Return(nil, errors.New("settings db error"))
