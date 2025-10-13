@@ -11,9 +11,7 @@ var (
 	ErrInvalidHeightUnit = errors.New("invalid height unit")
 )
 
-type Height struct {
-	Value float64
-}
+type HeightValue float64
 
 type HeightUnit string
 
@@ -22,21 +20,19 @@ const (
 	Ft HeightUnit = "ft"
 )
 
-func NewHeight(value float64, unit HeightUnit) (Height, error) {
+func NewHeight(value float64, unit HeightUnit) (HeightValue, error) {
 	if value < 0 {
-		return Height{}, ErrNegativeHeight
+		return 0, ErrNegativeHeight
 	}
 	if value == 0 {
-		return Height{}, ErrHeightZero
+		return 0, ErrHeightZero
 	}
 
 	if unit == Ft {
 		value *= 30.48
 	}
 
-	return Height{
-		Value: value,
-	}, nil
+	return HeightValue(value), nil
 }
 
 func NewHeightUnit(unit string) (HeightUnit, error) {
@@ -54,10 +50,10 @@ func NewHeightUnit(unit string) (HeightUnit, error) {
 	}
 }
 
-func (h Height) Display(unit HeightUnit) float64 {
+func (h HeightValue) Display(unit HeightUnit) HeightValue {
 	if unit == Ft {
-		return h.Value / 30.48
+		return h / 30.48
 	}
 
-	return h.Value
+	return h
 }
