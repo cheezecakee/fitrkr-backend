@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
@@ -31,11 +30,11 @@ func TestGetSubscription(t *testing.T) {
 			},
 			setupMock: func(m *MockUserRepo) {
 				period := user.Monthly
-				sub := &ports.Subscription{
+				sub := &user.Subscription{
 					Plan:          user.Premium,
 					BillingPeriod: &period,
 					StartedAt:     time.Now(),
-					ExpiresAT:     nil,
+					ExpiresAt:     nil,
 					AutoRenew:     true,
 					CancelledAt:   nil,
 				}
