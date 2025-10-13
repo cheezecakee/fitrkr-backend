@@ -14,8 +14,8 @@ func NewTotals() Totals {
 	}
 }
 
-func (t *Totals) RecordWorkout(lifted Weight, duration Duration) {
+func (t *Totals) RecordWorkout(lifted WeightValue, duration Duration) {
 	t.Workouts++
-	t.Lifted += lifted.Value
+	t.Lifted += float64(lifted)
 	t.Time += duration.Minutes()
 }
