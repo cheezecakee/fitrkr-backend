@@ -1,4 +1,4 @@
-// Package postgres
+// Package postgres package postgres
 package postgres
 
 import (
@@ -342,7 +342,7 @@ func (ur *UserRepo) UpdateSubscription(ctx context.Context, sub user.Subscriptio
 	})
 }
 
-const UpdateUserSettings = `UPDATE users_settings
+const UpdateUserSettings = `UPDATE user_settings
 	SET preferred_weight_unit = $2,
     	preferred_height_unit = $3,
     	theme = $4,
@@ -372,6 +372,35 @@ func (ur *UserRepo) UpdateSettings(ctx context.Context, settings user.Settings, 
 		}
 
 		logr.Get().Info("User settings updated!")
+		return nil
+	})
+}
+
+const UpdateBodyMetrics = `UPDATE user_stats
+	SET weight = $2,
+    	height = $3,
+    	body_fat_percent = $4,
+		updated_at = $5
+	WHERE user_id = $1
+`
+
+func (ur *UserRepo) UpdateBodyMetrics(ctx context.Context, stats ports.UpdateBodyMetrics, userID string) error {
+	return WithTransaction(ctx, ur.db, func(tx *sql.Tx) error {
+		result, err := tx.ExecContext(ctx, UpdateBodyMetrics, userID, stats.WeightValue, stats.HeightValue, stats.BFP, stats.UpdatedAt)
+		if err != nil {
+			return err
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if rowsAffected == 0 {
+			return ports.ErrUserNotFound
+		}
+
+		logr.Get().Info("User body metrics updated!")
 		return nil
 	})
 }
