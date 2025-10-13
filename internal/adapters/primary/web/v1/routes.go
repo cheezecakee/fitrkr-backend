@@ -34,5 +34,8 @@ func SetupUserRoutes(registry *handlers.HandlerResgistry) http.Handler {
 	r.Put("/{id}", registry.UserHandler.UpdateUser)
 	r.Delete("/{id}", registry.UserHandler.DeleteUser)
 
+	r.Get("/{id}/subscription", registry.UserHandler.GetSubscription)
+	r.Get("/{id}/settings", registry.UserHandler.GetSettings)
+
 	return r
 }
