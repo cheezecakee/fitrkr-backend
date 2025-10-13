@@ -28,6 +28,13 @@ type User struct {
 	UpdatedAt    time.Time
 }
 
+type UpdateBodyMetrics struct {
+	WeightValue *user.WeightValue
+	HeightValue *user.HeightValue
+	BFP         *user.BFP
+	UpdatedAt   time.Time
+}
+
 type UserRepo interface {
 	Add(ctx context.Context, user user.User) error
 	GetByUsername(ctx context.Context, username string) (*User, error)
@@ -38,6 +45,7 @@ type UserRepo interface {
 
 	AddStats(ctx context.Context, stats user.Stats, userID string) error
 	GetStatsByID(ctx context.Context, userID string) (*user.Stats, error)
+	UpdateBodyMetrics(ctx context.Context, stats UpdateBodyMetrics, userID string) error
 
 	AddSubscription(ctx context.Context, sub user.Subscription, userID string) error
 	GetSubscriptionByID(ctx context.Context, userID string) (*user.Subscription, error)
