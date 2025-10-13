@@ -223,20 +223,20 @@ func (ur *UserRepo) AddSubscription(ctx context.Context, us user.Subscription, i
 
 const GetUserStats = `SELECT weight, height, body_fat_percent, rest_days, current_streak, longest_streak, last_workout_date, total_workouts, total_lifted, total_time_minutes, created_at, updated_at FROM user_stats WHERE user_id = $1`
 
-func (ur *UserRepo) GetStatsByID(ctx context.Context, userID string) (*ports.Stats, error) {
-	var row ports.Stats
+func (ur *UserRepo) GetStatsByID(ctx context.Context, userID string) (*user.Stats, error) {
+	var row user.Stats
 
 	err := ur.db.QueryRowContext(ctx, GetUserStats, userID).Scan(
-		&row.WeightValue,
-		&row.HeightValue,
+		&row.Weight,
+		&row.Height,
 		&row.BFP,
-		&row.RestDays,
-		&row.Current,
-		&row.Longest,
-		&row.LastWorkout,
-		&row.TotalWorkouts,
-		&row.TotalLifted,
-		&row.TotalTime,
+		&row.Streak.RestDays,
+		&row.Streak.Current,
+		&row.Streak.Longest,
+		&row.Streak.LastWorkout,
+		&row.Totals.Workouts,
+		&row.Totals.Lifted,
+		&row.Totals.Time,
 		&row.CreatedAt,
 		&row.UpdatedAt,
 	)
@@ -252,18 +252,18 @@ func (ur *UserRepo) GetStatsByID(ctx context.Context, userID string) (*ports.Sta
 
 const GetUserSettings = `SELECT preferred_weight_unit, preferred_height_unit, theme, profile_visibility, email_notifications, push_notifications, workout_reminders, streak_reminders , created_at, updated_at FROM user_settings WHERE user_id = $1`
 
-func (ur *UserRepo) GetSettingsByID(ctx context.Context, userID string) (*ports.Settings, error) {
-	var row ports.Settings
+func (ur *UserRepo) GetSettingsByID(ctx context.Context, userID string) (*user.Settings, error) {
+	var row user.Settings
 
 	err := ur.db.QueryRowContext(ctx, GetUserSettings, userID).Scan(
 		&row.WeightUnit,
 		&row.HeightUnit,
 		&row.Theme,
 		&row.Visibility,
-		&row.EmailNotifs,
-		&row.PushNotifs,
-		&row.WorkoutReminders,
-		&row.StreakReminders,
+		&row.EmailNotif,
+		&row.PushNotif,
+		&row.WorkoutReminder,
+		&row.StreakReminder,
 		&row.CreatedAt,
 		&row.UpdatedAt,
 	)
@@ -279,14 +279,14 @@ func (ur *UserRepo) GetSettingsByID(ctx context.Context, userID string) (*ports.
 
 const GetUserSubscription = `SELECT plan, billing_period, started_at, expires_at, auto_renew, cancelled_at, last_payment_at, last_payment_amount, last_payment_currency, trial_ends_at, created_at, updated_at FROM user_subscription WHERE user_id = $1`
 
-func (ur *UserRepo) GetSubscriptionByID(ctx context.Context, userID string) (*ports.Subscription, error) {
-	var row ports.Subscription
+func (ur *UserRepo) GetSubscriptionByID(ctx context.Context, userID string) (*user.Subscription, error) {
+	var row user.Subscription
 
 	err := ur.db.QueryRowContext(ctx, GetUserSubscription, userID).Scan(
 		&row.Plan,
 		&row.BillingPeriod,
 		&row.StartedAt,
-		&row.ExpiresAT,
+		&row.ExpiresAt,
 		&row.AutoRenew,
 		&row.CancelledAt,
 		&row.LastPaymentAt,
@@ -306,14 +306,72 @@ func (ur *UserRepo) GetSubscriptionByID(ctx context.Context, userID string) (*po
 	return &row, nil
 }
 
-func (ur *UserRepo) UpdateStats(ctx context.Context, stats user.Stats) error {
-	return nil
+const UpdateUserSubscription = `UPDATE user_subscription
+	SET plan = $2, 
+		billing_period = $3, 
+		started_at = $4,
+		expires_at = $5,
+		auto_renew = $6,
+		cancelled_at = $7,
+		last_payment_at = $8,
+		last_payment_amount = $9,
+		last_paymet_currency= $10,
+		trial_ends_at = $11,
+		updated_at = $12
+	WHERE user_id = $1
+`
+
+func (ur *UserRepo) UpdateSubscription(ctx context.Context, sub user.Subscription, userID string) error {
+	return WithTransaction(ctx, ur.db, func(tx *sql.Tx) error {
+		result, err := tx.ExecContext(ctx, UpdateUserSubscription, userID, sub.Plan, sub.BillingPeriod, sub.StartedAt, sub.ExpiresAt, sub.AutoRenew, sub.CancelledAt, sub.LastPaymentAt, sub.LastPaymentAmount, sub.LastPaymentCurrency, sub.TrialEndsAt, sub.UpdatedAt)
+		if err != nil {
+			return err
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if rowsAffected == 0 {
+			return ports.ErrUserNotFound
+		}
+
+		logr.Get().Info("User subscription updated!")
+		return nil
+	})
 }
 
-func (ur *UserRepo) UpdateSubscription(ctx context.Context, sub user.Subscription) error {
-	return nil
-}
+const UpdateUserSettings = `UPDATE users_settings
+	SET preferred_weight_unit = $2,
+    	preferred_height_unit = $3,
+    	theme = $4,
+    	profile_visibility= $5,
+    	email_notifications= $6,
+    	push_notifications= $7,
+    	workout_reminders= $8,
+    	streak_reminders= $9,
+		updated_at = $10
+	WHERE user_id = $1
+`
 
-func (ur *UserRepo) UpdateSettings(ctx context.Context, settings user.Settings) error {
-	return nil
+func (ur *UserRepo) UpdateSettings(ctx context.Context, settings user.Settings, userID string) error {
+	return WithTransaction(ctx, ur.db, func(tx *sql.Tx) error {
+		result, err := tx.ExecContext(ctx, UpdateUserSettings, userID, settings.WeightUnit, settings.HeightUnit, settings.Theme, settings.Visibility, settings.EmailNotif, settings.PushNotif, settings.WorkoutReminder, settings.StreakReminder, settings.UpdatedAt)
+		if err != nil {
+			return err
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if rowsAffected == 0 {
+			return ports.ErrUserNotFound
+		}
+
+		logr.Get().Info("User settings updated!")
+		return nil
+	})
 }
