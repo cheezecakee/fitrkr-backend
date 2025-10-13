@@ -94,8 +94,8 @@ func TestHeight_Conversion(t *testing.T) {
 		name   string
 		value  float64
 		unit   user.HeightUnit
-		wantCm float64
-		wantFt float64
+		wantCm user.HeightValue
+		wantFt user.HeightValue
 	}{
 		{
 			name:   "100 cm to conversions",
