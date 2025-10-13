@@ -20,20 +20,20 @@ const (
 )
 
 type Subscription struct {
-	Plan          Plan
-	BillingPeriod *Period
-	StartedAt     time.Time
-	ExpiresAt     *time.Time
-	AutoRenew     bool
-	CancelledAt   *time.Time
+	Plan          Plan       `json:"plan"`
+	BillingPeriod *Period    `json:"billing_period"`
+	StartedAt     time.Time  `json:"started_at"`
+	ExpiresAt     *time.Time `json:"expires_at"`
+	AutoRenew     bool       `json:"auto_renew"`
+	CancelledAt   *time.Time `json:"cancelled_at"`
 
-	LastPaymentAt       *time.Time
-	LastPaymentAmount   *float64
-	LastPaymentCurrency *Currency
+	LastPaymentAt       *time.Time `json:"last_payment_at"`
+	LastPaymentAmount   *float64   `json:"last_payment_amount"`
+	LastPaymentCurrency *Currency  `json:"last_payment_currency"`
 
-	TrialEndsAt *time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	TrialEndsAt *time.Time `json:"trial_ends_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 func NewSubscription() Subscription {
