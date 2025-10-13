@@ -297,15 +297,14 @@ func TestSubscription_ProcessExpiry(t *testing.T) {
 
 func TestSubscription_StartTrial(t *testing.T) {
 	sub := user.NewSubscription()
-	trialDays := 7
 
-	sub.StartTrial(trialDays)
+	sub.StartTrial()
 
 	if sub.TrialEndsAt == nil {
 		t.Fatal("expected TrialEndsAt to be set")
 	}
 
-	expectedEnd := time.Now().Add(time.Duration(trialDays) * 24 * time.Hour)
+	expectedEnd := time.Now().Add(time.Duration(user.TrialDays) * 24 * time.Hour)
 	tolerance := 5 * time.Second
 
 	if sub.TrialEndsAt.Before(expectedEnd.Add(-tolerance)) || sub.TrialEndsAt.After(expectedEnd.Add(tolerance)) {
