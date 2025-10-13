@@ -16,6 +16,7 @@ var (
 const (
 	MonthlyDuration = 30 * 24 * time.Hour  // 30 days
 	YearlyDuration  = 365 * 24 * time.Hour // 365 days
+	TrialDays       = 14
 )
 
 type Subscription struct {
@@ -65,7 +66,7 @@ func (s *Subscription) Upgrade(plan Plan, period Period) error {
 	}
 	s.ExpiresAt = &expiry
 
-	s.UpdatedAt = time.Now()
+	s.Touch()
 	return nil
 }
 
@@ -86,7 +87,7 @@ func (s *Subscription) ProcessExpiry() {
 		s.Plan = Basic
 		s.BillingPeriod = nil
 		s.ExpiresAt = nil
-		s.UpdatedAt = now
+		s.Touch()
 	}
 }
 
@@ -109,7 +110,7 @@ func (s *Subscription) ExtendExpiry(duration time.Duration) {
 
 	extended := s.ExpiresAt.Add(duration)
 	s.ExpiresAt = &extended
-	s.UpdatedAt = time.Now()
+	s.Touch()
 }
 
 func (s *Subscription) Cancel() error {
@@ -121,7 +122,7 @@ func (s *Subscription) Cancel() error {
 	s.AutoRenew = false
 	now := time.Now()
 	s.CancelledAt = &now
-	s.UpdatedAt = now
+	s.Touch()
 
 	return nil
 }
@@ -134,9 +135,9 @@ func (s *Subscription) Renew() {
 	s.ExtendExpiry(s.getNextBillingDuration())
 }
 
-func (s *Subscription) StartTrial(days int) {
+func (s *Subscription) StartTrial() {
 	now := time.Now()
-	hours := time.Duration(days) * 24
+	hours := time.Duration(TrialDays) * 24
 	trialPeriod := now.Add(hours * time.Hour)
 
 	s.TrialEndsAt = &trialPeriod
@@ -180,4 +181,8 @@ func (s *Subscription) getNextBillingDuration() time.Duration {
 	default:
 		return 0
 	}
+}
+
+func (s *Subscription) Touch() {
+	s.UpdatedAt = time.Now()
 }
