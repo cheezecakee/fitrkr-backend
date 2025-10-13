@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
-	"github.com/cheezecakee/fitrkr-athena/internal/core/ports"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
@@ -29,15 +28,15 @@ func TestGetSettings(t *testing.T) {
 				ID: testID,
 			},
 			setupMock: func(m *MockUserRepo) {
-				settings := &ports.Settings{
-					WeightUnit:       user.Kg,
-					HeightUnit:       user.Cm,
-					Theme:            user.Dark,
-					Visibility:       user.Private,
-					EmailNotifs:      true,
-					PushNotifs:       false,
-					WorkoutReminders: true,
-					StreakReminders:  true,
+				settings := &user.Settings{
+					WeightUnit:      user.Kg,
+					HeightUnit:      user.Cm,
+					Theme:           user.Dark,
+					Visibility:      user.Private,
+					EmailNotif:      true,
+					PushNotif:       false,
+					WorkoutReminder: true,
+					StreakReminder:  true,
 				}
 				m.On("GetSettingsByID", ctx, testID).Return(settings, nil)
 			},
@@ -49,15 +48,15 @@ func TestGetSettings(t *testing.T) {
 				ID: testID,
 			},
 			setupMock: func(m *MockUserRepo) {
-				settings := &ports.Settings{
-					WeightUnit:       user.Lb,
-					HeightUnit:       user.Ft,
-					Theme:            user.Light,
-					Visibility:       user.Public,
-					EmailNotifs:      false,
-					PushNotifs:       false,
-					WorkoutReminders: false,
-					StreakReminders:  false,
+				settings := &user.Settings{
+					WeightUnit:      user.Lb,
+					HeightUnit:      user.Ft,
+					Theme:           user.Light,
+					Visibility:      user.Public,
+					EmailNotif:      false,
+					PushNotif:       false,
+					WorkoutReminder: false,
+					StreakReminder:  false,
 				}
 				m.On("GetSettingsByID", ctx, testID).Return(settings, nil)
 			},
@@ -95,9 +94,4 @@ func TestGetSettings(t *testing.T) {
 			mockRepo.AssertExpectations(t)
 		})
 	}
-}
-
-// Helper function for pointer to float64
-func ptrFloat64(f float64) *float64 {
-	return &f
 }
