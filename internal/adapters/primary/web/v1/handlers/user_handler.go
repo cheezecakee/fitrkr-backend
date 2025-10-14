@@ -121,20 +121,67 @@ func (h *UserHandler) GetSubscription(w http.ResponseWriter, r *http.Request) {
 	web.Response(w, http.StatusOK, resp.Subscription)
 }
 
-func (h *UserHandler) UpdatePlan(w http.ResponseWriter, r *http.Request) {
-	// id := chi.URLParam(r, "id")
+func (h *UserHandler) UpgradePlan(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	var req users.UpgradePlanReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.ClientError(w, http.StatusBadRequest)
+		return
+	}
+
+	req.UserID = id
+	err := h.Service.UpgradePlan(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+	web.Response(w, http.StatusOK, "User plan upgraded")
 }
 
 func (h *UserHandler) RecordPayment(w http.ResponseWriter, r *http.Request) {
-	// id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "id")
+	var req users.RecordPaymentReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.ClientError(w, http.StatusBadRequest)
+		return
+	}
+
+	req.UserID = id
+	err := h.Service.RecordPayment(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+	web.Response(w, http.StatusOK, "User payment recorded")
 }
 
 func (h *UserHandler) CancelSubscription(w http.ResponseWriter, r *http.Request) {
-	// id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "id")
+	var req users.CancelSubscriptionReq
+
+	req.UserID = id
+	err := h.Service.CancelSubscription(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+	web.Response(w, http.StatusOK, "User subscription cancelled")
 }
 
 func (h *UserHandler) StartTrial(w http.ResponseWriter, r *http.Request) {
-	// id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "id")
+	var req users.StartTrialReq
+
+	req.UserID = id
+	err := h.Service.StartTrial(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+	web.Response(w, http.StatusOK, "User trail started")
 }
 
 func (h *UserHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
