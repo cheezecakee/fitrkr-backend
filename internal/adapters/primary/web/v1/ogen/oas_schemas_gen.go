@@ -849,6 +849,109 @@ func (s *UpdateUserReq) SetEmail(val OptString) {
 	s.Email = val
 }
 
+type UpdateUserSettingsBadRequest Error
+
+func (*UpdateUserSettingsBadRequest) updateUserSettingsRes() {}
+
+type UpdateUserSettingsInternalServerError Error
+
+func (*UpdateUserSettingsInternalServerError) updateUserSettingsRes() {}
+
+type UpdateUserSettingsNotFound Error
+
+func (*UpdateUserSettingsNotFound) updateUserSettingsRes() {}
+
+type UpdateUserSettingsReq struct {
+	WeightUnit      OptString `json:"weight_unit"`
+	HeightUnit      OptString `json:"height_unit"`
+	Theme           OptString `json:"theme"`
+	Visibility      OptString `json:"visibility"`
+	EmailNotif      OptBool   `json:"email_notif"`
+	PushNotif       OptBool   `json:"push_notif"`
+	WorkoutReminder OptBool   `json:"workout_reminder"`
+	StreakReminder  OptBool   `json:"streak_reminder"`
+}
+
+// GetWeightUnit returns the value of WeightUnit.
+func (s *UpdateUserSettingsReq) GetWeightUnit() OptString {
+	return s.WeightUnit
+}
+
+// GetHeightUnit returns the value of HeightUnit.
+func (s *UpdateUserSettingsReq) GetHeightUnit() OptString {
+	return s.HeightUnit
+}
+
+// GetTheme returns the value of Theme.
+func (s *UpdateUserSettingsReq) GetTheme() OptString {
+	return s.Theme
+}
+
+// GetVisibility returns the value of Visibility.
+func (s *UpdateUserSettingsReq) GetVisibility() OptString {
+	return s.Visibility
+}
+
+// GetEmailNotif returns the value of EmailNotif.
+func (s *UpdateUserSettingsReq) GetEmailNotif() OptBool {
+	return s.EmailNotif
+}
+
+// GetPushNotif returns the value of PushNotif.
+func (s *UpdateUserSettingsReq) GetPushNotif() OptBool {
+	return s.PushNotif
+}
+
+// GetWorkoutReminder returns the value of WorkoutReminder.
+func (s *UpdateUserSettingsReq) GetWorkoutReminder() OptBool {
+	return s.WorkoutReminder
+}
+
+// GetStreakReminder returns the value of StreakReminder.
+func (s *UpdateUserSettingsReq) GetStreakReminder() OptBool {
+	return s.StreakReminder
+}
+
+// SetWeightUnit sets the value of WeightUnit.
+func (s *UpdateUserSettingsReq) SetWeightUnit(val OptString) {
+	s.WeightUnit = val
+}
+
+// SetHeightUnit sets the value of HeightUnit.
+func (s *UpdateUserSettingsReq) SetHeightUnit(val OptString) {
+	s.HeightUnit = val
+}
+
+// SetTheme sets the value of Theme.
+func (s *UpdateUserSettingsReq) SetTheme(val OptString) {
+	s.Theme = val
+}
+
+// SetVisibility sets the value of Visibility.
+func (s *UpdateUserSettingsReq) SetVisibility(val OptString) {
+	s.Visibility = val
+}
+
+// SetEmailNotif sets the value of EmailNotif.
+func (s *UpdateUserSettingsReq) SetEmailNotif(val OptBool) {
+	s.EmailNotif = val
+}
+
+// SetPushNotif sets the value of PushNotif.
+func (s *UpdateUserSettingsReq) SetPushNotif(val OptBool) {
+	s.PushNotif = val
+}
+
+// SetWorkoutReminder sets the value of WorkoutReminder.
+func (s *UpdateUserSettingsReq) SetWorkoutReminder(val OptBool) {
+	s.WorkoutReminder = val
+}
+
+// SetStreakReminder sets the value of StreakReminder.
+func (s *UpdateUserSettingsReq) SetStreakReminder(val OptBool) {
+	s.StreakReminder = val
+}
+
 // Ref: #/components/schemas/User
 type User struct {
 	ID        OptUUID     `json:"id"`
@@ -1060,7 +1163,8 @@ func (s *UserSettings) SetUpdatedAt(val OptDateTime) {
 	s.UpdatedAt = val
 }
 
-func (*UserSettings) getUserSettingsRes() {}
+func (*UserSettings) getUserSettingsRes()    {}
+func (*UserSettings) updateUserSettingsRes() {}
 
 // Ref: #/components/schemas/UserStats
 type UserStats struct {

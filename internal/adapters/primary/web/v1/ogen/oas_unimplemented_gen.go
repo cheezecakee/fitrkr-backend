@@ -93,3 +93,12 @@ func (UnimplementedHandler) GetUserSubscription(ctx context.Context, params GetU
 func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (r UpdateUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
+
+// UpdateUserSettings implements updateUserSettings operation.
+//
+// Update user settings.
+//
+// PUT /user/{id}/settings
+func (UnimplementedHandler) UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq, params UpdateUserSettingsParams) (r UpdateUserSettingsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}

@@ -15,4 +15,5 @@ const (
 	GetUserStatsOperation        OperationName = "GetUserStats"
 	GetUserSubscriptionOperation OperationName = "GetUserSubscription"
 	UpdateUserOperation          OperationName = "UpdateUser"
+	UpdateUserSettingsOperation  OperationName = "UpdateUserSettings"
 )

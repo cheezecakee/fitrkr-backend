@@ -62,6 +62,12 @@ type Handler interface {
 	//
 	// PUT /user/{id}
 	UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error)
+	// UpdateUserSettings implements updateUserSettings operation.
+	//
+	// Update user settings.
+	//
+	// PUT /user/{id}/settings
+	UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq, params UpdateUserSettingsParams) (UpdateUserSettingsRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

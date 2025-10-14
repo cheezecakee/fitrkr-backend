@@ -36,3 +36,7 @@ type GetUserSubscriptionRes interface {
 type UpdateUserRes interface {
 	updateUserRes()
 }
+
+type UpdateUserSettingsRes interface {
+	updateUserSettingsRes()
+}

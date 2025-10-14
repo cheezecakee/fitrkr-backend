@@ -202,8 +202,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								s.handleGetUserSettingsRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
+							case "PUT":
+								s.handleUpdateUserSettingsRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "GET")
+								s.notAllowed(w, r, "GET,PUT")
 							}
 
 							return
@@ -510,6 +514,14 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.name = GetUserSettingsOperation
 								r.summary = "Get user settings"
 								r.operationID = "getUserSettings"
+								r.pathPattern = "/user/{id}/settings"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "PUT":
+								r.name = UpdateUserSettingsOperation
+								r.summary = "Update user settings"
+								r.operationID = "updateUserSettings"
 								r.pathPattern = "/user/{id}/settings"
 								r.args = args
 								r.count = 1
