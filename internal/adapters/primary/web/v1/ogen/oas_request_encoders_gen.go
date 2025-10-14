@@ -38,6 +38,20 @@ func encodeUpdateUserRequest(
 	return nil
 }
 
+func encodeUpdateUserBodyMetricsRequest(
+	req *UpdateUserBodyMetricsReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdateUserSettingsRequest(
 	req *UpdateUserSettingsReq,
 	r *http.Request,

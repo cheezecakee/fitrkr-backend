@@ -62,6 +62,12 @@ type Handler interface {
 	//
 	// PUT /user/{id}
 	UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error)
+	// UpdateUserBodyMetrics implements updateUserBodyMetrics operation.
+	//
+	// Update user body metrics.
+	//
+	// PUT /user/{id}/stats/body
+	UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (UpdateUserBodyMetricsRes, error)
 	// UpdateUserSettings implements updateUserSettings operation.
 	//
 	// Update user settings.

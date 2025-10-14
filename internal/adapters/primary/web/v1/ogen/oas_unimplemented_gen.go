@@ -94,6 +94,15 @@ func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, 
 	return r, ht.ErrNotImplemented
 }
 
+// UpdateUserBodyMetrics implements updateUserBodyMetrics operation.
+//
+// Update user body metrics.
+//
+// PUT /user/{id}/stats/body
+func (UnimplementedHandler) UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (r UpdateUserBodyMetricsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateUserSettings implements updateUserSettings operation.
 //
 // Update user settings.

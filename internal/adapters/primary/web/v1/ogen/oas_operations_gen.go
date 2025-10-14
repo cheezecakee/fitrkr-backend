@@ -6,14 +6,15 @@ package api
 type OperationName = string
 
 const (
-	CreateUserOperation          OperationName = "CreateUser"
-	DeleteUserOperation          OperationName = "DeleteUser"
-	GetUserByEmailOperation      OperationName = "GetUserByEmail"
-	GetUserByIDOperation         OperationName = "GetUserByID"
-	GetUserByUsernameOperation   OperationName = "GetUserByUsername"
-	GetUserSettingsOperation     OperationName = "GetUserSettings"
-	GetUserStatsOperation        OperationName = "GetUserStats"
-	GetUserSubscriptionOperation OperationName = "GetUserSubscription"
-	UpdateUserOperation          OperationName = "UpdateUser"
-	UpdateUserSettingsOperation  OperationName = "UpdateUserSettings"
+	CreateUserOperation            OperationName = "CreateUser"
+	DeleteUserOperation            OperationName = "DeleteUser"
+	GetUserByEmailOperation        OperationName = "GetUserByEmail"
+	GetUserByIDOperation           OperationName = "GetUserByID"
+	GetUserByUsernameOperation     OperationName = "GetUserByUsername"
+	GetUserSettingsOperation       OperationName = "GetUserSettings"
+	GetUserStatsOperation          OperationName = "GetUserStats"
+	GetUserSubscriptionOperation   OperationName = "GetUserSubscription"
+	UpdateUserOperation            OperationName = "UpdateUser"
+	UpdateUserBodyMetricsOperation OperationName = "UpdateUserBodyMetrics"
+	UpdateUserSettingsOperation    OperationName = "UpdateUserSettings"
 )

@@ -794,6 +794,54 @@ type UpdateUserBadRequest Error
 
 func (*UpdateUserBadRequest) updateUserRes() {}
 
+type UpdateUserBodyMetricsBadRequest Error
+
+func (*UpdateUserBodyMetricsBadRequest) updateUserBodyMetricsRes() {}
+
+type UpdateUserBodyMetricsInternalServerError Error
+
+func (*UpdateUserBodyMetricsInternalServerError) updateUserBodyMetricsRes() {}
+
+type UpdateUserBodyMetricsNotFound Error
+
+func (*UpdateUserBodyMetricsNotFound) updateUserBodyMetricsRes() {}
+
+type UpdateUserBodyMetricsReq struct {
+	WeightValue OptFloat64 `json:"weight_value"`
+	HeightValue OptFloat64 `json:"height_value"`
+	Bfp         OptFloat64 `json:"bfp"`
+}
+
+// GetWeightValue returns the value of WeightValue.
+func (s *UpdateUserBodyMetricsReq) GetWeightValue() OptFloat64 {
+	return s.WeightValue
+}
+
+// GetHeightValue returns the value of HeightValue.
+func (s *UpdateUserBodyMetricsReq) GetHeightValue() OptFloat64 {
+	return s.HeightValue
+}
+
+// GetBfp returns the value of Bfp.
+func (s *UpdateUserBodyMetricsReq) GetBfp() OptFloat64 {
+	return s.Bfp
+}
+
+// SetWeightValue sets the value of WeightValue.
+func (s *UpdateUserBodyMetricsReq) SetWeightValue(val OptFloat64) {
+	s.WeightValue = val
+}
+
+// SetHeightValue sets the value of HeightValue.
+func (s *UpdateUserBodyMetricsReq) SetHeightValue(val OptFloat64) {
+	s.HeightValue = val
+}
+
+// SetBfp sets the value of Bfp.
+func (s *UpdateUserBodyMetricsReq) SetBfp(val OptFloat64) {
+	s.Bfp = val
+}
+
 type UpdateUserInternalServerError Error
 
 func (*UpdateUserInternalServerError) updateUserRes() {}
@@ -1048,6 +1096,45 @@ func (*User) getUserByEmailRes()    {}
 func (*User) getUserByIDRes()       {}
 func (*User) getUserByUsernameRes() {}
 func (*User) updateUserRes()        {}
+
+// Ref: #/components/schemas/UserBodyMetrics
+type UserBodyMetrics struct {
+	Weight OptNilFloat64 `json:"weight"`
+	Height OptNilFloat64 `json:"height"`
+	Bfp    OptNilFloat64 `json:"bfp"`
+}
+
+// GetWeight returns the value of Weight.
+func (s *UserBodyMetrics) GetWeight() OptNilFloat64 {
+	return s.Weight
+}
+
+// GetHeight returns the value of Height.
+func (s *UserBodyMetrics) GetHeight() OptNilFloat64 {
+	return s.Height
+}
+
+// GetBfp returns the value of Bfp.
+func (s *UserBodyMetrics) GetBfp() OptNilFloat64 {
+	return s.Bfp
+}
+
+// SetWeight sets the value of Weight.
+func (s *UserBodyMetrics) SetWeight(val OptNilFloat64) {
+	s.Weight = val
+}
+
+// SetHeight sets the value of Height.
+func (s *UserBodyMetrics) SetHeight(val OptNilFloat64) {
+	s.Height = val
+}
+
+// SetBfp sets the value of Bfp.
+func (s *UserBodyMetrics) SetBfp(val OptNilFloat64) {
+	s.Bfp = val
+}
+
+func (*UserBodyMetrics) updateUserBodyMetricsRes() {}
 
 // Ref: #/components/schemas/UserSettings
 type UserSettings struct {

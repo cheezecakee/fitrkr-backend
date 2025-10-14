@@ -33,6 +33,10 @@ type GetUserSubscriptionRes interface {
 	getUserSubscriptionRes()
 }
 
+type UpdateUserBodyMetricsRes interface {
+	updateUserBodyMetricsRes()
+}
+
 type UpdateUserRes interface {
 	updateUserRes()
 }
