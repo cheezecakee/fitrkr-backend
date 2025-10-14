@@ -36,6 +36,7 @@ func SetupUserRoutes(registry *handlers.HandlerResgistry) http.Handler {
 
 	r.Get("/{id}/subscription", registry.UserHandler.GetSubscription)
 	r.Get("/{id}/settings", registry.UserHandler.GetSettings)
+	r.Get("/{id}/stats", registry.UserHandler.GetStats)
 
 	return r
 }
