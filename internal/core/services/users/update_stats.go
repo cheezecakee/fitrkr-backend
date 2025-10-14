@@ -12,10 +12,10 @@ import (
 )
 
 type UpdateBodyMetricsReq struct {
-	UserID      string
-	WeightValue *float64
-	HeightValue *float64
-	BFP         *float64
+	UserID      string   `json:"user_id"`
+	WeightValue *float64 `json:"weight_value"`
+	HeightValue *float64 `json:"height_value"`
+	BFP         *float64 `json:"bfp"`
 }
 
 func (s *Service) UpdateBodyMetrics(ctx context.Context, req UpdateBodyMetricsReq) error {
