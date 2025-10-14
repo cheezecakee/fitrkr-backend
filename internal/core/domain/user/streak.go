@@ -8,10 +8,10 @@ import (
 var ErrInvalidRestDays = errors.New("rest days must be between 1-6")
 
 type Streak struct {
-	RestDays    int
-	Current     int
-	Longest     int
-	LastWorkout time.Time
+	RestDays    int        `json:"rest_days"`
+	Current     int        `json:"current"`
+	Longest     int        `json:"longest"`
+	LastWorkout *time.Time `json:"last_workout"`
 }
 
 func NewStreak() Streak {
@@ -40,12 +40,12 @@ func (s *Streak) RecordWorkout(workoutDate time.Time) {
 	if s.LastWorkout.IsZero() {
 		s.Current = 1
 		s.Longest = 1
-		s.LastWorkout = workoutDate
+		s.LastWorkout = &workoutDate
 		return
 	}
 
 	// Calculate days since last workout
-	daysSince := workoutDate.Sub(s.LastWorkout).Hours() / 24
+	daysSince := workoutDate.Sub(*s.LastWorkout).Hours() / 24
 	if daysSince > float64(s.RestDays) {
 		s.Current = 1
 	} else {
@@ -56,7 +56,7 @@ func (s *Streak) RecordWorkout(workoutDate time.Time) {
 		s.Longest = s.Current
 	}
 
-	s.LastWorkout = workoutDate
+	s.LastWorkout = &workoutDate
 }
 
 func (s Streak) IsActive() bool {
@@ -64,7 +64,7 @@ func (s Streak) IsActive() bool {
 		return false
 	}
 
-	daysSince := time.Since(s.LastWorkout).Hours() / 24
+	daysSince := time.Since(*s.LastWorkout).Hours() / 24
 	return daysSince <= float64(s.RestDays)
 }
 
@@ -72,7 +72,7 @@ func (s Streak) DaysUntilExpiry() int {
 	if s.LastWorkout.IsZero() {
 		return 0
 	}
-	daysSince := time.Since(s.LastWorkout).Hours() / 24
+	daysSince := time.Since(*s.LastWorkout).Hours() / 24
 	remaining := s.RestDays - int(daysSince)
 	if remaining < 0 {
 		return 0
@@ -83,7 +83,7 @@ func (s Streak) DaysUntilExpiry() int {
 // Break manually reset the streak
 func (s *Streak) Break() {
 	s.Current = 0
-	s.LastWorkout = time.Time{}
+	s.LastWorkout = &time.Time{}
 }
 
 func (s Streak) Progress() float64 {
@@ -91,7 +91,7 @@ func (s Streak) Progress() float64 {
 		return 0
 	}
 
-	daysSince := time.Since(s.LastWorkout).Hours() / 24
+	daysSince := time.Since(*s.LastWorkout).Hours() / 24
 	if daysSince > float64(s.RestDays) {
 		return 1
 	}
