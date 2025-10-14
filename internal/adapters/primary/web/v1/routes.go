@@ -40,5 +40,9 @@ func SetupUserRoutes(registry *handlers.HandlerResgistry) http.Handler {
 
 	r.Put("/{id}/settings", registry.UserHandler.UpdateSettings)
 	r.Put("/{id}/stats/body", registry.UserHandler.UpdateBodyMetrics)
+	r.Put("/{id}/subscription/plan", registry.UserHandler.UpgradePlan)
+	r.Put("/{id}/subscription/payment", registry.UserHandler.RecordPayment)
+	r.Put("/{id}/subscription/cancel", registry.UserHandler.CancelSubscription)
+	r.Put("/{id}/subscription/trial", registry.UserHandler.StartTrial)
 	return r
 }
