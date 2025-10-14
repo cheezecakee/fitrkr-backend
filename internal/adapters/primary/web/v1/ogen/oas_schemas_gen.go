@@ -168,6 +168,22 @@ type GetUserByUsernameNotFound Error
 
 func (*GetUserByUsernameNotFound) getUserByUsernameRes() {}
 
+type GetUserSettingsBadRequest Error
+
+func (*GetUserSettingsBadRequest) getUserSettingsRes() {}
+
+type GetUserSettingsInternalServerError Error
+
+func (*GetUserSettingsInternalServerError) getUserSettingsRes() {}
+
+type GetUserStatsBadRequest Error
+
+func (*GetUserStatsBadRequest) getUserStatsRes() {}
+
+type GetUserStatsInternalServerError Error
+
+func (*GetUserStatsInternalServerError) getUserStatsRes() {}
+
 type GetUserSubscriptionBadRequest Error
 
 func (*GetUserSubscriptionBadRequest) getUserSubscriptionRes() {}
@@ -262,6 +278,52 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptFloat64 returns new OptFloat64 with value set to v.
+func NewOptFloat64(v float64) OptFloat64 {
+	return OptFloat64{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptFloat64 is optional float64.
+type OptFloat64 struct {
+	Value float64
+	Set   bool
+}
+
+// IsSet returns true if OptFloat64 was set.
+func (o OptFloat64) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptFloat64) Reset() {
+	var v float64
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptFloat64) SetTo(v float64) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptFloat64) Get() (v float64, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptFloat64) Or(d float64) float64 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -457,6 +519,52 @@ func (o OptNilString) Or(d string) string {
 	return d
 }
 
+// NewOptStreak returns new OptStreak with value set to v.
+func NewOptStreak(v Streak) OptStreak {
+	return OptStreak{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptStreak is optional Streak.
+type OptStreak struct {
+	Value Streak
+	Set   bool
+}
+
+// IsSet returns true if OptStreak was set.
+func (o OptStreak) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptStreak) Reset() {
+	var v Streak
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptStreak) SetTo(v Streak) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptStreak) Get() (v Streak, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptStreak) Or(d Streak) Streak {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -497,6 +605,52 @@ func (o OptString) Get() (v string, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptTotals returns new OptTotals with value set to v.
+func NewOptTotals(v Totals) OptTotals {
+	return OptTotals{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptTotals is optional Totals.
+type OptTotals struct {
+	Value Totals
+	Set   bool
+}
+
+// IsSet returns true if OptTotals was set.
+func (o OptTotals) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptTotals) Reset() {
+	var v Totals
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptTotals) SetTo(v Totals) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptTotals) Get() (v Totals, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptTotals) Or(d Totals) Totals {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -547,6 +701,93 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 		return v
 	}
 	return d
+}
+
+// Ref: #/components/schemas/Streak
+type Streak struct {
+	RestDays    int       `json:"rest_days"`
+	Current     int       `json:"current"`
+	Longest     int       `json:"longest"`
+	LastWorkout time.Time `json:"last_workout"`
+}
+
+// GetRestDays returns the value of RestDays.
+func (s *Streak) GetRestDays() int {
+	return s.RestDays
+}
+
+// GetCurrent returns the value of Current.
+func (s *Streak) GetCurrent() int {
+	return s.Current
+}
+
+// GetLongest returns the value of Longest.
+func (s *Streak) GetLongest() int {
+	return s.Longest
+}
+
+// GetLastWorkout returns the value of LastWorkout.
+func (s *Streak) GetLastWorkout() time.Time {
+	return s.LastWorkout
+}
+
+// SetRestDays sets the value of RestDays.
+func (s *Streak) SetRestDays(val int) {
+	s.RestDays = val
+}
+
+// SetCurrent sets the value of Current.
+func (s *Streak) SetCurrent(val int) {
+	s.Current = val
+}
+
+// SetLongest sets the value of Longest.
+func (s *Streak) SetLongest(val int) {
+	s.Longest = val
+}
+
+// SetLastWorkout sets the value of LastWorkout.
+func (s *Streak) SetLastWorkout(val time.Time) {
+	s.LastWorkout = val
+}
+
+// Ref: #/components/schemas/Totals
+type Totals struct {
+	Workouts int `json:"workouts"`
+	// Total weight lifted in kg.
+	Lifted float64 `json:"lifted"`
+	// Total time in minutes.
+	Time int `json:"time"`
+}
+
+// GetWorkouts returns the value of Workouts.
+func (s *Totals) GetWorkouts() int {
+	return s.Workouts
+}
+
+// GetLifted returns the value of Lifted.
+func (s *Totals) GetLifted() float64 {
+	return s.Lifted
+}
+
+// GetTime returns the value of Time.
+func (s *Totals) GetTime() int {
+	return s.Time
+}
+
+// SetWorkouts sets the value of Workouts.
+func (s *Totals) SetWorkouts(val int) {
+	s.Workouts = val
+}
+
+// SetLifted sets the value of Lifted.
+func (s *Totals) SetLifted(val float64) {
+	s.Lifted = val
+}
+
+// SetTime sets the value of Time.
+func (s *Totals) SetTime(val int) {
+	s.Time = val
 }
 
 type UpdateUserBadRequest Error
@@ -704,6 +945,205 @@ func (*User) getUserByEmailRes()    {}
 func (*User) getUserByIDRes()       {}
 func (*User) getUserByUsernameRes() {}
 func (*User) updateUserRes()        {}
+
+// Ref: #/components/schemas/UserSettings
+type UserSettings struct {
+	WeightUnit      OptFloat64  `json:"weight_unit"`
+	HeightUnit      OptFloat64  `json:"height_unit"`
+	Theme           OptString   `json:"theme"`
+	Visibility      OptString   `json:"visibility"`
+	EmailNotif      OptBool     `json:"email_notif"`
+	PushNotif       OptBool     `json:"push_notif"`
+	WorkoutReminder OptBool     `json:"workout_reminder"`
+	StreakReminder  OptBool     `json:"streak_reminder"`
+	CreatedAt       OptDateTime `json:"created_at"`
+	UpdatedAt       OptDateTime `json:"updated_at"`
+}
+
+// GetWeightUnit returns the value of WeightUnit.
+func (s *UserSettings) GetWeightUnit() OptFloat64 {
+	return s.WeightUnit
+}
+
+// GetHeightUnit returns the value of HeightUnit.
+func (s *UserSettings) GetHeightUnit() OptFloat64 {
+	return s.HeightUnit
+}
+
+// GetTheme returns the value of Theme.
+func (s *UserSettings) GetTheme() OptString {
+	return s.Theme
+}
+
+// GetVisibility returns the value of Visibility.
+func (s *UserSettings) GetVisibility() OptString {
+	return s.Visibility
+}
+
+// GetEmailNotif returns the value of EmailNotif.
+func (s *UserSettings) GetEmailNotif() OptBool {
+	return s.EmailNotif
+}
+
+// GetPushNotif returns the value of PushNotif.
+func (s *UserSettings) GetPushNotif() OptBool {
+	return s.PushNotif
+}
+
+// GetWorkoutReminder returns the value of WorkoutReminder.
+func (s *UserSettings) GetWorkoutReminder() OptBool {
+	return s.WorkoutReminder
+}
+
+// GetStreakReminder returns the value of StreakReminder.
+func (s *UserSettings) GetStreakReminder() OptBool {
+	return s.StreakReminder
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *UserSettings) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *UserSettings) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// SetWeightUnit sets the value of WeightUnit.
+func (s *UserSettings) SetWeightUnit(val OptFloat64) {
+	s.WeightUnit = val
+}
+
+// SetHeightUnit sets the value of HeightUnit.
+func (s *UserSettings) SetHeightUnit(val OptFloat64) {
+	s.HeightUnit = val
+}
+
+// SetTheme sets the value of Theme.
+func (s *UserSettings) SetTheme(val OptString) {
+	s.Theme = val
+}
+
+// SetVisibility sets the value of Visibility.
+func (s *UserSettings) SetVisibility(val OptString) {
+	s.Visibility = val
+}
+
+// SetEmailNotif sets the value of EmailNotif.
+func (s *UserSettings) SetEmailNotif(val OptBool) {
+	s.EmailNotif = val
+}
+
+// SetPushNotif sets the value of PushNotif.
+func (s *UserSettings) SetPushNotif(val OptBool) {
+	s.PushNotif = val
+}
+
+// SetWorkoutReminder sets the value of WorkoutReminder.
+func (s *UserSettings) SetWorkoutReminder(val OptBool) {
+	s.WorkoutReminder = val
+}
+
+// SetStreakReminder sets the value of StreakReminder.
+func (s *UserSettings) SetStreakReminder(val OptBool) {
+	s.StreakReminder = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *UserSettings) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *UserSettings) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+func (*UserSettings) getUserSettingsRes() {}
+
+// Ref: #/components/schemas/UserStats
+type UserStats struct {
+	Weight    OptNilFloat64 `json:"weight"`
+	Height    OptNilFloat64 `json:"height"`
+	Bfp       OptNilFloat64 `json:"bfp"`
+	Streak    OptStreak     `json:"streak"`
+	Totals    OptTotals     `json:"totals"`
+	CreatedAt OptDateTime   `json:"created_at"`
+	UpdatedAt OptDateTime   `json:"updated_at"`
+}
+
+// GetWeight returns the value of Weight.
+func (s *UserStats) GetWeight() OptNilFloat64 {
+	return s.Weight
+}
+
+// GetHeight returns the value of Height.
+func (s *UserStats) GetHeight() OptNilFloat64 {
+	return s.Height
+}
+
+// GetBfp returns the value of Bfp.
+func (s *UserStats) GetBfp() OptNilFloat64 {
+	return s.Bfp
+}
+
+// GetStreak returns the value of Streak.
+func (s *UserStats) GetStreak() OptStreak {
+	return s.Streak
+}
+
+// GetTotals returns the value of Totals.
+func (s *UserStats) GetTotals() OptTotals {
+	return s.Totals
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *UserStats) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *UserStats) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// SetWeight sets the value of Weight.
+func (s *UserStats) SetWeight(val OptNilFloat64) {
+	s.Weight = val
+}
+
+// SetHeight sets the value of Height.
+func (s *UserStats) SetHeight(val OptNilFloat64) {
+	s.Height = val
+}
+
+// SetBfp sets the value of Bfp.
+func (s *UserStats) SetBfp(val OptNilFloat64) {
+	s.Bfp = val
+}
+
+// SetStreak sets the value of Streak.
+func (s *UserStats) SetStreak(val OptStreak) {
+	s.Streak = val
+}
+
+// SetTotals sets the value of Totals.
+func (s *UserStats) SetTotals(val OptTotals) {
+	s.Totals = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *UserStats) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *UserStats) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+func (*UserStats) getUserStatsRes() {}
 
 // Ref: #/components/schemas/UserSubscription
 type UserSubscription struct {

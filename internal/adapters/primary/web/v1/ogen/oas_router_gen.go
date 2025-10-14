@@ -175,26 +175,84 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/subscription"
+				case '/': // Prefix: "/s"
 
-					if l := len("/subscription"); len(elem) >= l && elem[0:l] == "/subscription" {
+					if l := len("/s"); len(elem) >= l && elem[0:l] == "/s" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "GET":
-							s.handleGetUserSubscriptionRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "GET")
+						break
+					}
+					switch elem[0] {
+					case 'e': // Prefix: "ettings"
+
+						if l := len("ettings"); len(elem) >= l && elem[0:l] == "ettings" {
+							elem = elem[l:]
+						} else {
+							break
 						}
 
-						return
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetUserSettingsRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					case 't': // Prefix: "tats"
+
+						if l := len("tats"); len(elem) >= l && elem[0:l] == "tats" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetUserStatsRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					case 'u': // Prefix: "ubscription"
+
+						if l := len("ubscription"); len(elem) >= l && elem[0:l] == "ubscription" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetUserSubscriptionRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -425,28 +483,90 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					}
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/subscription"
+				case '/': // Prefix: "/s"
 
-					if l := len("/subscription"); len(elem) >= l && elem[0:l] == "/subscription" {
+					if l := len("/s"); len(elem) >= l && elem[0:l] == "/s" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "GET":
-							r.name = GetUserSubscriptionOperation
-							r.summary = "Get user subscription"
-							r.operationID = "getUserSubscription"
-							r.pathPattern = "/user/{id}/subscription"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
+						break
+					}
+					switch elem[0] {
+					case 'e': // Prefix: "ettings"
+
+						if l := len("ettings"); len(elem) >= l && elem[0:l] == "ettings" {
+							elem = elem[l:]
+						} else {
+							break
 						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetUserSettingsOperation
+								r.summary = "Get user settings"
+								r.operationID = "getUserSettings"
+								r.pathPattern = "/user/{id}/settings"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 't': // Prefix: "tats"
+
+						if l := len("tats"); len(elem) >= l && elem[0:l] == "tats" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetUserStatsOperation
+								r.summary = "Get user stats"
+								r.operationID = "getUserStats"
+								r.pathPattern = "/user/{id}/stats"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'u': // Prefix: "ubscription"
+
+						if l := len("ubscription"); len(elem) >= l && elem[0:l] == "ubscription" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetUserSubscriptionOperation
+								r.summary = "Get user subscription"
+								r.operationID = "getUserSubscription"
+								r.pathPattern = "/user/{id}/subscription"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

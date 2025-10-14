@@ -58,6 +58,24 @@ func (UnimplementedHandler) GetUserByUsername(ctx context.Context, params GetUse
 	return r, ht.ErrNotImplemented
 }
 
+// GetUserSettings implements getUserSettings operation.
+//
+// Get user settings.
+//
+// GET /user/{id}/settings
+func (UnimplementedHandler) GetUserSettings(ctx context.Context, params GetUserSettingsParams) (r GetUserSettingsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetUserStats implements getUserStats operation.
+//
+// Get user stats.
+//
+// GET /user/{id}/stats
+func (UnimplementedHandler) GetUserStats(ctx context.Context, params GetUserStatsParams) (r GetUserStatsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetUserSubscription implements getUserSubscription operation.
 //
 // Get user subscription.

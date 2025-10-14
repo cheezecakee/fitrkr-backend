@@ -21,6 +21,14 @@ type GetUserByUsernameRes interface {
 	getUserByUsernameRes()
 }
 
+type GetUserSettingsRes interface {
+	getUserSettingsRes()
+}
+
+type GetUserStatsRes interface {
+	getUserStatsRes()
+}
+
 type GetUserSubscriptionRes interface {
 	getUserSubscriptionRes()
 }

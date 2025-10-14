@@ -38,6 +38,18 @@ type Handler interface {
 	//
 	// GET /user/username/{username}
 	GetUserByUsername(ctx context.Context, params GetUserByUsernameParams) (GetUserByUsernameRes, error)
+	// GetUserSettings implements getUserSettings operation.
+	//
+	// Get user settings.
+	//
+	// GET /user/{id}/settings
+	GetUserSettings(ctx context.Context, params GetUserSettingsParams) (GetUserSettingsRes, error)
+	// GetUserStats implements getUserStats operation.
+	//
+	// Get user stats.
+	//
+	// GET /user/{id}/stats
+	GetUserStats(ctx context.Context, params GetUserStatsParams) (GetUserStatsRes, error)
 	// GetUserSubscription implements getUserSubscription operation.
 	//
 	// Get user subscription.

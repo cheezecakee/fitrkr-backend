@@ -11,6 +11,8 @@ const (
 	GetUserByEmailOperation      OperationName = "GetUserByEmail"
 	GetUserByIDOperation         OperationName = "GetUserByID"
 	GetUserByUsernameOperation   OperationName = "GetUserByUsername"
+	GetUserSettingsOperation     OperationName = "GetUserSettings"
+	GetUserStatsOperation        OperationName = "GetUserStats"
 	GetUserSubscriptionOperation OperationName = "GetUserSubscription"
 	UpdateUserOperation          OperationName = "UpdateUser"
 )
