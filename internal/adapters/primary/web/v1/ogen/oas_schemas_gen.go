@@ -8,6 +8,23 @@ import (
 	"github.com/google/uuid"
 )
 
+type CancelUserSubscriptionBadRequest Error
+
+func (*CancelUserSubscriptionBadRequest) cancelUserSubscriptionRes() {}
+
+type CancelUserSubscriptionInternalServerError Error
+
+func (*CancelUserSubscriptionInternalServerError) cancelUserSubscriptionRes() {}
+
+type CancelUserSubscriptionNotFound Error
+
+func (*CancelUserSubscriptionNotFound) cancelUserSubscriptionRes() {}
+
+// CancelUserSubscriptionOK is response for CancelUserSubscription operation.
+type CancelUserSubscriptionOK struct{}
+
+func (*CancelUserSubscriptionOK) cancelUserSubscriptionRes() {}
+
 type CreateUserBadRequest Error
 
 func (*CreateUserBadRequest) createUserRes() {}
@@ -703,6 +720,23 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+type StartUserTrialBadRequest Error
+
+func (*StartUserTrialBadRequest) startUserTrialRes() {}
+
+type StartUserTrialInternalServerError Error
+
+func (*StartUserTrialInternalServerError) startUserTrialRes() {}
+
+type StartUserTrialNotFound Error
+
+func (*StartUserTrialNotFound) startUserTrialRes() {}
+
+// StartUserTrialOK is response for StartUserTrial operation.
+type StartUserTrialOK struct{}
+
+func (*StartUserTrialOK) startUserTrialRes() {}
+
 // Ref: #/components/schemas/Streak
 type Streak struct {
 	RestDays    int       `json:"rest_days"`
@@ -849,6 +883,43 @@ func (*UpdateUserInternalServerError) updateUserRes() {}
 type UpdateUserNotFound Error
 
 func (*UpdateUserNotFound) updateUserRes() {}
+
+type UpdateUserRecordPaymentBadRequest Error
+
+func (*UpdateUserRecordPaymentBadRequest) updateUserRecordPaymentRes() {}
+
+type UpdateUserRecordPaymentInternalServerError Error
+
+func (*UpdateUserRecordPaymentInternalServerError) updateUserRecordPaymentRes() {}
+
+type UpdateUserRecordPaymentNotFound Error
+
+func (*UpdateUserRecordPaymentNotFound) updateUserRecordPaymentRes() {}
+
+type UpdateUserRecordPaymentReq struct {
+	Amount   OptFloat64 `json:"amount"`
+	Currency OptString  `json:"currency"`
+}
+
+// GetAmount returns the value of Amount.
+func (s *UpdateUserRecordPaymentReq) GetAmount() OptFloat64 {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *UpdateUserRecordPaymentReq) GetCurrency() OptString {
+	return s.Currency
+}
+
+// SetAmount sets the value of Amount.
+func (s *UpdateUserRecordPaymentReq) SetAmount(val OptFloat64) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *UpdateUserRecordPaymentReq) SetCurrency(val OptString) {
+	s.Currency = val
+}
 
 type UpdateUserReq struct {
 	Username  OptString `json:"username"`
@@ -1000,6 +1071,43 @@ func (s *UpdateUserSettingsReq) SetStreakReminder(val OptBool) {
 	s.StreakReminder = val
 }
 
+type UpgradeUserPlanBadRequest Error
+
+func (*UpgradeUserPlanBadRequest) upgradeUserPlanRes() {}
+
+type UpgradeUserPlanInternalServerError Error
+
+func (*UpgradeUserPlanInternalServerError) upgradeUserPlanRes() {}
+
+type UpgradeUserPlanNotFound Error
+
+func (*UpgradeUserPlanNotFound) upgradeUserPlanRes() {}
+
+type UpgradeUserPlanReq struct {
+	Plan          OptString `json:"plan"`
+	BillingPeriod OptString `json:"billing_period"`
+}
+
+// GetPlan returns the value of Plan.
+func (s *UpgradeUserPlanReq) GetPlan() OptString {
+	return s.Plan
+}
+
+// GetBillingPeriod returns the value of BillingPeriod.
+func (s *UpgradeUserPlanReq) GetBillingPeriod() OptString {
+	return s.BillingPeriod
+}
+
+// SetPlan sets the value of Plan.
+func (s *UpgradeUserPlanReq) SetPlan(val OptString) {
+	s.Plan = val
+}
+
+// SetBillingPeriod sets the value of BillingPeriod.
+func (s *UpgradeUserPlanReq) SetBillingPeriod(val OptString) {
+	s.BillingPeriod = val
+}
+
 // Ref: #/components/schemas/User
 type User struct {
 	ID        OptUUID     `json:"id"`
@@ -1135,6 +1243,62 @@ func (s *UserBodyMetrics) SetBfp(val OptNilFloat64) {
 }
 
 func (*UserBodyMetrics) updateUserBodyMetricsRes() {}
+
+// Ref: #/components/schemas/UserPayment
+type UserPayment struct {
+	Amount   OptFloat64 `json:"amount"`
+	Currency OptString  `json:"currency"`
+}
+
+// GetAmount returns the value of Amount.
+func (s *UserPayment) GetAmount() OptFloat64 {
+	return s.Amount
+}
+
+// GetCurrency returns the value of Currency.
+func (s *UserPayment) GetCurrency() OptString {
+	return s.Currency
+}
+
+// SetAmount sets the value of Amount.
+func (s *UserPayment) SetAmount(val OptFloat64) {
+	s.Amount = val
+}
+
+// SetCurrency sets the value of Currency.
+func (s *UserPayment) SetCurrency(val OptString) {
+	s.Currency = val
+}
+
+func (*UserPayment) updateUserRecordPaymentRes() {}
+
+// Ref: #/components/schemas/UserPlan
+type UserPlan struct {
+	Plan          OptString `json:"plan"`
+	BillingPeriod OptString `json:"billing_period"`
+}
+
+// GetPlan returns the value of Plan.
+func (s *UserPlan) GetPlan() OptString {
+	return s.Plan
+}
+
+// GetBillingPeriod returns the value of BillingPeriod.
+func (s *UserPlan) GetBillingPeriod() OptString {
+	return s.BillingPeriod
+}
+
+// SetPlan sets the value of Plan.
+func (s *UserPlan) SetPlan(val OptString) {
+	s.Plan = val
+}
+
+// SetBillingPeriod sets the value of BillingPeriod.
+func (s *UserPlan) SetBillingPeriod(val OptString) {
+	s.BillingPeriod = val
+}
+
+func (*UserPlan) upgradeUserPlanRes() {}
 
 // Ref: #/components/schemas/UserSettings
 type UserSettings struct {

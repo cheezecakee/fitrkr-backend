@@ -267,7 +267,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
 							switch r.Method {
 							case "GET":
 								s.handleGetUserSubscriptionRequest([1]string{
@@ -278,6 +277,124 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							}
 
 							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								break
+							}
+							switch elem[0] {
+							case 'c': // Prefix: "cancel"
+
+								if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "PUT":
+										s.handleCancelUserSubscriptionRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "PUT")
+									}
+
+									return
+								}
+
+							case 'p': // Prefix: "p"
+
+								if l := len("p"); len(elem) >= l && elem[0:l] == "p" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'a': // Prefix: "ayment"
+
+									if l := len("ayment"); len(elem) >= l && elem[0:l] == "ayment" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "PUT":
+											s.handleUpdateUserRecordPaymentRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "PUT")
+										}
+
+										return
+									}
+
+								case 'l': // Prefix: "lan"
+
+									if l := len("lan"); len(elem) >= l && elem[0:l] == "lan" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "PUT":
+											s.handleUpgradeUserPlanRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "PUT")
+										}
+
+										return
+									}
+
+								}
+
+							case 't': // Prefix: "trial"
+
+								if l := len("trial"); len(elem) >= l && elem[0:l] == "trial" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "PUT":
+										s.handleStartUserTrialRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "PUT")
+									}
+
+									return
+								}
+
+							}
+
 						}
 
 					}
@@ -612,7 +729,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
 							switch method {
 							case "GET":
 								r.name = GetUserSubscriptionOperation
@@ -625,6 +741,132 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							default:
 								return
 							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								break
+							}
+							switch elem[0] {
+							case 'c': // Prefix: "cancel"
+
+								if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "PUT":
+										r.name = CancelUserSubscriptionOperation
+										r.summary = "Cancel user subscription"
+										r.operationID = "cancelUserSubscription"
+										r.pathPattern = "/user/{id}/subscription/cancel"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'p': // Prefix: "p"
+
+								if l := len("p"); len(elem) >= l && elem[0:l] == "p" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'a': // Prefix: "ayment"
+
+									if l := len("ayment"); len(elem) >= l && elem[0:l] == "ayment" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "PUT":
+											r.name = UpdateUserRecordPaymentOperation
+											r.summary = "Update user record payment"
+											r.operationID = "updateUserRecordPayment"
+											r.pathPattern = "/user/{id}/subscription/payment"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'l': // Prefix: "lan"
+
+									if l := len("lan"); len(elem) >= l && elem[0:l] == "lan" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "PUT":
+											r.name = UpgradeUserPlanOperation
+											r.summary = "Upgrade user plan"
+											r.operationID = "upgradeUserPlan"
+											r.pathPattern = "/user/{id}/subscription/plan"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								}
+
+							case 't': // Prefix: "trial"
+
+								if l := len("trial"); len(elem) >= l && elem[0:l] == "trial" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "PUT":
+										r.name = StartUserTrialOperation
+										r.summary = "Start user trial"
+										r.operationID = "startUserTrial"
+										r.pathPattern = "/user/{id}/subscription/trial"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							}
+
 						}
 
 					}

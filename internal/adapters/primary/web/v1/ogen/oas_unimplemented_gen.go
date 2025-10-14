@@ -13,6 +13,15 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CancelUserSubscription implements cancelUserSubscription operation.
+//
+// Cancel user subscription.
+//
+// PUT /user/{id}/subscription/cancel
+func (UnimplementedHandler) CancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (r CancelUserSubscriptionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateUser implements createUser operation.
 //
 // Create a new user account.
@@ -85,6 +94,15 @@ func (UnimplementedHandler) GetUserSubscription(ctx context.Context, params GetU
 	return r, ht.ErrNotImplemented
 }
 
+// StartUserTrial implements startUserTrial operation.
+//
+// Start user trial.
+//
+// PUT /user/{id}/subscription/trial
+func (UnimplementedHandler) StartUserTrial(ctx context.Context, params StartUserTrialParams) (r StartUserTrialRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateUser implements updateUser operation.
 //
 // Update user.
@@ -103,11 +121,29 @@ func (UnimplementedHandler) UpdateUserBodyMetrics(ctx context.Context, req *Upda
 	return r, ht.ErrNotImplemented
 }
 
+// UpdateUserRecordPayment implements updateUserRecordPayment operation.
+//
+// Update user record payment.
+//
+// PUT /user/{id}/subscription/payment
+func (UnimplementedHandler) UpdateUserRecordPayment(ctx context.Context, req *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (r UpdateUserRecordPaymentRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateUserSettings implements updateUserSettings operation.
 //
 // Update user settings.
 //
 // PUT /user/{id}/settings
 func (UnimplementedHandler) UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq, params UpdateUserSettingsParams) (r UpdateUserSettingsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpgradeUserPlan implements upgradeUserPlan operation.
+//
+// Upgrade user plan.
+//
+// PUT /user/{id}/subscription/plan
+func (UnimplementedHandler) UpgradeUserPlan(ctx context.Context, req *UpgradeUserPlanReq, params UpgradeUserPlanParams) (r UpgradeUserPlanRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

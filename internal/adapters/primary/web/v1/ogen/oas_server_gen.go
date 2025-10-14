@@ -8,6 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CancelUserSubscription implements cancelUserSubscription operation.
+	//
+	// Cancel user subscription.
+	//
+	// PUT /user/{id}/subscription/cancel
+	CancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (CancelUserSubscriptionRes, error)
 	// CreateUser implements createUser operation.
 	//
 	// Create a new user account.
@@ -56,6 +62,12 @@ type Handler interface {
 	//
 	// GET /user/{id}/subscription
 	GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error)
+	// StartUserTrial implements startUserTrial operation.
+	//
+	// Start user trial.
+	//
+	// PUT /user/{id}/subscription/trial
+	StartUserTrial(ctx context.Context, params StartUserTrialParams) (StartUserTrialRes, error)
 	// UpdateUser implements updateUser operation.
 	//
 	// Update user.
@@ -68,12 +80,24 @@ type Handler interface {
 	//
 	// PUT /user/{id}/stats/body
 	UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (UpdateUserBodyMetricsRes, error)
+	// UpdateUserRecordPayment implements updateUserRecordPayment operation.
+	//
+	// Update user record payment.
+	//
+	// PUT /user/{id}/subscription/payment
+	UpdateUserRecordPayment(ctx context.Context, req *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error)
 	// UpdateUserSettings implements updateUserSettings operation.
 	//
 	// Update user settings.
 	//
 	// PUT /user/{id}/settings
 	UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq, params UpdateUserSettingsParams) (UpdateUserSettingsRes, error)
+	// UpgradeUserPlan implements upgradeUserPlan operation.
+	//
+	// Upgrade user plan.
+	//
+	// PUT /user/{id}/subscription/plan
+	UpgradeUserPlan(ctx context.Context, req *UpgradeUserPlanReq, params UpgradeUserPlanParams) (UpgradeUserPlanRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

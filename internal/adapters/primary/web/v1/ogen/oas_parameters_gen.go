@@ -15,6 +15,72 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
+// CancelUserSubscriptionParams is parameters of cancelUserSubscription operation.
+type CancelUserSubscriptionParams struct {
+	// User ID.
+	ID uuid.UUID
+}
+
+func unpackCancelUserSubscriptionParams(packed middleware.Parameters) (params CancelUserSubscriptionParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeCancelUserSubscriptionParams(args [1]string, argsEscaped bool, r *http.Request) (params CancelUserSubscriptionParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteUserParams is parameters of deleteUser operation.
 type DeleteUserParams struct {
 	// User ID.
@@ -490,6 +556,72 @@ func decodeGetUserSubscriptionParams(args [1]string, argsEscaped bool, r *http.R
 	return params, nil
 }
 
+// StartUserTrialParams is parameters of startUserTrial operation.
+type StartUserTrialParams struct {
+	// User ID.
+	ID uuid.UUID
+}
+
+func unpackStartUserTrialParams(packed middleware.Parameters) (params StartUserTrialParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeStartUserTrialParams(args [1]string, argsEscaped bool, r *http.Request) (params StartUserTrialParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateUserParams is parameters of updateUser operation.
 type UpdateUserParams struct {
 	// User ID.
@@ -622,6 +754,72 @@ func decodeUpdateUserBodyMetricsParams(args [1]string, argsEscaped bool, r *http
 	return params, nil
 }
 
+// UpdateUserRecordPaymentParams is parameters of updateUserRecordPayment operation.
+type UpdateUserRecordPaymentParams struct {
+	// User ID.
+	ID uuid.UUID
+}
+
+func unpackUpdateUserRecordPaymentParams(packed middleware.Parameters) (params UpdateUserRecordPaymentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateUserRecordPaymentParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateUserRecordPaymentParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateUserSettingsParams is parameters of updateUserSettings operation.
 type UpdateUserSettingsParams struct {
 	// User ID.
@@ -640,6 +838,72 @@ func unpackUpdateUserSettingsParams(packed middleware.Parameters) (params Update
 }
 
 func decodeUpdateUserSettingsParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateUserSettingsParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpgradeUserPlanParams is parameters of upgradeUserPlan operation.
+type UpgradeUserPlanParams struct {
+	// User ID.
+	ID uuid.UUID
+}
+
+func unpackUpgradeUserPlanParams(packed middleware.Parameters) (params UpgradeUserPlanParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpgradeUserPlanParams(args [1]string, argsEscaped bool, r *http.Request) (params UpgradeUserPlanParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
