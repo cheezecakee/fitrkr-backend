@@ -19,14 +19,14 @@ func TestUpdatePlan(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		req           users.UpdatePlanReq
+		req           users.UpgradePlanReq
 		setupMock     func(*MockUserRepo)
 		expectedErr   error
 		shouldSucceed bool
 	}{
 		{
 			name: "success - upgrade from Basic to Premium monthly",
-			req: users.UpdatePlanReq{
+			req: users.UpgradePlanReq{
 				UserID:        testUserID,
 				Plan:          "premium",
 				BillingPeriod: "monthly",
@@ -46,7 +46,7 @@ func TestUpdatePlan(t *testing.T) {
 		},
 		{
 			name: "success - upgrade from Basic to Premium yearly",
-			req: users.UpdatePlanReq{
+			req: users.UpgradePlanReq{
 				UserID:        testUserID,
 				Plan:          "premium",
 				BillingPeriod: "yearly",
@@ -66,7 +66,7 @@ func TestUpdatePlan(t *testing.T) {
 		},
 		{
 			name: "error - invalid plan",
-			req: users.UpdatePlanReq{
+			req: users.UpgradePlanReq{
 				UserID:        testUserID,
 				Plan:          "invalid",
 				BillingPeriod: "monthly",
@@ -82,7 +82,7 @@ func TestUpdatePlan(t *testing.T) {
 		},
 		{
 			name: "error - invalid billing period",
-			req: users.UpdatePlanReq{
+			req: users.UpgradePlanReq{
 				UserID:        testUserID,
 				Plan:          "premium",
 				BillingPeriod: "invalid",
@@ -98,7 +98,7 @@ func TestUpdatePlan(t *testing.T) {
 		},
 		{
 			name: "error - already on premium",
-			req: users.UpdatePlanReq{
+			req: users.UpgradePlanReq{
 				UserID:        testUserID,
 				Plan:          "premium",
 				BillingPeriod: "monthly",
@@ -114,7 +114,7 @@ func TestUpdatePlan(t *testing.T) {
 		},
 		{
 			name: "error - get subscription fails",
-			req: users.UpdatePlanReq{
+			req: users.UpgradePlanReq{
 				UserID:        testUserID,
 				Plan:          "premium",
 				BillingPeriod: "monthly",
@@ -132,7 +132,7 @@ func TestUpdatePlan(t *testing.T) {
 			tt.setupMock(mockRepo)
 			svc := users.NewService(mockRepo)
 
-			err := svc.UpdatePlan(ctx, tt.req)
+			err := svc.UpgradePlan(ctx, tt.req)
 
 			if tt.shouldSucceed {
 				assert.NoError(t, err)
