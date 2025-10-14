@@ -82,7 +82,9 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Service.Update(r.Context(), users.UpdateUserReq{ID: id, Username: req.Username, FirstName: req.FirstName, LastName: req.LastName, Email: req.Email})
+	req.ID = id
+
+	err := h.Service.Update(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -119,6 +121,22 @@ func (h *UserHandler) GetSubscription(w http.ResponseWriter, r *http.Request) {
 	web.Response(w, http.StatusOK, resp.Subscription)
 }
 
+func (h *UserHandler) UpdatePlan(w http.ResponseWriter, r *http.Request) {
+	// id := chi.URLParam(r, "id")
+}
+
+func (h *UserHandler) RecordPayment(w http.ResponseWriter, r *http.Request) {
+	// id := chi.URLParam(r, "id")
+}
+
+func (h *UserHandler) CancelSubscription(w http.ResponseWriter, r *http.Request) {
+	// id := chi.URLParam(r, "id")
+}
+
+func (h *UserHandler) StartTrial(w http.ResponseWriter, r *http.Request) {
+	// id := chi.URLParam(r, "id")
+}
+
 func (h *UserHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
@@ -129,4 +147,54 @@ func (h *UserHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	web.Response(w, http.StatusOK, resp.Settings)
+}
+
+func (h *UserHandler) GetStats(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	resp, err := h.Service.GetStats(r.Context(), users.GetStatsReq{ID: id})
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+
+	web.Response(w, http.StatusOK, resp.Stats)
+}
+
+func (h *UserHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	var req users.UpdateSettingsReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.ClientError(w, http.StatusBadRequest)
+		return
+	}
+
+	req.UserID = id
+	err := h.Service.UpdateSettings(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+	web.Response(w, http.StatusOK, "User settings updated")
+}
+
+func (h *UserHandler) UpdateBodyMetrics(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	var req users.UpdateBodyMetricsReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.ClientError(w, http.StatusBadRequest)
+		return
+	}
+
+	req.UserID = id
+	err := h.Service.UpdateBodyMetrics(r.Context(), req)
+	if err != nil {
+		web.ServerError(w, err)
+		return
+	}
+	web.Response(w, http.StatusOK, "User body metrics updated")
 }
