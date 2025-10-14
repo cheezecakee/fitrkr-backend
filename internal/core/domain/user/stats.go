@@ -5,13 +5,13 @@ import (
 )
 
 type Stats struct {
-	Weight    *WeightValue
-	Height    *HeightValue
-	BFP       *BFP
-	Streak    Streak
-	Totals    Totals
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Weight    *WeightValue `json:"weight"`
+	Height    *HeightValue `json:"height"`
+	BFP       *BFP         `json:"bfp"`
+	Streak    Streak       `json:"streak"`
+	Totals    Totals       `json:"totals"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
 }
 
 func NewStats() Stats {
