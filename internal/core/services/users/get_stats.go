@@ -3,7 +3,6 @@ package users
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/cheezecakee/logr"
 
@@ -15,13 +14,7 @@ type GetStatsReq struct {
 }
 
 type GetStatsResp struct {
-	Weight    *user.WeightValue `json:"weight,omitempty"`
-	Height    *user.HeightValue `json:"height,omitempty"`
-	BFP       *user.BFP         `json:"body_fat_percent,omitempty"`
-	Streak    user.Streak       `json:"streak"`
-	Total     user.Totals       `json:"total"`
-	CreateAt  time.Time         `json:"create_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
+	Stats user.Stats
 }
 
 func (s *Service) GetStats(ctx context.Context, req GetStatsReq) (*GetStatsResp, error) {
@@ -38,23 +31,19 @@ func (s *Service) GetStats(ctx context.Context, req GetStatsReq) (*GetStatsResp,
 	}
 
 	resp := &GetStatsResp{
-		BFP:       stats.BFP,
-		Streak:    stats.Streak,
-		Total:     stats.Totals,
-		CreateAt:  stats.CreatedAt,
-		UpdatedAt: stats.UpdatedAt,
+		Stats: *stats,
 	}
 
 	// Matches user settings metrics
 
 	if stats.Weight != nil {
 		displayValue := stats.Weight.Display(settings.WeightUnit)
-		resp.Weight = &displayValue
+		resp.Stats.Weight = &displayValue
 	}
 
 	if stats.Height != nil {
 		displayValue := stats.Height.Display(settings.HeightUnit)
-		resp.Height = &displayValue
+		resp.Stats.Height = &displayValue
 	}
 
 	return resp, nil
