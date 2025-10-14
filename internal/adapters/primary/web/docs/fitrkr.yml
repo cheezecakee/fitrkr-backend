@@ -429,6 +429,60 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /user/{id}/stats/body:
+    put:
+      summary: Update user body metrics
+      operationId: updateUserBodyMetrics
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                weight_value:
+                  type: number
+                height_value:
+                  type: number
+                bfp:
+                  type: number
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBodyMetrics'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
 components:
   schemas:
     User:
@@ -635,6 +689,25 @@ components:
           type: string
           format: date-time
           example: "2025-01-15T10:30:00Z"
+
+    UserBodyMetrics:
+      type: object
+      properties:
+        weight:
+          type: number
+          format: weightValue
+          nullable: true
+          example: 50.1
+        height:
+          type: number
+          format: heightValue
+          nullable: true
+          example: 164.3
+        bfp:
+          type: number
+          format: bfp
+          nullable: true
+          example: 16.4
 
     Error:
       type: object
