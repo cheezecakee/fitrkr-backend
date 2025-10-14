@@ -26,7 +26,7 @@ type UserService interface {
 	GetSubscription(ctx context.Context, req GetSubscriptionReq) (*GetSubscriptionResp, error)
 	GetSettings(ctx context.Context, req GetSettingsReq) (*GetSettingsResp, error)
 
-	UpdatePlan(ctx context.Context, req UpdatePlanReq) error
+	UpgradePlan(ctx context.Context, req UpgradePlanReq) error
 	RecordPayment(ctx context.Context, req RecordPaymentReq) error
 	CancelSubscription(ctx context.Context, req CancelSubscriptionReq) error
 	StartTrial(ctx context.Context, req StartTrialReq) error
