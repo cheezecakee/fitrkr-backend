@@ -1,9 +1,9 @@
 package user
 
 type Totals struct {
-	Workouts int
-	Lifted   float64 // always stored in kg
-	Time     int     // minutes
+	Workouts int     `json:"workouts"`
+	Lifted   float64 `json:"lifted"` // always stored in kg
+	Time     int     `json:"time"`   // minutes
 }
 
 func NewTotals() Totals {
