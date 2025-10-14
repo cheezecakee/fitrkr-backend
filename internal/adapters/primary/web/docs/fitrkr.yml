@@ -115,7 +115,7 @@ paths:
                 $ref: '#/components/schemas/Error'
 
     put:
-      summary: Update user
+      summary: Update user 
       operationId: updateUser
       tags:
         - Users
@@ -298,6 +298,181 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /user/{id}/subscription/plan:
+    put:
+      summary: Upgrade user plan
+      operationId: upgradeUserPlan
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan:
+                  type: string
+                billing_period:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPlan'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/{id}/subscription/payment:
+    put:
+      summary: Update user record payment
+      operationId: updateUserRecordPayment
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPayment'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/{id}/subscription/cancel:
+    put:
+      summary: Cancel user subscription
+      operationId: cancelUserSubscription
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User ID
+      responses:
+        '200':
+          description: Subscription cancelled successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/{id}/subscription/trial:
+    put:
+      summary: Start user trial 
+      operationId: startUserTrial
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: User ID
+      responses:
+        '200':
+          description: Trial started successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   
   /user/{id}/settings:
     get:
@@ -518,7 +693,31 @@ components:
           type: string
           format: date-time
           example: "2025-01-15T10:30:00Z"
-          
+
+    UserPlan:
+      type: object
+      properties:
+        plan:
+          type: string
+          format: plan
+          example: "basic"
+        billing_period:
+          type: string
+          format: period
+          example: "monthly"
+
+    UserPayment:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 69.99
+        currency:
+          type: string
+          format: currency
+          example: "USD"
+
     UserSubscription:
       type: object
       properties:
