@@ -298,6 +298,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  
+  /user/{id}/settings:
+    get:
+      summary: Get user settings
+      operationId: getUserSettings
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: User ID
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '400':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /user/{id}/stats:
+    get:
+      summary: Get user stats     
+      operationId: getUserStats
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            description: User ID
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+        '400':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -392,7 +461,120 @@ components:
           type: string
           format: date-time
           example: "2025-01-15T10:30:00Z"
-          
+
+    UserSettings:
+      type: object
+      properties:
+        weight_unit:
+          type: number
+          format: weightUnit
+          example: 50.1
+        height_unit:
+          type: number
+          format: heightUnit
+          example: 164.5
+        theme:
+          type: string 
+          format: theme
+          example: "dark"
+        visibility:
+          type: string
+          format: visibility
+          example: "public"
+        email_notif:
+          type: boolean
+          example: true
+        push_notif:
+          type: boolean
+          example: true
+        workout_reminder:
+          type: boolean
+          example: true
+        streak_reminder: 
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00Z"
+
+    Streak:
+      type: object
+      properties:
+        rest_days:
+          type: integer
+          example: 2
+        current:
+          type: integer
+          example: 5
+        longest:
+          type: integer
+          example: 12
+        last_workout:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00Z"
+      required:
+        - rest_days
+        - current
+        - longest
+        - last_workout
+
+    Totals:
+      type: object
+      properties:
+        workouts:
+          type: integer
+          example: 42
+        lifted:
+          type: number
+          format: double
+          example: 1250.5
+          description: Total weight lifted in kg
+        time:
+          type: integer
+          example: 3840
+          description: Total time in minutes
+      required:
+        - workouts
+        - lifted
+        - time
+  
+    UserStats:
+      type: object
+      properties:
+        weight:
+          type: number
+          format: weightValue
+          nullable: true
+          example: 50.1
+        height:
+          type: number
+          format: heightValue
+          nullable: true
+          example: 164.3
+        bfp:
+          type: number
+          format: bfp
+          nullable: true
+          example: 16.4
+        streak:
+          $ref: '#/components/schemas/Streak'
+        totals:
+          $ref: '#/components/schemas/Totals'
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00Z"
+
     Error:
       type: object
       properties:
