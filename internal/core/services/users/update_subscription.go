@@ -3,20 +3,19 @@ package users
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/cheezecakee/logr"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
-type UpdatePlanReq struct {
-	UserID        string
-	Plan          string
-	BillingPeriod string
+type UpgradePlanReq struct {
+	UserID        string `json:"user_id"`
+	Plan          string `json:"plan"`
+	BillingPeriod string `json:"billing_period"`
 }
 
-func (s *Service) UpdatePlan(ctx context.Context, req UpdatePlanReq) error {
+func (s *Service) UpgradePlan(ctx context.Context, req UpgradePlanReq) error {
 	existing, err := s.userRepo.GetSubscriptionByID(ctx, req.UserID)
 	if err != nil {
 		logr.Get().Errorf("failed to get subscription: %v", err)
@@ -50,9 +49,9 @@ func (s *Service) UpdatePlan(ctx context.Context, req UpdatePlanReq) error {
 }
 
 type RecordPaymentReq struct {
-	UserID   string
-	Amount   float64
-	Currency string
+	UserID   string  `json:"user_id"`
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
 }
 
 func (s *Service) RecordPayment(ctx context.Context, req RecordPaymentReq) error {
@@ -79,7 +78,7 @@ func (s *Service) RecordPayment(ctx context.Context, req RecordPaymentReq) error
 }
 
 type CancelSubscriptionReq struct {
-	UserID string
+	UserID string `json:"user_id"`
 }
 
 func (s *Service) CancelSubscription(ctx context.Context, req CancelSubscriptionReq) error {
@@ -104,8 +103,7 @@ func (s *Service) CancelSubscription(ctx context.Context, req CancelSubscription
 }
 
 type StartTrialReq struct {
-	UserID      string
-	TrialEndsAt time.Time
+	UserID string `json:"user_id"`
 }
 
 func (s *Service) StartTrial(ctx context.Context, req StartTrialReq) error {
