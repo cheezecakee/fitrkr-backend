@@ -10,17 +10,17 @@ import (
 )
 
 type UpdateSettingsReq struct {
-	UserID     string
-	WeightUnit *string
-	HeightUnit *string
-	Theme      *string
+	UserID     string  `json:"user_id"`
+	WeightUnit *string `json:"weight_unit"`
+	HeightUnit *string `json:"height_unit"`
+	Theme      *string `json:"theme"`
 
-	Visibility *string
+	Visibility *string `json:"visibility"`
 
-	EmailNotif      *bool
-	PushNotif       *bool
-	WorkoutReminder *bool
-	StreakReminder  *bool
+	EmailNotif      *bool `json:"email_notif"`
+	PushNotif       *bool `json:"push_notif"`
+	WorkoutReminder *bool `json:"workout_reminder"`
+	StreakReminder  *bool `json:"streak_reminder"`
 }
 
 func (s *Service) UpdateSettings(ctx context.Context, req UpdateSettingsReq) error {
