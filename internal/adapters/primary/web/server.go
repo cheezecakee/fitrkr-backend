@@ -9,6 +9,7 @@ import (
 
 	v1 "github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web/v1"
 	"github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web/v1/handlers"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/services/auth"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
@@ -18,7 +19,7 @@ type App struct {
 	port     int
 }
 
-func NewApp(userService users.UserService, opts ...AppOption) *App {
+func NewApp(userService users.UserService, authService auth.AuthService, opts ...AppOption) *App {
 	app := &App{
 		port: 8000,
 		chi:  chi.NewRouter(),
@@ -28,7 +29,7 @@ func NewApp(userService users.UserService, opts ...AppOption) *App {
 		applyOption(app)
 	}
 
-	app.registry = handlers.NewHandlerRegistry(userService)
+	app.registry = handlers.NewHandlerRegistry(userService, authService)
 
 	fs := http.FileServer(http.Dir("internal/adapters/primary/web/docs"))
 	app.chi.Handle("/api/v1/docs/*", http.StripPrefix("/api/v1/docs/", fs))
