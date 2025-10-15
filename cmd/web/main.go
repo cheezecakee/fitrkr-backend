@@ -7,6 +7,7 @@ import (
 
 	"github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web"
 	"github.com/cheezecakee/fitrkr-athena/internal/adapters/secondary/db/postgres"
+	"github.com/cheezecakee/fitrkr-athena/internal/core/services/auth"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 )
 
@@ -24,10 +25,18 @@ func main() {
 	if err != nil {
 		logr.Get().Errorf("failed to init postgres user repo: %v", err)
 	}
+	authRepo, err := postgres.NewAuthRepo(db)
+	if err != nil {
+		logr.Get().Errorf("failed to init postgres auth repo: %v", err)
+	}
 
 	userService := users.NewService(userRepo)
+	authService := auth.NewService(authRepo, userRepo)
 
-	server := web.NewApp(userService, web.WithPort(8000))
+	server := web.NewApp(
+		userService,
+		authService,
+		web.WithPort(8000))
 
 	logr.Get().Info("Starting server...")
 	server.Run()
