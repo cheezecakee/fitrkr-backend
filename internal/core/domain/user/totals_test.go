@@ -23,7 +23,7 @@ func TestNewTotals(t *testing.T) {
 func TestTotals_RecordWorkout(t *testing.T) {
 	tests := []struct {
 		name             string
-		lifted           user.Weight
+		lifted           user.WeightValue
 		duration         user.Duration
 		expectedWorkouts int
 		expectedLifted   float64
@@ -84,7 +84,7 @@ func TestTotals_RecordWorkout_Multiple(t *testing.T) {
 }
 
 // Helper functions for tests
-func mustNewWeight(value float64, unit user.WeightUnit) user.Weight {
+func mustNewWeight(value float64, unit user.WeightUnit) user.WeightValue {
 	w, err := user.NewWeight(value, unit)
 	if err != nil {
 		panic(err)
@@ -92,6 +92,6 @@ func mustNewWeight(value float64, unit user.WeightUnit) user.Weight {
 	return w
 }
 
-func mustNewWeightKg(kg float64) user.Weight {
+func mustNewWeightKg(kg float64) user.WeightValue {
 	return mustNewWeight(kg, user.Kg)
 }
