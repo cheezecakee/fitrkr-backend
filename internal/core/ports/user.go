@@ -21,7 +21,7 @@ type User struct {
 	ID           uuid.UUID
 	Username     user.Username
 	FullName     string
-	PasswordHash string
+	PasswordHash user.Password
 	Email        user.Email
 	Roles        []string
 	CreatedAt    time.Time
