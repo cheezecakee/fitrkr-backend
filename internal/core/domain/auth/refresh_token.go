@@ -25,13 +25,14 @@ func NewRefreshToken(userID uuid.UUID) (RefreshToken, error) {
 	if err != nil {
 		return RefreshToken{}, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
+	now := time.Now()
 	return RefreshToken{
 		Token:     token,
 		UserID:    userID,
 		IsRevoked: false,
-		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ExpiresAt: now.Add(7 * 24 * time.Hour),
+		CreatedAt: now,
+		UpdatedAt: now,
 	}, nil
 }
 
