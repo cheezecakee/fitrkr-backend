@@ -37,7 +37,7 @@ func (s *Streak) UpdateRestDays(restDays int) error {
 }
 
 func (s *Streak) RecordWorkout(workoutDate time.Time) {
-	if s.LastWorkout.IsZero() {
+	if s.LastWorkout == nil || s.LastWorkout.IsZero() {
 		s.Current = 1
 		s.Longest = 1
 		s.LastWorkout = &workoutDate
@@ -60,7 +60,7 @@ func (s *Streak) RecordWorkout(workoutDate time.Time) {
 }
 
 func (s Streak) IsActive() bool {
-	if s.LastWorkout.IsZero() {
+	if s.LastWorkout == nil || s.LastWorkout.IsZero() {
 		return false
 	}
 
@@ -69,7 +69,7 @@ func (s Streak) IsActive() bool {
 }
 
 func (s Streak) DaysUntilExpiry() int {
-	if s.LastWorkout.IsZero() {
+	if s.LastWorkout == nil || s.LastWorkout.IsZero() {
 		return 0
 	}
 	daysSince := time.Since(*s.LastWorkout).Hours() / 24
