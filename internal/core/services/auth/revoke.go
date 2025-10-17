@@ -20,7 +20,7 @@ func (s *Service) Revoke(ctx context.Context, req RevokeTokenReq) error {
 
 	token.Revoke()
 
-	err = s.authRepo.Update(ctx, token)
+	err = s.authRepo.Update(ctx, *token)
 	if err != nil {
 		logr.Get().Errorf("failed to update token: %v", err)
 		return fmt.Errorf("failed to update token: %w", err)
