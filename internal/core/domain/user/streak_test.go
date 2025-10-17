@@ -19,8 +19,8 @@ func TestNewStreak(t *testing.T) {
 	if s.Longest != 0 {
 		t.Errorf("expected Longest to be 0, got %v", s.Longest)
 	}
-	if !s.LastWorkout.IsZero() {
-		t.Error("expected LastWorkout to be zero")
+	if s.LastWorkout != nil {
+		t.Error("expected LastWorkout to be nil")
 	}
 }
 
