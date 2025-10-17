@@ -2,16 +2,26 @@
 package jwt
 
 import (
+	"errors"
 	"time"
 
 	"github.com/cheezecakee/logr"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+
+	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
+
+var ErrInvalidToken = errors.New("invalid token")
 
 type JWT interface {
 	MakeJWT(userID uuid.UUID, roles []string) (string, error)
-	ValidateJWT(tokenString string) (uuid.UUID, error)
+	ValidateJWT(tokenString string) (*AuthenticatedUser, error)
+}
+
+type AuthenticatedUser struct {
+	UserID uuid.UUID
+	Roles  user.Roles
 }
 
 type UserClaims struct {
@@ -25,8 +35,11 @@ type JWTManager struct {
 	Claims    UserClaims
 }
 
-func NewJWTManager(secretKey []byte, expiresIn time.Duration) JWT {
-	return &JWTManager{SecretKey: secretKey, ExpiresIn: expiresIn}
+func NewJWTManager(secretKey string, expiresIn time.Duration) JWT {
+	if expiresIn == 0 {
+		expiresIn = 15 * time.Minute
+	}
+	return &JWTManager{SecretKey: []byte(secretKey), ExpiresIn: expiresIn}
 }
 
 func (j *JWTManager) MakeJWT(userID uuid.UUID, roles []string) (string, error) {
@@ -50,26 +63,26 @@ func (j *JWTManager) MakeJWT(userID uuid.UUID, roles []string) (string, error) {
 	return ss, nil
 }
 
-func (j *JWTManager) ValidateJWT(tokenString string) (uuid.UUID, error) {
+func (j *JWTManager) ValidateJWT(tokenString string) (*AuthenticatedUser, error) {
 	var userClaims UserClaims
 
 	token, err := jwt.ParseWithClaims(tokenString, &userClaims, func(token *jwt.Token) (any, error) {
 		return []byte(j.SecretKey), nil
 	})
 	if err != nil {
-		return uuid.Nil, err
+		return nil, err
 	}
 
 	if !token.Valid {
-		return uuid.Nil, nil
+		return nil, ErrInvalidToken
 	}
 
-	userID, err := userClaims.GetSubject()
+	userID, err := uuid.Parse(userClaims.Subject)
 	if err != nil {
 		logr.Get().Errorf("error getting user id: %v", err)
-		return uuid.Nil, err
+		return nil, err
 	}
 
 	logr.Get().Info("Token validated")
-	return uuid.MustParse(userID), err
+	return &AuthenticatedUser{UserID: userID, Roles: user.StringsToRoles(userClaims.Roles)}, err
 }
