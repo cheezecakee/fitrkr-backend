@@ -7,17 +7,12 @@ import (
 	"github.com/cheezecakee/logr"
 )
 
-func CORS(next http.Handler) http.Handler {
+func (m *Middleware) CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Allow multiple origins - add your actual Flutter app URLs
 		allowedOrigins := []string{
-			"http://localhost:5173", // Your Svelte app
-			"http://localhost:3000", // Common Flutter web port
-			"http://localhost:8080", // Another common Flutter web port
-			"http://10.0.2.2:3000",  // Android emulator
-			"http://127.0.0.1:3000", // Alternative localhost
-			"https://receiver-consistently-exchange-women.trycloudflare.com", // Your Cloudflare tunnel
-			"http://localhost",      // For mobile apps
+			"http://localhost:8000", // OpenApi port
+			"http://localhost",
 			"capacitor://localhost", // For Capacitor apps
 			"ionic://localhost",     // For Ionic apps
 		}
@@ -33,9 +28,10 @@ func CORS(next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			logr.Get().Infof("Origin allowed: %s", origin)
 		} else if origin == "" {
-			// For mobile apps that don't send Origin header, allow them
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			logr.Get().Infof("No origin header, allowing all")
+			// For local API requests (same origin, like Stoplight UI)
+			// Allow localhost explicitly instead of "*"
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8000")
+			logr.Get().Info("No Origin header, using default localhost:8000")
 		} else {
 			logr.Get().Infof("Origin not allowed: %s", origin)
 			// Might want to still set some CORS headers for the error response
