@@ -5,20 +5,20 @@ import (
 	"fmt"
 
 	"github.com/cheezecakee/logr"
+	"github.com/google/uuid"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/auth"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
 type LoginReq struct {
-	Username string
-	Password user.Password
+	Username string        `json:"username"`
+	Password user.Password `json:"password"`
 }
 
 type LoginResp struct {
-	AccessToken  *string
 	RefreshToken string
-	UserID       string
+	UserID       uuid.UUID
 	Roles        []string
 }
 
@@ -30,7 +30,8 @@ func (s *Service) Login(ctx context.Context, req LoginReq) (LoginResp, error) {
 	}
 
 	if !req.Password.Verify(user.PasswordHash) {
-		logr.Get().Error(ErrPasswordIncorrect)
+		logr.Get().Errorf("password: %v, hash: %v", req.Password, user.PasswordHash)
+		logr.Get().Error("password incorrect")
 		return LoginResp{}, fmt.Errorf("%v", ErrPasswordIncorrect)
 	}
 
@@ -48,6 +49,7 @@ func (s *Service) Login(ctx context.Context, req LoginReq) (LoginResp, error) {
 
 	return LoginResp{
 		RefreshToken: token.Token,
-		UserID:       user.ID.String(),
+		UserID:       user.ID,
+		Roles:        user.Roles,
 	}, nil
 }
