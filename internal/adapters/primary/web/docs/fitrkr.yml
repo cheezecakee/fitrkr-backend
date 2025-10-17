@@ -173,6 +173,8 @@ paths:
       operationId: updateUser
       tags:
         - Users
+      security:
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -220,6 +222,8 @@ paths:
       operationId: deleteUser
       tags:
         - Users
+      security:
+        - cookieAuth: []
       responses:
         '204':
           description: User deleted successfully
@@ -242,6 +246,8 @@ paths:
       operationId: getUserByUsername
       tags:
         - Users
+      security:
+        - cookieAuth: []
       parameters:
         - name: username
           in: path
@@ -275,6 +281,8 @@ paths:
       operationId: getUserByEmail
       tags:
         - Users
+      security:
+        - cookieAuth: []
       parameters:
         - name: email
           in: path
@@ -309,6 +317,8 @@ paths:
       operationId: getUserSubscription
       tags:
         - Users
+      security:
+        - cookieAuth: []
       responses:
         '200':
           description: User found
@@ -335,6 +345,8 @@ paths:
       operationId: upgradeUserPlan
       tags:
         - Users
+      security:
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -378,6 +390,8 @@ paths:
       operationId: updateUserRecordPayment
       tags:
         - Users
+      security:
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -418,6 +432,8 @@ paths:
       operationId: cancelUserSubscription
       tags:
         - Users
+      security:
+        - cookieAuth: []
       responses:
         '200':
           description: Subscription cancelled successfully
@@ -446,6 +462,8 @@ paths:
       operationId: startUserTrial
       tags:
         - Users
+      security:
+        - cookieAuth: []
       responses:
         '200':
           description: Trial started successfully
@@ -475,6 +493,8 @@ paths:
       operationId: getUserSettings
       tags:
         - Users
+      security:
+        - cookieAuth: []
       responses:
         '200':
           description: User found
@@ -500,6 +520,8 @@ paths:
       operationId: updateUserSettings
       tags:
         - Users
+      security:
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -555,6 +577,8 @@ paths:
       operationId: getUserStats
       tags:
         - Users
+      security:
+        - cookieAuth: []
       responses:
         '200':
           description: User found
@@ -581,6 +605,8 @@ paths:
       operationId: updateUserBodyMetrics
       tags:
         - Users
+      security:
+        - cookieAuth: []
       requestBody:
         required: true
         content:
