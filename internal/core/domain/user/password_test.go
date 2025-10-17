@@ -97,18 +97,18 @@ func TestPassword_HashingAndComparison(t *testing.T) {
 	}
 
 	// Test 2: Correct password should match
-	if !hashedPass.Compare(password) {
-		t.Error("Compare() failed for correct password")
+	if !hashedPass.Verify(password) {
+		t.Error("Verify() failed for correct password")
 	}
 
 	// Test 3: Incorrect password should not match
-	if hashedPass.Compare("WrongPassword123!") {
-		t.Error("Compare() succeeded for incorrect password")
+	if hashedPass.Verify("WrongPassword123!") {
+		t.Error("Verify() succeeded for incorrect password")
 	}
 
 	// Test 4: Similar but different password should not match
-	if hashedPass.Compare("SecurePass123") {
-		t.Error("Compare() succeeded for similar but incorrect password")
+	if hashedPass.Verify("SecurePass123") {
+		t.Error("Verify() succeeded for similar but incorrect password")
 	}
 }
 
@@ -132,10 +132,10 @@ func TestPassword_UniqueHashes(t *testing.T) {
 	}
 
 	// Both passwords should still match the original password
-	if !hash1.Compare(password) {
+	if !hash1.Verify(password) {
 		t.Error("hash1 doesn't match original password")
 	}
-	if !hash2.Compare(password) {
+	if !hash2.Verify(password) {
 		t.Error("hash2 doesn't match original password")
 	}
 }
