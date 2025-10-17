@@ -8,12 +8,11 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/auth"
-	"github.com/cheezecakee/fitrkr-athena/internal/core/domain/user"
 )
 
 type LoginReq struct {
-	Username string        `json:"username"`
-	Password user.Password `json:"password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type LoginResp struct {
@@ -29,8 +28,7 @@ func (s *Service) Login(ctx context.Context, req LoginReq) (LoginResp, error) {
 		return LoginResp{}, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	if !req.Password.Verify(user.PasswordHash) {
-		logr.Get().Errorf("password: %v, hash: %v", req.Password, user.PasswordHash)
+	if !user.PasswordHash.Verify(req.Password) {
 		logr.Get().Error("password incorrect")
 		return LoginResp{}, fmt.Errorf("%v", ErrPasswordIncorrect)
 	}
