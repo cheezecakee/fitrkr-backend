@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// This is a passwordHash
 type Password string
 
 var (
@@ -65,7 +66,7 @@ func NewPassword(password string) (Password, error) {
 }
 
 func (p Password) Verify(passwordHash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(p))
+	err := bcrypt.CompareHashAndPassword([]byte(p), []byte(passwordHash))
 	return err == nil
 }
 
