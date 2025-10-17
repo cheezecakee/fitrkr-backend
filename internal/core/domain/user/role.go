@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"slices"
 )
 
 type (
@@ -58,4 +59,17 @@ func StringsToRoles(strs []string) Roles {
 		out[i] = Role(s)
 	}
 	return out
+}
+
+func (r Roles) ContainsAny(roles ...Role) bool {
+	for _, role := range roles {
+		if slices.Contains(r, role) {
+			return true
+		}
+	}
+	return false
+}
+
+func (r Roles) Contains(role Role) bool {
+	return slices.Contains(r, role)
 }
