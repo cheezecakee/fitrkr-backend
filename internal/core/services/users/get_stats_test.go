@@ -29,6 +29,7 @@ func TestGetStats(t *testing.T) {
 				ID: testID,
 			},
 			setupMock: func(m *MockUserRepo) {
+				now := time.Now()
 				weight := user.WeightValue(75.5)
 				height := user.HeightValue(180.0)
 				bfp := user.BFP(15.5)
@@ -40,7 +41,7 @@ func TestGetStats(t *testing.T) {
 						RestDays:    2,
 						Current:     5,
 						Longest:     10,
-						LastWorkout: time.Now(),
+						LastWorkout: &now,
 					},
 					Totals: user.Totals{
 						Workouts: 20,
@@ -79,7 +80,7 @@ func TestGetStats(t *testing.T) {
 						RestDays:    0,
 						Current:     0,
 						Longest:     0,
-						LastWorkout: time.Time{},
+						LastWorkout: &time.Time{},
 					},
 					Totals: user.Totals{
 						Workouts: 0,
