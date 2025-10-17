@@ -20,7 +20,7 @@ func (s *Service) Logout(ctx context.Context, req LogoutReq) error {
 
 	refreshToken.Revoke()
 
-	err = s.authRepo.Update(ctx, refreshToken)
+	err = s.authRepo.Update(ctx, *refreshToken)
 	if err != nil {
 		logr.Get().Errorf("failed to update user refresh token: %v", err)
 		return fmt.Errorf("failed to update user refresh token: %w", err)
