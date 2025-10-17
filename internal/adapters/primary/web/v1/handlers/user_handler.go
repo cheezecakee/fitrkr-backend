@@ -2,11 +2,16 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
+	webctx "github.com/cheezecakee/fitrkr-athena/internal/adapters/primary/web/context"
+	"github.com/cheezecakee/fitrkr-athena/internal/adapters/secondary/external/jwt"
 	"github.com/cheezecakee/fitrkr-athena/internal/core/services/users"
 	"github.com/cheezecakee/fitrkr-athena/pkg/web"
 )
@@ -37,9 +42,13 @@ func (h *UserHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
-	resp, err := h.Service.GetByID(r.Context(), users.GetUserByIDReq{ID: id})
+	resp, err := h.Service.GetByID(r.Context(), users.GetUserByIDReq{ID: user.UserID.String()})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -60,6 +69,7 @@ func (h *UserHandler) GetUserByUsername(w http.ResponseWriter, r *http.Request) 
 	web.Response(w, http.StatusOK, resp)
 }
 
+// GetUserByEmail Make this admin only later
 func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 	email := chi.URLParam(r, "email")
 
@@ -73,7 +83,11 @@ func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
 	var req users.UpdateUserReq
 
@@ -82,9 +96,9 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.ID = id
+	req.ID = user.UserID.String()
 
-	err := h.Service.Update(r.Context(), req)
+	err = h.Service.Update(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -94,9 +108,13 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
-	err := h.Service.Delete(r.Context(), users.DeleteAccountReq{ID: id})
+	err = h.Service.Delete(r.Context(), users.DeleteAccountReq{ID: user.UserID.String()})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -110,9 +128,13 @@ func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetSubscription(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
-	resp, err := h.Service.GetSubscription(r.Context(), users.GetSubscriptionReq{ID: id})
+	resp, err := h.Service.GetSubscription(r.Context(), users.GetSubscriptionReq{ID: user.UserID.String()})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -122,7 +144,11 @@ func (h *UserHandler) GetSubscription(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpgradePlan(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
 	var req users.UpgradePlanReq
 
@@ -131,8 +157,8 @@ func (h *UserHandler) UpgradePlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.UserID = id
-	err := h.Service.UpgradePlan(r.Context(), req)
+	req.UserID = user.UserID.String()
+	err = h.Service.UpgradePlan(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -141,7 +167,11 @@ func (h *UserHandler) UpgradePlan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) RecordPayment(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 	var req users.RecordPaymentReq
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -149,8 +179,8 @@ func (h *UserHandler) RecordPayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.UserID = id
-	err := h.Service.RecordPayment(r.Context(), req)
+	req.UserID = user.UserID.String()
+	err = h.Service.RecordPayment(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -159,11 +189,15 @@ func (h *UserHandler) RecordPayment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) CancelSubscription(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 	var req users.CancelSubscriptionReq
 
-	req.UserID = id
-	err := h.Service.CancelSubscription(r.Context(), req)
+	req.UserID = user.UserID.String()
+	err = h.Service.CancelSubscription(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -172,11 +206,15 @@ func (h *UserHandler) CancelSubscription(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *UserHandler) StartTrial(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 	var req users.StartTrialReq
 
-	req.UserID = id
-	err := h.Service.StartTrial(r.Context(), req)
+	req.UserID = user.UserID.String()
+	err = h.Service.StartTrial(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -185,9 +223,13 @@ func (h *UserHandler) StartTrial(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
-	resp, err := h.Service.GetSettings(r.Context(), users.GetSettingsReq{ID: id})
+	resp, err := h.Service.GetSettings(r.Context(), users.GetSettingsReq{ID: user.UserID.String()})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -197,9 +239,13 @@ func (h *UserHandler) GetSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetStats(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
-	resp, err := h.Service.GetStats(r.Context(), users.GetStatsReq{ID: id})
+	resp, err := h.Service.GetStats(r.Context(), users.GetStatsReq{ID: user.UserID.String()})
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -209,7 +255,11 @@ func (h *UserHandler) GetStats(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
 	var req users.UpdateSettingsReq
 
@@ -218,8 +268,8 @@ func (h *UserHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.UserID = id
-	err := h.Service.UpdateSettings(r.Context(), req)
+	req.UserID = user.UserID.String()
+	err = h.Service.UpdateSettings(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
@@ -228,7 +278,11 @@ func (h *UserHandler) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateBodyMetrics(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	user, err := getUser(r.Context())
+	if err != nil {
+		web.ClientError(w, http.StatusUnauthorized)
+		return
+	}
 
 	var req users.UpdateBodyMetricsReq
 
@@ -237,11 +291,20 @@ func (h *UserHandler) UpdateBodyMetrics(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	req.UserID = id
-	err := h.Service.UpdateBodyMetrics(r.Context(), req)
+	req.UserID = user.UserID.String()
+	err = h.Service.UpdateBodyMetrics(r.Context(), req)
 	if err != nil {
 		web.ServerError(w, err)
 		return
 	}
 	web.Response(w, http.StatusOK, "User body metrics updated")
+}
+
+func getUser(ctx context.Context) (*jwt.AuthenticatedUser, error) {
+	user := ctx.Value(webctx.AuthenticatedUserKey).(*jwt.AuthenticatedUser)
+	if user.UserID == uuid.Nil {
+		return nil, fmt.Errorf("unauthorized user")
+	}
+
+	return user, nil
 }
