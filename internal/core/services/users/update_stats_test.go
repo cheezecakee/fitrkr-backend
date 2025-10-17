@@ -72,7 +72,7 @@ func TestUpdateBodyMetrics(t *testing.T) {
 					nil,
 				)
 			},
-			expectedErr: user.ErrNegativeWeight,
+			expectedErr: errors.New("failed to create user weight: weight cannot be negative"),
 		},
 		{
 			name: "error - invalid height (zero)",
@@ -86,7 +86,7 @@ func TestUpdateBodyMetrics(t *testing.T) {
 					nil,
 				)
 			},
-			expectedErr: user.ErrHeightZero,
+			expectedErr: errors.New("failed to create user height: height cannot be zero"),
 		},
 		{
 			name: "error - invalid BFP (over 100)",
@@ -100,7 +100,7 @@ func TestUpdateBodyMetrics(t *testing.T) {
 					nil,
 				)
 			},
-			expectedErr: user.ErrInvalidBFP,
+			expectedErr: errors.New("failed to create user BFP: invalid bodyfat percentage"),
 		},
 		{
 			name: "error - GetSettingsByID fails",
