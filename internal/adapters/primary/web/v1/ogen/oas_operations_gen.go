@@ -15,6 +15,7 @@ const (
 	GetUserSettingsOperation         OperationName = "GetUserSettings"
 	GetUserStatsOperation            OperationName = "GetUserStats"
 	GetUserSubscriptionOperation     OperationName = "GetUserSubscription"
+	LoginOperation                   OperationName = "Login"
 	StartUserTrialOperation          OperationName = "StartUserTrial"
 	UpdateUserOperation              OperationName = "UpdateUser"
 	UpdateUserBodyMetricsOperation   OperationName = "UpdateUserBodyMetrics"

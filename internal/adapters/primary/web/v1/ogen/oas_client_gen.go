@@ -11,6 +11,7 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
+	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
 	"go.opentelemetry.io/otel/attribute"
@@ -31,8 +32,8 @@ type Invoker interface {
 	//
 	// Cancel user subscription.
 	//
-	// PUT /user/{id}/subscription/cancel
-	CancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (CancelUserSubscriptionRes, error)
+	// PUT /user/subscription/cancel
+	CancelUserSubscription(ctx context.Context) (CancelUserSubscriptionRes, error)
 	// CreateUser invokes createUser operation.
 	//
 	// Create a new user account.
@@ -43,8 +44,8 @@ type Invoker interface {
 	//
 	// Delete user.
 	//
-	// DELETE /user/{id}
-	DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error)
+	// DELETE /user
+	DeleteUser(ctx context.Context) (DeleteUserRes, error)
 	// GetUserByEmail invokes getUserByEmail operation.
 	//
 	// Get user by email.
@@ -55,8 +56,8 @@ type Invoker interface {
 	//
 	// Get user by ID.
 	//
-	// GET /user/{id}
-	GetUserByID(ctx context.Context, params GetUserByIDParams) (GetUserByIDRes, error)
+	// GET /user
+	GetUserByID(ctx context.Context) (GetUserByIDRes, error)
 	// GetUserByUsername invokes getUserByUsername operation.
 	//
 	// Get user by username.
@@ -67,61 +68,68 @@ type Invoker interface {
 	//
 	// Get user settings.
 	//
-	// GET /user/{id}/settings
-	GetUserSettings(ctx context.Context, params GetUserSettingsParams) (GetUserSettingsRes, error)
+	// GET /user/settings
+	GetUserSettings(ctx context.Context) (GetUserSettingsRes, error)
 	// GetUserStats invokes getUserStats operation.
 	//
 	// Get user stats.
 	//
-	// GET /user/{id}/stats
-	GetUserStats(ctx context.Context, params GetUserStatsParams) (GetUserStatsRes, error)
+	// GET /user/stats
+	GetUserStats(ctx context.Context) (GetUserStatsRes, error)
 	// GetUserSubscription invokes getUserSubscription operation.
 	//
 	// Get user subscription.
 	//
-	// GET /user/{id}/subscription
-	GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error)
+	// GET /user/subscription
+	GetUserSubscription(ctx context.Context) (GetUserSubscriptionRes, error)
+	// Login invokes login operation.
+	//
+	// Login.
+	//
+	// POST /auth/login
+	Login(ctx context.Context, request *LoginReq) (LoginRes, error)
 	// StartUserTrial invokes startUserTrial operation.
 	//
 	// Start user trial.
 	//
-	// PUT /user/{id}/subscription/trial
-	StartUserTrial(ctx context.Context, params StartUserTrialParams) (StartUserTrialRes, error)
+	// PUT /user/subscription/trial
+	StartUserTrial(ctx context.Context) (StartUserTrialRes, error)
 	// UpdateUser invokes updateUser operation.
 	//
 	// Update user.
 	//
-	// PUT /user/{id}
-	UpdateUser(ctx context.Context, request *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error)
+	// PUT /user
+	UpdateUser(ctx context.Context, request *UpdateUserReq) (UpdateUserRes, error)
 	// UpdateUserBodyMetrics invokes updateUserBodyMetrics operation.
 	//
 	// Update user body metrics.
 	//
-	// PUT /user/{id}/stats/body
-	UpdateUserBodyMetrics(ctx context.Context, request *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (UpdateUserBodyMetricsRes, error)
+	// PUT /user/stats/body
+	UpdateUserBodyMetrics(ctx context.Context, request *UpdateUserBodyMetricsReq) (UpdateUserBodyMetricsRes, error)
 	// UpdateUserRecordPayment invokes updateUserRecordPayment operation.
 	//
 	// Update user record payment.
 	//
-	// PUT /user/{id}/subscription/payment
-	UpdateUserRecordPayment(ctx context.Context, request *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error)
+	// PUT /user/subscription/payment
+	UpdateUserRecordPayment(ctx context.Context, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error)
 	// UpdateUserSettings invokes updateUserSettings operation.
 	//
 	// Update user settings.
 	//
-	// PUT /user/{id}/settings
-	UpdateUserSettings(ctx context.Context, request *UpdateUserSettingsReq, params UpdateUserSettingsParams) (UpdateUserSettingsRes, error)
+	// PUT /user/settings
+	UpdateUserSettings(ctx context.Context, request *UpdateUserSettingsReq) (UpdateUserSettingsRes, error)
 	// UpgradeUserPlan invokes upgradeUserPlan operation.
 	//
 	// Upgrade user plan.
 	//
-	// PUT /user/{id}/subscription/plan
-	UpgradeUserPlan(ctx context.Context, request *UpgradeUserPlanReq, params UpgradeUserPlanParams) (UpgradeUserPlanRes, error)
+	// PUT /user/subscription/plan
+	UpgradeUserPlan(ctx context.Context, request *UpgradeUserPlanReq) (UpgradeUserPlanRes, error)
 }
 
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
+	sec       SecuritySource
 	baseClient
 }
 
@@ -130,7 +138,7 @@ var _ Handler = struct {
 }{}
 
 // NewClient initializes new Client defined by OAS.
-func NewClient(serverURL string, opts ...ClientOption) (*Client, error) {
+func NewClient(serverURL string, sec SecuritySource, opts ...ClientOption) (*Client, error) {
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
@@ -143,6 +151,7 @@ func NewClient(serverURL string, opts ...ClientOption) (*Client, error) {
 	}
 	return &Client{
 		serverURL:  u,
+		sec:        sec,
 		baseClient: c,
 	}, nil
 }
@@ -166,17 +175,17 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 //
 // Cancel user subscription.
 //
-// PUT /user/{id}/subscription/cancel
-func (c *Client) CancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (CancelUserSubscriptionRes, error) {
-	res, err := c.sendCancelUserSubscription(ctx, params)
+// PUT /user/subscription/cancel
+func (c *Client) CancelUserSubscription(ctx context.Context) (CancelUserSubscriptionRes, error) {
+	res, err := c.sendCancelUserSubscription(ctx)
 	return res, err
 }
 
-func (c *Client) sendCancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (res CancelUserSubscriptionRes, err error) {
+func (c *Client) sendCancelUserSubscription(ctx context.Context) (res CancelUserSubscriptionRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("cancelUserSubscription"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}/subscription/cancel"),
+		semconv.URLTemplateKey.String("/user/subscription/cancel"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -209,27 +218,8 @@ func (c *Client) sendCancelUserSubscription(ctx context.Context, params CancelUs
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/subscription/cancel"
+	var pathParts [1]string
+	pathParts[0] = "/user/subscription/cancel"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -334,17 +324,17 @@ func (c *Client) sendCreateUser(ctx context.Context, request *CreateUserReq) (re
 //
 // Delete user.
 //
-// DELETE /user/{id}
-func (c *Client) DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error) {
-	res, err := c.sendDeleteUser(ctx, params)
+// DELETE /user
+func (c *Client) DeleteUser(ctx context.Context) (DeleteUserRes, error) {
+	res, err := c.sendDeleteUser(ctx)
 	return res, err
 }
 
-func (c *Client) sendDeleteUser(ctx context.Context, params DeleteUserParams) (res DeleteUserRes, err error) {
+func (c *Client) sendDeleteUser(ctx context.Context) (res DeleteUserRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteUser"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.URLTemplateKey.String("/user/{id}"),
+		semconv.URLTemplateKey.String("/user"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -377,26 +367,8 @@ func (c *Client) sendDeleteUser(ctx context.Context, params DeleteUserParams) (r
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
+	var pathParts [1]string
+	pathParts[0] = "/user"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -516,17 +488,17 @@ func (c *Client) sendGetUserByEmail(ctx context.Context, params GetUserByEmailPa
 //
 // Get user by ID.
 //
-// GET /user/{id}
-func (c *Client) GetUserByID(ctx context.Context, params GetUserByIDParams) (GetUserByIDRes, error) {
-	res, err := c.sendGetUserByID(ctx, params)
+// GET /user
+func (c *Client) GetUserByID(ctx context.Context) (GetUserByIDRes, error) {
+	res, err := c.sendGetUserByID(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetUserByID(ctx context.Context, params GetUserByIDParams) (res GetUserByIDRes, err error) {
+func (c *Client) sendGetUserByID(ctx context.Context) (res GetUserByIDRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserByID"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.URLTemplateKey.String("/user/{id}"),
+		semconv.URLTemplateKey.String("/user"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -559,32 +531,47 @@ func (c *Client) sendGetUserByID(ctx context.Context, params GetUserByIDParams) 
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
+	var pathParts [1]string
+	pathParts[0] = "/user"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:CookieAuth"
+			switch err := c.securityCookieAuth(ctx, GetUserByIDOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"CookieAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
 	}
 
 	stage = "SendRequest"
@@ -698,17 +685,17 @@ func (c *Client) sendGetUserByUsername(ctx context.Context, params GetUserByUser
 //
 // Get user settings.
 //
-// GET /user/{id}/settings
-func (c *Client) GetUserSettings(ctx context.Context, params GetUserSettingsParams) (GetUserSettingsRes, error) {
-	res, err := c.sendGetUserSettings(ctx, params)
+// GET /user/settings
+func (c *Client) GetUserSettings(ctx context.Context) (GetUserSettingsRes, error) {
+	res, err := c.sendGetUserSettings(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetUserSettings(ctx context.Context, params GetUserSettingsParams) (res GetUserSettingsRes, err error) {
+func (c *Client) sendGetUserSettings(ctx context.Context) (res GetUserSettingsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserSettings"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.URLTemplateKey.String("/user/{id}/settings"),
+		semconv.URLTemplateKey.String("/user/settings"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -741,27 +728,8 @@ func (c *Client) sendGetUserSettings(ctx context.Context, params GetUserSettings
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/settings"
+	var pathParts [1]string
+	pathParts[0] = "/user/settings"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -790,17 +758,17 @@ func (c *Client) sendGetUserSettings(ctx context.Context, params GetUserSettings
 //
 // Get user stats.
 //
-// GET /user/{id}/stats
-func (c *Client) GetUserStats(ctx context.Context, params GetUserStatsParams) (GetUserStatsRes, error) {
-	res, err := c.sendGetUserStats(ctx, params)
+// GET /user/stats
+func (c *Client) GetUserStats(ctx context.Context) (GetUserStatsRes, error) {
+	res, err := c.sendGetUserStats(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetUserStats(ctx context.Context, params GetUserStatsParams) (res GetUserStatsRes, err error) {
+func (c *Client) sendGetUserStats(ctx context.Context) (res GetUserStatsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserStats"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.URLTemplateKey.String("/user/{id}/stats"),
+		semconv.URLTemplateKey.String("/user/stats"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -833,27 +801,8 @@ func (c *Client) sendGetUserStats(ctx context.Context, params GetUserStatsParams
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/stats"
+	var pathParts [1]string
+	pathParts[0] = "/user/stats"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -882,17 +831,17 @@ func (c *Client) sendGetUserStats(ctx context.Context, params GetUserStatsParams
 //
 // Get user subscription.
 //
-// GET /user/{id}/subscription
-func (c *Client) GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error) {
-	res, err := c.sendGetUserSubscription(ctx, params)
+// GET /user/subscription
+func (c *Client) GetUserSubscription(ctx context.Context) (GetUserSubscriptionRes, error) {
+	res, err := c.sendGetUserSubscription(ctx)
 	return res, err
 }
 
-func (c *Client) sendGetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (res GetUserSubscriptionRes, err error) {
+func (c *Client) sendGetUserSubscription(ctx context.Context) (res GetUserSubscriptionRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserSubscription"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.URLTemplateKey.String("/user/{id}/subscription"),
+		semconv.URLTemplateKey.String("/user/subscription"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -925,27 +874,8 @@ func (c *Client) sendGetUserSubscription(ctx context.Context, params GetUserSubs
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/subscription"
+	var pathParts [1]string
+	pathParts[0] = "/user/subscription"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -970,21 +900,97 @@ func (c *Client) sendGetUserSubscription(ctx context.Context, params GetUserSubs
 	return result, nil
 }
 
+// Login invokes login operation.
+//
+// Login.
+//
+// POST /auth/login
+func (c *Client) Login(ctx context.Context, request *LoginReq) (LoginRes, error) {
+	res, err := c.sendLogin(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendLogin(ctx context.Context, request *LoginReq) (res LoginRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("login"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.URLTemplateKey.String("/auth/login"),
+	}
+	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, LoginOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/auth/login"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeLoginRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeLoginResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // StartUserTrial invokes startUserTrial operation.
 //
 // Start user trial.
 //
-// PUT /user/{id}/subscription/trial
-func (c *Client) StartUserTrial(ctx context.Context, params StartUserTrialParams) (StartUserTrialRes, error) {
-	res, err := c.sendStartUserTrial(ctx, params)
+// PUT /user/subscription/trial
+func (c *Client) StartUserTrial(ctx context.Context) (StartUserTrialRes, error) {
+	res, err := c.sendStartUserTrial(ctx)
 	return res, err
 }
 
-func (c *Client) sendStartUserTrial(ctx context.Context, params StartUserTrialParams) (res StartUserTrialRes, err error) {
+func (c *Client) sendStartUserTrial(ctx context.Context) (res StartUserTrialRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("startUserTrial"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}/subscription/trial"),
+		semconv.URLTemplateKey.String("/user/subscription/trial"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -1017,27 +1023,8 @@ func (c *Client) sendStartUserTrial(ctx context.Context, params StartUserTrialPa
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/subscription/trial"
+	var pathParts [1]string
+	pathParts[0] = "/user/subscription/trial"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -1066,17 +1053,17 @@ func (c *Client) sendStartUserTrial(ctx context.Context, params StartUserTrialPa
 //
 // Update user.
 //
-// PUT /user/{id}
-func (c *Client) UpdateUser(ctx context.Context, request *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error) {
-	res, err := c.sendUpdateUser(ctx, request, params)
+// PUT /user
+func (c *Client) UpdateUser(ctx context.Context, request *UpdateUserReq) (UpdateUserRes, error) {
+	res, err := c.sendUpdateUser(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendUpdateUser(ctx context.Context, request *UpdateUserReq, params UpdateUserParams) (res UpdateUserRes, err error) {
+func (c *Client) sendUpdateUser(ctx context.Context, request *UpdateUserReq) (res UpdateUserRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUser"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}"),
+		semconv.URLTemplateKey.String("/user"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -1109,26 +1096,8 @@ func (c *Client) sendUpdateUser(ctx context.Context, request *UpdateUserReq, par
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
+	var pathParts [1]string
+	pathParts[0] = "/user"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -1160,17 +1129,17 @@ func (c *Client) sendUpdateUser(ctx context.Context, request *UpdateUserReq, par
 //
 // Update user body metrics.
 //
-// PUT /user/{id}/stats/body
-func (c *Client) UpdateUserBodyMetrics(ctx context.Context, request *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (UpdateUserBodyMetricsRes, error) {
-	res, err := c.sendUpdateUserBodyMetrics(ctx, request, params)
+// PUT /user/stats/body
+func (c *Client) UpdateUserBodyMetrics(ctx context.Context, request *UpdateUserBodyMetricsReq) (UpdateUserBodyMetricsRes, error) {
+	res, err := c.sendUpdateUserBodyMetrics(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendUpdateUserBodyMetrics(ctx context.Context, request *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (res UpdateUserBodyMetricsRes, err error) {
+func (c *Client) sendUpdateUserBodyMetrics(ctx context.Context, request *UpdateUserBodyMetricsReq) (res UpdateUserBodyMetricsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUserBodyMetrics"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}/stats/body"),
+		semconv.URLTemplateKey.String("/user/stats/body"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -1203,27 +1172,8 @@ func (c *Client) sendUpdateUserBodyMetrics(ctx context.Context, request *UpdateU
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/stats/body"
+	var pathParts [1]string
+	pathParts[0] = "/user/stats/body"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -1255,17 +1205,17 @@ func (c *Client) sendUpdateUserBodyMetrics(ctx context.Context, request *UpdateU
 //
 // Update user record payment.
 //
-// PUT /user/{id}/subscription/payment
-func (c *Client) UpdateUserRecordPayment(ctx context.Context, request *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error) {
-	res, err := c.sendUpdateUserRecordPayment(ctx, request, params)
+// PUT /user/subscription/payment
+func (c *Client) UpdateUserRecordPayment(ctx context.Context, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error) {
+	res, err := c.sendUpdateUserRecordPayment(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateUserRecordPayment(ctx context.Context, request *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (res UpdateUserRecordPaymentRes, err error) {
+func (c *Client) sendUpdateUserRecordPayment(ctx context.Context, params UpdateUserRecordPaymentParams) (res UpdateUserRecordPaymentRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUserRecordPayment"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}/subscription/payment"),
+		semconv.URLTemplateKey.String("/user/subscription/payment"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -1298,36 +1248,14 @@ func (c *Client) sendUpdateUserRecordPayment(ctx context.Context, request *Updat
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/subscription/payment"
+	var pathParts [1]string
+	pathParts[0] = "/user/subscription/payment"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "PUT", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeUpdateUserRecordPaymentRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -1350,17 +1278,17 @@ func (c *Client) sendUpdateUserRecordPayment(ctx context.Context, request *Updat
 //
 // Update user settings.
 //
-// PUT /user/{id}/settings
-func (c *Client) UpdateUserSettings(ctx context.Context, request *UpdateUserSettingsReq, params UpdateUserSettingsParams) (UpdateUserSettingsRes, error) {
-	res, err := c.sendUpdateUserSettings(ctx, request, params)
+// PUT /user/settings
+func (c *Client) UpdateUserSettings(ctx context.Context, request *UpdateUserSettingsReq) (UpdateUserSettingsRes, error) {
+	res, err := c.sendUpdateUserSettings(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendUpdateUserSettings(ctx context.Context, request *UpdateUserSettingsReq, params UpdateUserSettingsParams) (res UpdateUserSettingsRes, err error) {
+func (c *Client) sendUpdateUserSettings(ctx context.Context, request *UpdateUserSettingsReq) (res UpdateUserSettingsRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUserSettings"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}/settings"),
+		semconv.URLTemplateKey.String("/user/settings"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -1393,27 +1321,8 @@ func (c *Client) sendUpdateUserSettings(ctx context.Context, request *UpdateUser
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/settings"
+	var pathParts [1]string
+	pathParts[0] = "/user/settings"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -1445,17 +1354,17 @@ func (c *Client) sendUpdateUserSettings(ctx context.Context, request *UpdateUser
 //
 // Upgrade user plan.
 //
-// PUT /user/{id}/subscription/plan
-func (c *Client) UpgradeUserPlan(ctx context.Context, request *UpgradeUserPlanReq, params UpgradeUserPlanParams) (UpgradeUserPlanRes, error) {
-	res, err := c.sendUpgradeUserPlan(ctx, request, params)
+// PUT /user/subscription/plan
+func (c *Client) UpgradeUserPlan(ctx context.Context, request *UpgradeUserPlanReq) (UpgradeUserPlanRes, error) {
+	res, err := c.sendUpgradeUserPlan(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendUpgradeUserPlan(ctx context.Context, request *UpgradeUserPlanReq, params UpgradeUserPlanParams) (res UpgradeUserPlanRes, err error) {
+func (c *Client) sendUpgradeUserPlan(ctx context.Context, request *UpgradeUserPlanReq) (res UpgradeUserPlanRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("upgradeUserPlan"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.URLTemplateKey.String("/user/{id}/subscription/plan"),
+		semconv.URLTemplateKey.String("/user/subscription/plan"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -1488,27 +1397,8 @@ func (c *Client) sendUpgradeUserPlan(ctx context.Context, request *UpgradeUserPl
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/user/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.UUIDToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/subscription/plan"
+	var pathParts [1]string
+	pathParts[0] = "/user/subscription/plan"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"

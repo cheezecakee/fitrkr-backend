@@ -37,6 +37,10 @@ type GetUserSubscriptionRes interface {
 	getUserSubscriptionRes()
 }
 
+type LoginRes interface {
+	loginRes()
+}
+
 type StartUserTrialRes interface {
 	startUserTrialRes()
 }

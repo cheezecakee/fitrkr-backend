@@ -12,8 +12,8 @@ type Handler interface {
 	//
 	// Cancel user subscription.
 	//
-	// PUT /user/{id}/subscription/cancel
-	CancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (CancelUserSubscriptionRes, error)
+	// PUT /user/subscription/cancel
+	CancelUserSubscription(ctx context.Context) (CancelUserSubscriptionRes, error)
 	// CreateUser implements createUser operation.
 	//
 	// Create a new user account.
@@ -24,8 +24,8 @@ type Handler interface {
 	//
 	// Delete user.
 	//
-	// DELETE /user/{id}
-	DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error)
+	// DELETE /user
+	DeleteUser(ctx context.Context) (DeleteUserRes, error)
 	// GetUserByEmail implements getUserByEmail operation.
 	//
 	// Get user by email.
@@ -36,8 +36,8 @@ type Handler interface {
 	//
 	// Get user by ID.
 	//
-	// GET /user/{id}
-	GetUserByID(ctx context.Context, params GetUserByIDParams) (GetUserByIDRes, error)
+	// GET /user
+	GetUserByID(ctx context.Context) (GetUserByIDRes, error)
 	// GetUserByUsername implements getUserByUsername operation.
 	//
 	// Get user by username.
@@ -48,73 +48,81 @@ type Handler interface {
 	//
 	// Get user settings.
 	//
-	// GET /user/{id}/settings
-	GetUserSettings(ctx context.Context, params GetUserSettingsParams) (GetUserSettingsRes, error)
+	// GET /user/settings
+	GetUserSettings(ctx context.Context) (GetUserSettingsRes, error)
 	// GetUserStats implements getUserStats operation.
 	//
 	// Get user stats.
 	//
-	// GET /user/{id}/stats
-	GetUserStats(ctx context.Context, params GetUserStatsParams) (GetUserStatsRes, error)
+	// GET /user/stats
+	GetUserStats(ctx context.Context) (GetUserStatsRes, error)
 	// GetUserSubscription implements getUserSubscription operation.
 	//
 	// Get user subscription.
 	//
-	// GET /user/{id}/subscription
-	GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (GetUserSubscriptionRes, error)
+	// GET /user/subscription
+	GetUserSubscription(ctx context.Context) (GetUserSubscriptionRes, error)
+	// Login implements login operation.
+	//
+	// Login.
+	//
+	// POST /auth/login
+	Login(ctx context.Context, req *LoginReq) (LoginRes, error)
 	// StartUserTrial implements startUserTrial operation.
 	//
 	// Start user trial.
 	//
-	// PUT /user/{id}/subscription/trial
-	StartUserTrial(ctx context.Context, params StartUserTrialParams) (StartUserTrialRes, error)
+	// PUT /user/subscription/trial
+	StartUserTrial(ctx context.Context) (StartUserTrialRes, error)
 	// UpdateUser implements updateUser operation.
 	//
 	// Update user.
 	//
-	// PUT /user/{id}
-	UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error)
+	// PUT /user
+	UpdateUser(ctx context.Context, req *UpdateUserReq) (UpdateUserRes, error)
 	// UpdateUserBodyMetrics implements updateUserBodyMetrics operation.
 	//
 	// Update user body metrics.
 	//
-	// PUT /user/{id}/stats/body
-	UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (UpdateUserBodyMetricsRes, error)
+	// PUT /user/stats/body
+	UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq) (UpdateUserBodyMetricsRes, error)
 	// UpdateUserRecordPayment implements updateUserRecordPayment operation.
 	//
 	// Update user record payment.
 	//
-	// PUT /user/{id}/subscription/payment
-	UpdateUserRecordPayment(ctx context.Context, req *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error)
+	// PUT /user/subscription/payment
+	UpdateUserRecordPayment(ctx context.Context, params UpdateUserRecordPaymentParams) (UpdateUserRecordPaymentRes, error)
 	// UpdateUserSettings implements updateUserSettings operation.
 	//
 	// Update user settings.
 	//
-	// PUT /user/{id}/settings
-	UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq, params UpdateUserSettingsParams) (UpdateUserSettingsRes, error)
+	// PUT /user/settings
+	UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq) (UpdateUserSettingsRes, error)
 	// UpgradeUserPlan implements upgradeUserPlan operation.
 	//
 	// Upgrade user plan.
 	//
-	// PUT /user/{id}/subscription/plan
-	UpgradeUserPlan(ctx context.Context, req *UpgradeUserPlanReq, params UpgradeUserPlanParams) (UpgradeUserPlanRes, error)
+	// PUT /user/subscription/plan
+	UpgradeUserPlan(ctx context.Context, req *UpgradeUserPlanReq) (UpgradeUserPlanRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and
 // calls Handler to handle requests.
 type Server struct {
-	h Handler
+	h   Handler
+	sec SecurityHandler
 	baseServer
 }
 
 // NewServer creates new Server.
-func NewServer(h Handler, opts ...ServerOption) (*Server, error) {
+func NewServer(h Handler, sec SecurityHandler, opts ...ServerOption) (*Server, error) {
 	s, err := newServerConfig(opts...).baseServer()
 	if err != nil {
 		return nil, err
 	}
 	return &Server{
 		h:          h,
+		sec:        sec,
 		baseServer: s,
 	}, nil
 }

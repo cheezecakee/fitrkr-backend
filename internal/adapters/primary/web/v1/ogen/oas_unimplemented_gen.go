@@ -17,8 +17,8 @@ var _ Handler = UnimplementedHandler{}
 //
 // Cancel user subscription.
 //
-// PUT /user/{id}/subscription/cancel
-func (UnimplementedHandler) CancelUserSubscription(ctx context.Context, params CancelUserSubscriptionParams) (r CancelUserSubscriptionRes, _ error) {
+// PUT /user/subscription/cancel
+func (UnimplementedHandler) CancelUserSubscription(ctx context.Context) (r CancelUserSubscriptionRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -35,8 +35,8 @@ func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserReq) 
 //
 // Delete user.
 //
-// DELETE /user/{id}
-func (UnimplementedHandler) DeleteUser(ctx context.Context, params DeleteUserParams) (r DeleteUserRes, _ error) {
+// DELETE /user
+func (UnimplementedHandler) DeleteUser(ctx context.Context) (r DeleteUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -53,8 +53,8 @@ func (UnimplementedHandler) GetUserByEmail(ctx context.Context, params GetUserBy
 //
 // Get user by ID.
 //
-// GET /user/{id}
-func (UnimplementedHandler) GetUserByID(ctx context.Context, params GetUserByIDParams) (r GetUserByIDRes, _ error) {
+// GET /user
+func (UnimplementedHandler) GetUserByID(ctx context.Context) (r GetUserByIDRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -71,8 +71,8 @@ func (UnimplementedHandler) GetUserByUsername(ctx context.Context, params GetUse
 //
 // Get user settings.
 //
-// GET /user/{id}/settings
-func (UnimplementedHandler) GetUserSettings(ctx context.Context, params GetUserSettingsParams) (r GetUserSettingsRes, _ error) {
+// GET /user/settings
+func (UnimplementedHandler) GetUserSettings(ctx context.Context) (r GetUserSettingsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -80,8 +80,8 @@ func (UnimplementedHandler) GetUserSettings(ctx context.Context, params GetUserS
 //
 // Get user stats.
 //
-// GET /user/{id}/stats
-func (UnimplementedHandler) GetUserStats(ctx context.Context, params GetUserStatsParams) (r GetUserStatsRes, _ error) {
+// GET /user/stats
+func (UnimplementedHandler) GetUserStats(ctx context.Context) (r GetUserStatsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -89,8 +89,17 @@ func (UnimplementedHandler) GetUserStats(ctx context.Context, params GetUserStat
 //
 // Get user subscription.
 //
-// GET /user/{id}/subscription
-func (UnimplementedHandler) GetUserSubscription(ctx context.Context, params GetUserSubscriptionParams) (r GetUserSubscriptionRes, _ error) {
+// GET /user/subscription
+func (UnimplementedHandler) GetUserSubscription(ctx context.Context) (r GetUserSubscriptionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Login implements login operation.
+//
+// Login.
+//
+// POST /auth/login
+func (UnimplementedHandler) Login(ctx context.Context, req *LoginReq) (r LoginRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -98,8 +107,8 @@ func (UnimplementedHandler) GetUserSubscription(ctx context.Context, params GetU
 //
 // Start user trial.
 //
-// PUT /user/{id}/subscription/trial
-func (UnimplementedHandler) StartUserTrial(ctx context.Context, params StartUserTrialParams) (r StartUserTrialRes, _ error) {
+// PUT /user/subscription/trial
+func (UnimplementedHandler) StartUserTrial(ctx context.Context) (r StartUserTrialRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -107,8 +116,8 @@ func (UnimplementedHandler) StartUserTrial(ctx context.Context, params StartUser
 //
 // Update user.
 //
-// PUT /user/{id}
-func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (r UpdateUserRes, _ error) {
+// PUT /user
+func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq) (r UpdateUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -116,8 +125,8 @@ func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, 
 //
 // Update user body metrics.
 //
-// PUT /user/{id}/stats/body
-func (UnimplementedHandler) UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq, params UpdateUserBodyMetricsParams) (r UpdateUserBodyMetricsRes, _ error) {
+// PUT /user/stats/body
+func (UnimplementedHandler) UpdateUserBodyMetrics(ctx context.Context, req *UpdateUserBodyMetricsReq) (r UpdateUserBodyMetricsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -125,8 +134,8 @@ func (UnimplementedHandler) UpdateUserBodyMetrics(ctx context.Context, req *Upda
 //
 // Update user record payment.
 //
-// PUT /user/{id}/subscription/payment
-func (UnimplementedHandler) UpdateUserRecordPayment(ctx context.Context, req *UpdateUserRecordPaymentReq, params UpdateUserRecordPaymentParams) (r UpdateUserRecordPaymentRes, _ error) {
+// PUT /user/subscription/payment
+func (UnimplementedHandler) UpdateUserRecordPayment(ctx context.Context, params UpdateUserRecordPaymentParams) (r UpdateUserRecordPaymentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -134,8 +143,8 @@ func (UnimplementedHandler) UpdateUserRecordPayment(ctx context.Context, req *Up
 //
 // Update user settings.
 //
-// PUT /user/{id}/settings
-func (UnimplementedHandler) UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq, params UpdateUserSettingsParams) (r UpdateUserSettingsRes, _ error) {
+// PUT /user/settings
+func (UnimplementedHandler) UpdateUserSettings(ctx context.Context, req *UpdateUserSettingsReq) (r UpdateUserSettingsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -143,7 +152,7 @@ func (UnimplementedHandler) UpdateUserSettings(ctx context.Context, req *UpdateU
 //
 // Upgrade user plan.
 //
-// PUT /user/{id}/subscription/plan
-func (UnimplementedHandler) UpgradeUserPlan(ctx context.Context, req *UpgradeUserPlanReq, params UpgradeUserPlanParams) (r UpgradeUserPlanRes, _ error) {
+// PUT /user/subscription/plan
+func (UnimplementedHandler) UpgradeUserPlan(ctx context.Context, req *UpgradeUserPlanReq) (r UpgradeUserPlanRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

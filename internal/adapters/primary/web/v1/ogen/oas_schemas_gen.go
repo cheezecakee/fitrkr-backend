@@ -25,6 +25,31 @@ type CancelUserSubscriptionOK struct{}
 
 func (*CancelUserSubscriptionOK) cancelUserSubscriptionRes() {}
 
+type CookieAuth struct {
+	APIKey string
+	Roles  []string
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *CookieAuth) GetAPIKey() string {
+	return s.APIKey
+}
+
+// GetRoles returns the value of Roles.
+func (s *CookieAuth) GetRoles() []string {
+	return s.Roles
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *CookieAuth) SetAPIKey(val string) {
+	s.APIKey = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *CookieAuth) SetRoles(val []string) {
+	s.Roles = val
+}
+
 type CreateUserBadRequest Error
 
 func (*CreateUserBadRequest) createUserRes() {}
@@ -177,6 +202,10 @@ type GetUserByIDNotFound Error
 
 func (*GetUserByIDNotFound) getUserByIDRes() {}
 
+type GetUserByIDUnauthorized Error
+
+func (*GetUserByIDUnauthorized) getUserByIDRes() {}
+
 type GetUserByUsernameInternalServerError Error
 
 func (*GetUserByUsernameInternalServerError) getUserByUsernameRes() {}
@@ -208,6 +237,60 @@ func (*GetUserSubscriptionBadRequest) getUserSubscriptionRes() {}
 type GetUserSubscriptionInternalServerError Error
 
 func (*GetUserSubscriptionInternalServerError) getUserSubscriptionRes() {}
+
+type LoginBadRequest Error
+
+func (*LoginBadRequest) loginRes() {}
+
+type LoginInternalServerError Error
+
+func (*LoginInternalServerError) loginRes() {}
+
+// LoginOK is response for Login operation.
+type LoginOK struct {
+	SetCookie OptString
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *LoginOK) GetSetCookie() OptString {
+	return s.SetCookie
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *LoginOK) SetSetCookie(val OptString) {
+	s.SetCookie = val
+}
+
+func (*LoginOK) loginRes() {}
+
+type LoginReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// GetUsername returns the value of Username.
+func (s *LoginReq) GetUsername() string {
+	return s.Username
+}
+
+// GetPassword returns the value of Password.
+func (s *LoginReq) GetPassword() string {
+	return s.Password
+}
+
+// SetUsername sets the value of Username.
+func (s *LoginReq) SetUsername(val string) {
+	s.Username = val
+}
+
+// SetPassword sets the value of Password.
+func (s *LoginReq) SetPassword(val string) {
+	s.Password = val
+}
+
+type LoginUnauthorized Error
+
+func (*LoginUnauthorized) loginRes() {}
 
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
@@ -895,31 +978,6 @@ func (*UpdateUserRecordPaymentInternalServerError) updateUserRecordPaymentRes() 
 type UpdateUserRecordPaymentNotFound Error
 
 func (*UpdateUserRecordPaymentNotFound) updateUserRecordPaymentRes() {}
-
-type UpdateUserRecordPaymentReq struct {
-	Amount   OptFloat64 `json:"amount"`
-	Currency OptString  `json:"currency"`
-}
-
-// GetAmount returns the value of Amount.
-func (s *UpdateUserRecordPaymentReq) GetAmount() OptFloat64 {
-	return s.Amount
-}
-
-// GetCurrency returns the value of Currency.
-func (s *UpdateUserRecordPaymentReq) GetCurrency() OptString {
-	return s.Currency
-}
-
-// SetAmount sets the value of Amount.
-func (s *UpdateUserRecordPaymentReq) SetAmount(val OptFloat64) {
-	s.Amount = val
-}
-
-// SetCurrency sets the value of Currency.
-func (s *UpdateUserRecordPaymentReq) SetCurrency(val OptString) {
-	s.Currency = val
-}
 
 type UpdateUserReq struct {
 	Username  OptString `json:"username"`

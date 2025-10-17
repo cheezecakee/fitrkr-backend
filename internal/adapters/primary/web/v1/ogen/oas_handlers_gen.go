@@ -33,14 +33,14 @@ func (c *codeRecorder) WriteHeader(status int) {
 //
 // Cancel user subscription.
 //
-// PUT /user/{id}/subscription/cancel
-func (s *Server) handleCancelUserSubscriptionRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user/subscription/cancel
+func (s *Server) handleCancelUserSubscriptionRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("cancelUserSubscription"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}/subscription/cancel"),
+		semconv.HTTPRouteKey.String("/user/subscription/cancel"),
 	}
 
 	// Start a span for this request.
@@ -97,22 +97,8 @@ func (s *Server) handleCancelUserSubscriptionRequest(args [1]string, argsEscaped
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: CancelUserSubscriptionOperation,
-			ID:   "cancelUserSubscription",
-		}
+		err error
 	)
-	params, err := decodeCancelUserSubscriptionParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 
@@ -125,18 +111,13 @@ func (s *Server) handleCancelUserSubscriptionRequest(args [1]string, argsEscaped
 			OperationID:      "cancelUserSubscription",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = CancelUserSubscriptionParams
+			Params   = struct{}
 			Response = CancelUserSubscriptionRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -146,14 +127,14 @@ func (s *Server) handleCancelUserSubscriptionRequest(args [1]string, argsEscaped
 		](
 			m,
 			mreq,
-			unpackCancelUserSubscriptionParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CancelUserSubscription(ctx, params)
+				response, err = s.h.CancelUserSubscription(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.CancelUserSubscription(ctx, params)
+		response, err = s.h.CancelUserSubscription(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -315,14 +296,14 @@ func (s *Server) handleCreateUserRequest(args [0]string, argsEscaped bool, w htt
 //
 // Delete user.
 //
-// DELETE /user/{id}
-func (s *Server) handleDeleteUserRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// DELETE /user
+func (s *Server) handleDeleteUserRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteUser"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/user/{id}"),
+		semconv.HTTPRouteKey.String("/user"),
 	}
 
 	// Start a span for this request.
@@ -379,22 +360,8 @@ func (s *Server) handleDeleteUserRequest(args [1]string, argsEscaped bool, w htt
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: DeleteUserOperation,
-			ID:   "deleteUser",
-		}
+		err error
 	)
-	params, err := decodeDeleteUserParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 
@@ -407,18 +374,13 @@ func (s *Server) handleDeleteUserRequest(args [1]string, argsEscaped bool, w htt
 			OperationID:      "deleteUser",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = DeleteUserParams
+			Params   = struct{}
 			Response = DeleteUserRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -428,14 +390,14 @@ func (s *Server) handleDeleteUserRequest(args [1]string, argsEscaped bool, w htt
 		](
 			m,
 			mreq,
-			unpackDeleteUserParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.DeleteUser(ctx, params)
+				response, err = s.h.DeleteUser(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.DeleteUser(ctx, params)
+		response, err = s.h.DeleteUser(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -597,14 +559,14 @@ func (s *Server) handleGetUserByEmailRequest(args [1]string, argsEscaped bool, w
 //
 // Get user by ID.
 //
-// GET /user/{id}
-func (s *Server) handleGetUserByIDRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /user
+func (s *Server) handleGetUserByIDRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserByID"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/user/{id}"),
+		semconv.HTTPRouteKey.String("/user"),
 	}
 
 	// Start a span for this request.
@@ -667,15 +629,49 @@ func (s *Server) handleGetUserByIDRequest(args [1]string, argsEscaped bool, w ht
 			ID:   "getUserByID",
 		}
 	)
-	params, err := decodeGetUserByIDParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityCookieAuth(ctx, GetUserByIDOperation, r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "CookieAuth",
+					Err:              err,
+				}
+				defer recordError("Security:CookieAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
 		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
 	}
 
 	var rawBody []byte
@@ -689,18 +685,13 @@ func (s *Server) handleGetUserByIDRequest(args [1]string, argsEscaped bool, w ht
 			OperationID:      "getUserByID",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = GetUserByIDParams
+			Params   = struct{}
 			Response = GetUserByIDRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -710,14 +701,14 @@ func (s *Server) handleGetUserByIDRequest(args [1]string, argsEscaped bool, w ht
 		](
 			m,
 			mreq,
-			unpackGetUserByIDParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetUserByID(ctx, params)
+				response, err = s.h.GetUserByID(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetUserByID(ctx, params)
+		response, err = s.h.GetUserByID(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -879,14 +870,14 @@ func (s *Server) handleGetUserByUsernameRequest(args [1]string, argsEscaped bool
 //
 // Get user settings.
 //
-// GET /user/{id}/settings
-func (s *Server) handleGetUserSettingsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /user/settings
+func (s *Server) handleGetUserSettingsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserSettings"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/user/{id}/settings"),
+		semconv.HTTPRouteKey.String("/user/settings"),
 	}
 
 	// Start a span for this request.
@@ -943,22 +934,8 @@ func (s *Server) handleGetUserSettingsRequest(args [1]string, argsEscaped bool, 
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: GetUserSettingsOperation,
-			ID:   "getUserSettings",
-		}
+		err error
 	)
-	params, err := decodeGetUserSettingsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 
@@ -971,18 +948,13 @@ func (s *Server) handleGetUserSettingsRequest(args [1]string, argsEscaped bool, 
 			OperationID:      "getUserSettings",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = GetUserSettingsParams
+			Params   = struct{}
 			Response = GetUserSettingsRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -992,14 +964,14 @@ func (s *Server) handleGetUserSettingsRequest(args [1]string, argsEscaped bool, 
 		](
 			m,
 			mreq,
-			unpackGetUserSettingsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetUserSettings(ctx, params)
+				response, err = s.h.GetUserSettings(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetUserSettings(ctx, params)
+		response, err = s.h.GetUserSettings(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1020,14 +992,14 @@ func (s *Server) handleGetUserSettingsRequest(args [1]string, argsEscaped bool, 
 //
 // Get user stats.
 //
-// GET /user/{id}/stats
-func (s *Server) handleGetUserStatsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /user/stats
+func (s *Server) handleGetUserStatsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserStats"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/user/{id}/stats"),
+		semconv.HTTPRouteKey.String("/user/stats"),
 	}
 
 	// Start a span for this request.
@@ -1084,22 +1056,8 @@ func (s *Server) handleGetUserStatsRequest(args [1]string, argsEscaped bool, w h
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: GetUserStatsOperation,
-			ID:   "getUserStats",
-		}
+		err error
 	)
-	params, err := decodeGetUserStatsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 
@@ -1112,18 +1070,13 @@ func (s *Server) handleGetUserStatsRequest(args [1]string, argsEscaped bool, w h
 			OperationID:      "getUserStats",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = GetUserStatsParams
+			Params   = struct{}
 			Response = GetUserStatsRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -1133,14 +1086,14 @@ func (s *Server) handleGetUserStatsRequest(args [1]string, argsEscaped bool, w h
 		](
 			m,
 			mreq,
-			unpackGetUserStatsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetUserStats(ctx, params)
+				response, err = s.h.GetUserStats(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetUserStats(ctx, params)
+		response, err = s.h.GetUserStats(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1161,14 +1114,14 @@ func (s *Server) handleGetUserStatsRequest(args [1]string, argsEscaped bool, w h
 //
 // Get user subscription.
 //
-// GET /user/{id}/subscription
-func (s *Server) handleGetUserSubscriptionRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /user/subscription
+func (s *Server) handleGetUserSubscriptionRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getUserSubscription"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/user/{id}/subscription"),
+		semconv.HTTPRouteKey.String("/user/subscription"),
 	}
 
 	// Start a span for this request.
@@ -1225,22 +1178,8 @@ func (s *Server) handleGetUserSubscriptionRequest(args [1]string, argsEscaped bo
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: GetUserSubscriptionOperation,
-			ID:   "getUserSubscription",
-		}
+		err error
 	)
-	params, err := decodeGetUserSubscriptionParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 
@@ -1253,18 +1192,13 @@ func (s *Server) handleGetUserSubscriptionRequest(args [1]string, argsEscaped bo
 			OperationID:      "getUserSubscription",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = GetUserSubscriptionParams
+			Params   = struct{}
 			Response = GetUserSubscriptionRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -1274,14 +1208,14 @@ func (s *Server) handleGetUserSubscriptionRequest(args [1]string, argsEscaped bo
 		](
 			m,
 			mreq,
-			unpackGetUserSubscriptionParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetUserSubscription(ctx, params)
+				response, err = s.h.GetUserSubscription(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetUserSubscription(ctx, params)
+		response, err = s.h.GetUserSubscription(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1298,18 +1232,159 @@ func (s *Server) handleGetUserSubscriptionRequest(args [1]string, argsEscaped bo
 	}
 }
 
+// handleLoginRequest handles login operation.
+//
+// Login.
+//
+// POST /auth/login
+func (s *Server) handleLoginRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("login"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/auth/login"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), LoginOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code < 100 || code >= 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: LoginOperation,
+			ID:   "login",
+		}
+	)
+
+	var rawBody []byte
+	request, rawBody, close, err := s.decodeLoginRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response LoginRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    LoginOperation,
+			OperationSummary: "Login",
+			OperationID:      "login",
+			Body:             request,
+			RawBody:          rawBody,
+			Params:           middleware.Parameters{},
+			Raw:              r,
+		}
+
+		type (
+			Request  = *LoginReq
+			Params   = struct{}
+			Response = LoginRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			nil,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.Login(ctx, request)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.Login(ctx, request)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeLoginResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleStartUserTrialRequest handles startUserTrial operation.
 //
 // Start user trial.
 //
-// PUT /user/{id}/subscription/trial
-func (s *Server) handleStartUserTrialRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user/subscription/trial
+func (s *Server) handleStartUserTrialRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("startUserTrial"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}/subscription/trial"),
+		semconv.HTTPRouteKey.String("/user/subscription/trial"),
 	}
 
 	// Start a span for this request.
@@ -1366,22 +1441,8 @@ func (s *Server) handleStartUserTrialRequest(args [1]string, argsEscaped bool, w
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: StartUserTrialOperation,
-			ID:   "startUserTrial",
-		}
+		err error
 	)
-	params, err := decodeStartUserTrialParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 
@@ -1394,18 +1455,13 @@ func (s *Server) handleStartUserTrialRequest(args [1]string, argsEscaped bool, w
 			OperationID:      "startUserTrial",
 			Body:             nil,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = StartUserTrialParams
+			Params   = struct{}
 			Response = StartUserTrialRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -1415,14 +1471,14 @@ func (s *Server) handleStartUserTrialRequest(args [1]string, argsEscaped bool, w
 		](
 			m,
 			mreq,
-			unpackStartUserTrialParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.StartUserTrial(ctx, params)
+				response, err = s.h.StartUserTrial(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.StartUserTrial(ctx, params)
+		response, err = s.h.StartUserTrial(ctx)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1443,14 +1499,14 @@ func (s *Server) handleStartUserTrialRequest(args [1]string, argsEscaped bool, w
 //
 // Update user.
 //
-// PUT /user/{id}
-func (s *Server) handleUpdateUserRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user
+func (s *Server) handleUpdateUserRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUser"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}"),
+		semconv.HTTPRouteKey.String("/user"),
 	}
 
 	// Start a span for this request.
@@ -1513,16 +1569,6 @@ func (s *Server) handleUpdateUserRequest(args [1]string, argsEscaped bool, w htt
 			ID:   "updateUser",
 		}
 	)
-	params, err := decodeUpdateUserParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 	request, rawBody, close, err := s.decodeUpdateUserRequest(r)
@@ -1550,18 +1596,13 @@ func (s *Server) handleUpdateUserRequest(args [1]string, argsEscaped bool, w htt
 			OperationID:      "updateUser",
 			Body:             request,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = *UpdateUserReq
-			Params   = UpdateUserParams
+			Params   = struct{}
 			Response = UpdateUserRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -1571,14 +1612,14 @@ func (s *Server) handleUpdateUserRequest(args [1]string, argsEscaped bool, w htt
 		](
 			m,
 			mreq,
-			unpackUpdateUserParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateUser(ctx, request, params)
+				response, err = s.h.UpdateUser(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateUser(ctx, request, params)
+		response, err = s.h.UpdateUser(ctx, request)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1599,14 +1640,14 @@ func (s *Server) handleUpdateUserRequest(args [1]string, argsEscaped bool, w htt
 //
 // Update user body metrics.
 //
-// PUT /user/{id}/stats/body
-func (s *Server) handleUpdateUserBodyMetricsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user/stats/body
+func (s *Server) handleUpdateUserBodyMetricsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUserBodyMetrics"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}/stats/body"),
+		semconv.HTTPRouteKey.String("/user/stats/body"),
 	}
 
 	// Start a span for this request.
@@ -1669,16 +1710,6 @@ func (s *Server) handleUpdateUserBodyMetricsRequest(args [1]string, argsEscaped 
 			ID:   "updateUserBodyMetrics",
 		}
 	)
-	params, err := decodeUpdateUserBodyMetricsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 	request, rawBody, close, err := s.decodeUpdateUserBodyMetricsRequest(r)
@@ -1706,18 +1737,13 @@ func (s *Server) handleUpdateUserBodyMetricsRequest(args [1]string, argsEscaped 
 			OperationID:      "updateUserBodyMetrics",
 			Body:             request,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = *UpdateUserBodyMetricsReq
-			Params   = UpdateUserBodyMetricsParams
+			Params   = struct{}
 			Response = UpdateUserBodyMetricsRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -1727,14 +1753,14 @@ func (s *Server) handleUpdateUserBodyMetricsRequest(args [1]string, argsEscaped 
 		](
 			m,
 			mreq,
-			unpackUpdateUserBodyMetricsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateUserBodyMetrics(ctx, request, params)
+				response, err = s.h.UpdateUserBodyMetrics(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateUserBodyMetrics(ctx, request, params)
+		response, err = s.h.UpdateUserBodyMetrics(ctx, request)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1755,14 +1781,14 @@ func (s *Server) handleUpdateUserBodyMetricsRequest(args [1]string, argsEscaped 
 //
 // Update user record payment.
 //
-// PUT /user/{id}/subscription/payment
-func (s *Server) handleUpdateUserRecordPaymentRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user/subscription/payment
+func (s *Server) handleUpdateUserRecordPaymentRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUserRecordPayment"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}/subscription/payment"),
+		semconv.HTTPRouteKey.String("/user/subscription/payment"),
 	}
 
 	// Start a span for this request.
@@ -1837,21 +1863,6 @@ func (s *Server) handleUpdateUserRecordPaymentRequest(args [1]string, argsEscape
 	}
 
 	var rawBody []byte
-	request, rawBody, close, err := s.decodeUpdateUserRecordPaymentRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
 
 	var response UpdateUserRecordPaymentRes
 	if m := s.cfg.Middleware; m != nil {
@@ -1860,7 +1871,7 @@ func (s *Server) handleUpdateUserRecordPaymentRequest(args [1]string, argsEscape
 			OperationName:    UpdateUserRecordPaymentOperation,
 			OperationSummary: "Update user record payment",
 			OperationID:      "updateUserRecordPayment",
-			Body:             request,
+			Body:             nil,
 			RawBody:          rawBody,
 			Params: middleware.Parameters{
 				{
@@ -1872,7 +1883,7 @@ func (s *Server) handleUpdateUserRecordPaymentRequest(args [1]string, argsEscape
 		}
 
 		type (
-			Request  = *UpdateUserRecordPaymentReq
+			Request  = struct{}
 			Params   = UpdateUserRecordPaymentParams
 			Response = UpdateUserRecordPaymentRes
 		)
@@ -1885,12 +1896,12 @@ func (s *Server) handleUpdateUserRecordPaymentRequest(args [1]string, argsEscape
 			mreq,
 			unpackUpdateUserRecordPaymentParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateUserRecordPayment(ctx, request, params)
+				response, err = s.h.UpdateUserRecordPayment(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateUserRecordPayment(ctx, request, params)
+		response, err = s.h.UpdateUserRecordPayment(ctx, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1911,14 +1922,14 @@ func (s *Server) handleUpdateUserRecordPaymentRequest(args [1]string, argsEscape
 //
 // Update user settings.
 //
-// PUT /user/{id}/settings
-func (s *Server) handleUpdateUserSettingsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user/settings
+func (s *Server) handleUpdateUserSettingsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateUserSettings"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}/settings"),
+		semconv.HTTPRouteKey.String("/user/settings"),
 	}
 
 	// Start a span for this request.
@@ -1981,16 +1992,6 @@ func (s *Server) handleUpdateUserSettingsRequest(args [1]string, argsEscaped boo
 			ID:   "updateUserSettings",
 		}
 	)
-	params, err := decodeUpdateUserSettingsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 	request, rawBody, close, err := s.decodeUpdateUserSettingsRequest(r)
@@ -2018,18 +2019,13 @@ func (s *Server) handleUpdateUserSettingsRequest(args [1]string, argsEscaped boo
 			OperationID:      "updateUserSettings",
 			Body:             request,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = *UpdateUserSettingsReq
-			Params   = UpdateUserSettingsParams
+			Params   = struct{}
 			Response = UpdateUserSettingsRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -2039,14 +2035,14 @@ func (s *Server) handleUpdateUserSettingsRequest(args [1]string, argsEscaped boo
 		](
 			m,
 			mreq,
-			unpackUpdateUserSettingsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateUserSettings(ctx, request, params)
+				response, err = s.h.UpdateUserSettings(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateUserSettings(ctx, request, params)
+		response, err = s.h.UpdateUserSettings(ctx, request)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -2067,14 +2063,14 @@ func (s *Server) handleUpdateUserSettingsRequest(args [1]string, argsEscaped boo
 //
 // Upgrade user plan.
 //
-// PUT /user/{id}/subscription/plan
-func (s *Server) handleUpgradeUserPlanRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// PUT /user/subscription/plan
+func (s *Server) handleUpgradeUserPlanRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("upgradeUserPlan"),
 		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/user/{id}/subscription/plan"),
+		semconv.HTTPRouteKey.String("/user/subscription/plan"),
 	}
 
 	// Start a span for this request.
@@ -2137,16 +2133,6 @@ func (s *Server) handleUpgradeUserPlanRequest(args [1]string, argsEscaped bool, 
 			ID:   "upgradeUserPlan",
 		}
 	)
-	params, err := decodeUpgradeUserPlanParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var rawBody []byte
 	request, rawBody, close, err := s.decodeUpgradeUserPlanRequest(r)
@@ -2174,18 +2160,13 @@ func (s *Server) handleUpgradeUserPlanRequest(args [1]string, argsEscaped bool, 
 			OperationID:      "upgradeUserPlan",
 			Body:             request,
 			RawBody:          rawBody,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
 			Request  = *UpgradeUserPlanReq
-			Params   = UpgradeUserPlanParams
+			Params   = struct{}
 			Response = UpgradeUserPlanRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -2195,14 +2176,14 @@ func (s *Server) handleUpgradeUserPlanRequest(args [1]string, argsEscaped bool, 
 		](
 			m,
 			mreq,
-			unpackUpgradeUserPlanParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpgradeUserPlan(ctx, request, params)
+				response, err = s.h.UpgradeUserPlan(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpgradeUserPlan(ctx, request, params)
+		response, err = s.h.UpgradeUserPlan(ctx, request)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
